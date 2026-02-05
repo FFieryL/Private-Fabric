@@ -1,0 +1,8 @@
+{
+    "name": "§5PrivateASF-Fabric",
+    "creator": "Fiery",
+    "description": "idk",
+    "entry": "index.js",
+    "version": "1.0.1",
+    "requires": ["Vigilance", "PogData", "requestV2", "WebSocket", "barrl"]
+}
