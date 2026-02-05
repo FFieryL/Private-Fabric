@@ -59,24 +59,6 @@ data.save()
 export const OverlayEditor = new Gui()
 export function activategui() {
     setTimeout(() => {
-        const newWidth = Renderer.screen.getWidth();
-        const newHeight = Renderer.screen.getHeight();
-
-        if (newWidth !== lastWidth || newHeight !== lastHeight) {
-            const widthRatio = newWidth / lastWidth;
-            const heightRatio = newHeight / lastHeight;
-
-            for (let key in overlayDefs) {
-                if (data[key]) {
-                    data[key].x *= widthRatio;
-                    data[key].y *= heightRatio;
-                }
-            }
-            data.save();
-
-            lastWidth = newWidth;
-            lastHeight = newHeight;
-        }
         overlay.register()
         guistuff1.register()
         guistuff2.register()
@@ -103,10 +85,10 @@ const overlay = register("renderOverlay", (cfx) => {
             const s = data[activeOverlay].scale;
             const labelText = `&7[${data[activeOverlay].color}${activeOverlay}&7]`;
             const cleanLabel = ChatLib.removeFormatting(labelText);
-
+            
             // Get width minus shadow bias
             const labelWidth = Renderer.getStringWidth(cleanLabel) - 1;
-
+            
             let labelX = data[activeOverlay].x;
             // Apply manual centering if the overlay itself is centered
             if (overlayDefs[activeOverlay].align === "center") {
@@ -208,9 +190,9 @@ const guistuff3 = register("scrolled", (x, y, dir) => {
             break;
         }
     }
-
+    
     if (activeOverlay) {
-        let newScale = data[activeOverlay].scale + (dir === 1 ? 0.05 : -0.05);
+        let newScale = data[activeOverlay].scale + (dir === 1 ? 0.05 : -0.05);        
         data[activeOverlay].scale = Math.max(0.1, newScale); // Allow scaling smaller if needed
         data.save();
     }
@@ -275,21 +257,18 @@ function isMouseOver(mx, my, text, info, overlayName) {
     const y = info.y;
 
     // Check against the full width (w)
-    return mx >= x - 2 && mx <= x + w + 2 &&
-        my >= y - 2 && my <= y + h + 2;
+    return mx >= x - 2 && mx <= x + w + 2 && 
+           my >= y - 2 && my <= y + h + 2;
 }
 
 function drawBoxAround(text, info, center = true) {
     const s = info.scale || 1;
     const w = getActualWidth(text, s);
     const h = 9 * s;
-
+    
     // Calculate the start X exactly like isMouseOver
     const x = center ? info.x - (w / 2) : info.x;
     const y = info.y;
 
     Renderer.drawRect(Renderer.LIGHT_PURPLE, x - 2, y - 2, w + 4, h + 4);
 }
-
-let lastWidth = Renderer.screen.getWidth();
-let lastHeight = Renderer.screen.getHeight();
