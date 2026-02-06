@@ -2,7 +2,7 @@ import c from "../config";
 import { data, drawText, OverlayEditor, registerOverlay } from "../managers/guimanager";
 import dungeonUtils from "../util/dungeonUtils";
 import { chat, getScoreboard, playSound, removeUnicode } from "../util/utils";
-registerOverlay("DupeClass", { text: () => "DUPE ARCHER DETECTED", align: "center", colors: true})
+registerOverlay("DupeClass", { text: () => "DUPE ARCHER DETECTED", align: "center", colors: true, setting: () => c.dupeClass})
 
 let displayText = "DUPE CLASS DETECTED"
 

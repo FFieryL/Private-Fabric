@@ -1,7 +1,7 @@
 import c from "../config"
 import { data, drawText, OverlayEditor, registerOverlay } from "../managers/guimanager";
 import dungeonUtils from "../util/dungeonUtils";
-registerOverlay("LeapNoti", { text: () => "0/4 Leaped", align: "center"})
+registerOverlay("LeapNoti", { text: () => "0/4 Leaped", align: "center", colors: true, setting: () => c.leapNoti})
 
 let playersLeapt = [];
 const sectionRegions = [
@@ -44,7 +44,7 @@ function getSection(player) {
     return 0;
 }
 function leapListener(section) {
-    for (let p of dungeonUtils.getParty()) {
+    for (let p of dungeonUtils.party) {
         if (p == Player.getName()) continue;
         let player = World.getPlayerByName(p);
         if (!player) continue;

@@ -3,7 +3,7 @@ import { data, drawText, OverlayEditor, registerOverlay } from "../managers/guim
 import { CommonPingS2CPacket } from "../util/utils"
 let timeElapsed = 0
 let timerDuration = 0
-registerOverlay("QuizTimer", { text: () => "Quiz: &c11.00", align: "center" })
+registerOverlay("QuizTimer", { text: () => "Quiz: &c11.00", align: "center", colors: true, setting: () => c.QuizTimer })
 
 const tickListener = register('packetReceived', (packet, event) => {
     if (!(packet instanceof CommonPingS2CPacket)) return;

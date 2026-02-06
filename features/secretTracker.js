@@ -95,7 +95,7 @@ const stepTrig = register("step", () => {
 
 const chatTrig1 = register("chat", () => {
     if(!c.SecretTracker) return;
-    const members = [...dungeonUtils.getParty()]
+    const members = [...dungeonUtils.party]
     hasStarted = true
     if (members.length === 0) {
         ownSecrets = null;
@@ -121,7 +121,7 @@ const chatTrig2 = register("chat", () => {
     if(!c.SecretTracker) return;
     if (!hasStarted) return
 
-    const members = [...dungeonUtils.getParty()]
+    const members = [...dungeonUtils.party]
     if (members.length === 0) {
         members.push(Player.getName())
     }

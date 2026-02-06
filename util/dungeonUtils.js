@@ -1,46 +1,183 @@
-const odinUtils = Java.type("com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils").INSTANCE
-const odinBlessing = Java.type("com.odtheking.odin.utils.skyblock.dungeon.Blessing")
+import { SkyBlockUtils } from "./skyblockUtils"
+import { onScoreboardLine, onTabLineUpdated } from "./Events"
+import { decodeNumeral, getTablist, removeUnicode, getMatchFromLines } from "./utils"
+
 global.goldorTicks = 0;
 global.stormTicks = 0;
 global.goldorTotal = 0;
 global.goldorColor = "&a"
 
-class dungeonUtils {
+export default new class dungeonUtils {
     constructor() {
-        this.currentStage = 0
-        this.currentPhase = 0;
+        this.reset()
+
+        this.dungeonChangeFuncs = []
+
+        const initialChecker = register("tick", () => {
+            this.checkStuff()
+            initialChecker.unregister()
+        })
+
+        register("tick", (ticks) => {
+            if (ticks % 10) return
+            if (!SkyBlockUtils.inSkyBlock() && !this.inDungeon) return this.reset()
+
+            const tabList = getTablist(false)
+            if (tabList && tabList.length > 60) this.doPartyStuff(tabList)
+        })
+
+        // register("step", () => {
+        //     this.dumpState()
+        // }).setDelay(1)
+
+        // ===== SCOREBOARD DETECTION =====
+        onScoreboardLine((lineNumber, text) => {
+            const cataMatch = text.match(/^ §7⏣ §cThe Catac§combs §7\((\w+)\)$/)
+            if (cataMatch) {
+                this._setInDungeon(true)
+
+                this.floor = cataMatch[1]
+                this.setFloorStuff()
+            }
+        })
+
+        // ===== TABLIST DETECTION =====
+        onTabLineUpdated((text) => {
+            if (text === "Dungeon: Catacombs") this._setInDungeon(true)
+        })
+
+        // ===== BOSS PHASE TRACKER (CHAT) =====
+        register("chat", (name) => {
+            name = name.removeFormatting()
+
+            const phases = {
+                "Maxor": 1,
+                "Storm": 2,
+                "Goldor": 3,
+                "Necron": 4,
+                "Wither King": 5
+            }
+
+            if (phases[name]) {
+                this.currentPhase = phases[name]
+                this.inBoss = true
+            }
+        }).setCriteria("[BOSS] ${name}: ${*}")
+
+        register("chat", (msg) => {
+            if (msg === "[BOSS] Storm: I should have known that I stood no chance.") this.currentStage = 1
+            if ((msg.includes("(7/7)") || msg.includes("(8/8)")) && !msg.includes(":") && this.currentPhase === 3) this.currentStage += 1
+        }).setCriteria("${msg}")
+
+        register("worldUnload", () => this.reset())
+    }
+
+    // ================= RESET =================
+
+    reset() {
+        this.inDungeon = false
         this.inBoss = false
-        
-        register("chat", message => {
-            if (message === "[BOSS] Storm: I should have known that I stood no chance.") this.currentStage = 1;
-            if ((message.includes("(7/7)") || message.includes("(8/8)")) && !message.includes(":") && this.currentPhase == 3) this.currentStage += 1;
-        }).setCriteria("${message}");
+        this.floor = null
+        this.floorNumber = null
+        this.dungeonType = null
 
-        register("chat", (name, event) => {
-            name = name.removeFormatting();
-            if (name === "Maxor") this.currentPhase = 1;
-            if (name === "Storm") this.currentPhase = 2;
-            if (name === "Goldor") this.currentPhase = 3;
-            if (name === "Necron") this.currentPhase = 4;
-            if (name === "Wither King") this.currentPhase = 5;
-            if (this.currentPhase > 0) this.inBoss = true
-        }).setCriteria("[BOSS] ${name}: ${*}");
+        this.currentPhase = 0
+        this.currentStage = 0
 
+        this.party = new Set()
+        this.classes = {}
+        this.playerClasses = {}
+    }
 
-        register("worldLoad", () => {
-            this.currentPhase = 0; 
-            this.currentStage = 0; 
-            this.inBoss = false;
-        });
+    // ================= STATE =================
 
-
+    _setInDungeon(state) {
+        if (state !== this.inDungeon) this.dungeonChangeFuncs.forEach(f => f(state))
+        this.inDungeon = state
     }
 
 
-    inDungeon() {
-        return odinUtils.inDungeons
+    dumpState() {
+        const data = {
+            inDungeon: this.inDungeon,
+            floor: this.floor,
+            floorNumber: this.floorNumber,
+            dungeonType: this.dungeonType,
+            party: [...this.party],
+            classes: this.classes,
+            playerClasses: this.playerClasses,
+            stage: this.currentStage,
+            phase: this.currentPhase,
+            inBoss: this.inBoss
+        }
+
+        ChatLib.chat("&8----- &bDungeon State Dump &8-----")
+        Object.entries(data).forEach(([key, value]) => {
+            ChatLib.chat(`&7${key}: &a${JSON.stringify(value)}`)
+        })
+        ChatLib.chat("&8-------------------------------")
     }
-    
+
+
+    onDungeonChange(func) {
+        this.dungeonChangeFuncs.push(func)
+    }
+
+    setFloorStuff() {
+        this.floorNumber = 0
+        if (this.floor !== "E") this.floorNumber = parseInt(this.floor[this.floor.length - 1])
+
+        this.dungeonType = this.floor.startsWith("M") ? "Master Mode" : "The Catacombs"
+    }
+
+    // ================= CHECK ON RELOAD =================
+
+    checkStuff() {
+        const scoreboard = Scoreboard.getLines()
+            .map(a => removeUnicode(a.getName().toString().removeFormatting()))
+
+        this.floor = getMatchFromLines(/The Catacombs \((.{1,3})\)/, scoreboard) ?? this.floor
+        this._setInDungeon(!!this.floor)
+
+        if (this.floor) this.setFloorStuff()
+    }
+
+    // ================= PARTY + CLASSES =================
+
+    doPartyStuff(tabList) {
+        const lines = Array(5).fill().map((_, i) => tabList[i * 4 + 1])
+
+        const matches = lines.reduce((arr, line) => {
+            const match = line.match(/^.?\[(\d+)\] (?:\[\w+\] )*(\w+) .*?\((\w+)(?: (\w+))*\)$/)
+            if (!match) return arr
+
+            const [_, sbLevel, player, dungeonClass, classLevel] = match
+            return arr.concat([[player, dungeonClass, classLevel]])
+        }, [])
+
+        this.party.clear()
+
+        matches.forEach(([player, dungeonClass, classLevel]) => {
+            if (!["DEAD", "EMPTY"].includes(dungeonClass)) this.classes[player] = dungeonClass
+            this.party.add(player)
+
+            if (!classLevel) return
+
+            this.playerClasses[player] = {
+                class: dungeonClass,
+                level: decodeNumeral(classLevel),
+                numeral: classLevel
+            }
+        })
+    }
+
+    // ================= HELPERS =================
+
+    getStage = () => this.currentStage;
+    inStage = (stage) => Array.isArray(stage) ? stage.includes(this.currentStage) : this.currentStage === stage;
+    getPhase = () => this.currentPhase;
+    inPhase = (phase) => Array.isArray(phase) ? phase.includes(this.currentPhase) : this.currentPhase === phase;
+
     getClassColor(playerClass) {
         const colors = {
             Healer: "&d",
@@ -64,23 +201,6 @@ class dungeonUtils {
     }
 
     getPlayerClass(playerName) {
-        const teammates = odinUtils.getDungeonTeammates().toArray();
-        
-        const player = teammates.find(p => p.getName() === playerName);
-        
-        return player ? player.getClazz().toString() : "Unknown";
+        return this.classes[playerName]
     }
-
-    getParty() {
-        return odinUtils.getDungeonTeammates().toArray().map(player => player.getName());
-    }
-
-
-    getStage = () => this.currentStage;
-    inStage = (stage) => Array.isArray(stage) ? stage.includes(this.currentStage) : this.currentStage === stage;
-    getPhase = () => this.currentPhase;
-    inPhase = (phase) => Array.isArray(phase) ? phase.includes(this.currentPhase) : this.currentPhase === phase;
-
 }
-
-export default new dungeonUtils();

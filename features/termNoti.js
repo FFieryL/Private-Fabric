@@ -8,7 +8,7 @@ let thingytotal = null
 let InP3 = false
 let completedat = 0
 let playername = null
-registerOverlay("TermNoti", { text: () => stuff(), align: "center", colors: true })
+registerOverlay("TermNoti", { text: () => stuff(), align: "center", colors: true, setting: () => c.TermNoti })
 
 function stuff() {
     if(c.detailedMode) {
@@ -173,17 +173,17 @@ const blockedPhrases = [
     "core entrance is opening!"
 ];
 
-function getTextFromPacket(packet) {
-    const packetString = packet.toString();
-    const match = packetString.match(/text='([^']+)'/) || packetString.match(/literal\{([^}]+)\}/);
-    return match ? match[1] : null;
-}
+// function getTextFromPacket(packet) {
+//     const packetString = packet.toString();
+//     const match = packetString.match(/text='([^']+)'/) || packetString.match(/literal\{([^}]+)\}/);
+//     return match ? match[1] : null;
+// }
 
 const cancelTitlesTrig = register("packetReceived", (packet, event) => {
-    const text = getTextFromPacket(packet).removeFormatting();
-    if(!InP3) return;
+    const text = packet?.text().toString().removeFormatting().toLowerCase();
+    //if(!InP3) return;
     if (!text) return;
-    if (blockedPhrases.some(phrase => text.includes(phrase.toLowerCase()))) cancel(event);
+    if (blockedPhrases.some(phrase => text.includes(phrase.toLowerCase()))) cancel(event)
 }).setFilteredClasses([TitleS2CPacket, SubtitleS2CPacket]).unregister()
 
 if (c.CancelTitles) {

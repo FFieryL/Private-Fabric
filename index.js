@@ -1,18 +1,21 @@
 import c from "./config"
-import { activategui, OverlayEditor } from "./managers/guimanager";
+import { activategui } from "./managers/guimanager";
 import "./managers/updateManager"
+import { chat } from "./util/utils";
 
 const File = Java.type("java.io.File")
 const modulesDir = new File("./config/ChatTriggers/modules")
 let folder = null
 
-const IGNORED_FEATURES = ["armorEQGUI", "bonzoDP", "starMobs"];
+const IGNORED_FEATURES = ["bonzoDP", "starMobs"];
 
 Client.scheduleTask(1, () => {
     if (!modulesDir.exists()) return;
 
     const files = modulesDir.listFiles();
     if (!files) return;
+
+    let loadedCount = 0;
 
     for (let i = 0; i < files.length; i++) {
         const f = files[i];
@@ -41,28 +44,38 @@ Client.scheduleTask(1, () => {
                         }
 
                         try {
-
                             const cleanName = fileName.replace(".js", "");
                             const modulePath = `./features/${cleanName}`;
-                            
+
                             const M = require(modulePath).default;
-                            
-                            ChatLib.chat("&aLoaded &7" + fileName);
+
+                            //chat("loaded " + fileName)
 
                             if (typeof M === "function") {
                                 new M();
                             }
+
+                            loadedCount++; // ✅ count loaded modules
                         } catch (e) {
-                            ChatLib.chat(`&cError loading module ${fileName} &7(${e})`);
+                            // This gives you the full error path and line numbers in the console
+                            console.error(`Error in ${fileName}:`);
+                            console.error(e.stack);
+
+                            // This shows a shortened version in Minecraft chat
+                            ChatLib.chat(`&cError loading &f${fileName}`);
+                            ChatLib.chat(`&7Line: &e${e.lineNumber || "check console"}`);
+                            ChatLib.chat(`&7Reason: &c${e.message}`);
                         }
                     }
                 });
+
                 break;
             }
-        } catch (e) {
-            // Silently fail for metadata reading
-        }
+        } catch (e) { }
     }
+
+    // ✅ runs AFTER everything finishes
+    chat(`&aModule Loaded!`);
 });
 
 
@@ -86,7 +99,6 @@ register("command", (...args) => {
 
 register("command", () => {
     setTimeout(() => {
-        OverlayEditor.open()
         activategui()
     }, 25);
 }).setName("pagui")

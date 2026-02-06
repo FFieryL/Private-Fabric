@@ -1,6 +1,6 @@
 import PogObject from "../../PogData"
 import { chat } from "../util/utils"
-export const data = new PogObject("PrivateASF-Fabric", {}, "data/guidata.json")
+export const data = new PogObject("PrivateASF-Fabric", { globalShadow: true }, "data/guidata.json")
 
 const overlayDefs = {}
 let resettime = 0
@@ -12,6 +12,7 @@ let resettime = 0
 export function registerOverlay(name, def) {
     overlayDefs[name] = {
         ...def,
+        setting: def.setting || (() => true),
         colors: def.colors !== false,
         w: def.w || null,
         h: def.h || null
@@ -58,25 +59,9 @@ data.save()
 
 export const OverlayEditor = new Gui()
 export function activategui() {
+    OverlayEditor.open()
     setTimeout(() => {
-        const newWidth = Renderer.screen.getWidth();
-        const newHeight = Renderer.screen.getHeight();
-
-        if (newWidth !== lastWidth || newHeight !== lastHeight) {
-            const widthRatio = newWidth / lastWidth;
-            const heightRatio = newHeight / lastHeight;
-
-            for (let key in overlayDefs) {
-                if (data[key]) {
-                    data[key].x *= widthRatio;
-                    data[key].y *= heightRatio;
-                }
-            }
-            data.save();
-
-            lastWidth = newWidth;
-            lastHeight = newHeight;
-        }
+        updateGUIScale()
         overlay.register()
         guistuff1.register()
         guistuff2.register()
@@ -93,12 +78,13 @@ let activeOverlay = null
 const overlay = register("renderOverlay", (cfx) => {
     if (OverlayEditor.isOpen()) {
         for (let key in overlayDefs) {
+            if (!overlayDefs[key].setting()) continue;
             drawText(cfx, overlayDefs[key].text(), data[key], overlayDefs[key].align === "center", key);
         }
 
         if (activeOverlay) {
-            // drawBoxAround(overlayDefs[activeOverlay].text(), data[activeOverlay],
-            //     overlayDefs[activeOverlay].align === "center");
+            drawBoxAround(cfx, overlayDefs[activeOverlay].text(), data[activeOverlay],
+                overlayDefs[activeOverlay].align === "center");
 
             const s = data[activeOverlay].scale;
             const labelText = `&7[${data[activeOverlay].color}${activeOverlay}&7]`;
@@ -117,7 +103,7 @@ const overlay = register("renderOverlay", (cfx) => {
             new Text(labelText, labelX / s, (data[activeOverlay].y - (9 * s)) / s)
                 .setScale(s)
                 .setAlign("left")
-                .setShadow(true)
+                .setShadow(data.globalShadow)
                 .draw(cfx);
         }
     } else {
@@ -142,6 +128,7 @@ const guistuff1 = register("guiMouseClick", (mouseX, mouseY, button) => {
     if (button === 0) { // Left click
         activeOverlay = null;
         for (let key in overlayDefs) {
+            if (!overlayDefs[key].setting()) continue;
             if (isMouseOver(mouseX, mouseY, overlayDefs[key].text(), data[key], key)) {
                 activeOverlay = key;
                 isDragging = true;
@@ -174,9 +161,9 @@ const guistuff1 = register("guiMouseClick", (mouseX, mouseY, button) => {
 }).unregister();
 
 // Mouse move handler for dragging
-const guistuff2 = register("guiMouseDrag", (mouseX, mouseY) => {
+const guistuff2 = register("guiMouseDrag", (mouseX, mouseY, btn) => {
     if (!OverlayEditor.isOpen()) return;
-    if (activeOverlay && isDragging) {
+    if (activeOverlay && isDragging && btn != 1) {
         data[activeOverlay].x = mouseX - dragOffset.x;
         data[activeOverlay].y = mouseY - dragOffset.y;
     }
@@ -200,19 +187,19 @@ const guistuff3 = register("scrolled", (x, y, dir) => {
     const mouseX = x / scaleFactor;
     const mouseY = y / scaleFactor;
 
-    activeOverlay = null;
-    for (let key in overlayDefs) {
-        // Use the calculated mouseX and mouseY
-        if (isMouseOver(mouseX, mouseY, overlayDefs[key].text(), data[key], key)) {
-            activeOverlay = key;
-            break;
-        }
-    }
-
     if (activeOverlay) {
         let newScale = data[activeOverlay].scale + (dir === 1 ? 0.05 : -0.05);
         data[activeOverlay].scale = Math.max(0.1, newScale); // Allow scaling smaller if needed
         data.save();
+    }
+    else {
+        for (let key in overlayDefs) {
+            // Use the calculated mouseX and mouseY
+            if (isMouseOver(mouseX, mouseY, overlayDefs[key].text(), data[key], key)) {
+                activeOverlay = key;
+                break;
+            }
+        }
     }
 }).unregister();
 
@@ -230,6 +217,29 @@ const guistuff4 = register("guiKey", (char, keyCode, gui, event) => {
         data.save();
     }
 }).unregister();
+
+register("gameUnload", () => { updateGUIScale() })
+
+function updateGUIScale() {
+    const newWidth = Renderer.screen.getWidth();
+    const newHeight = Renderer.screen.getHeight();
+
+    if (newWidth !== lastWidth || newHeight !== lastHeight) {
+        const widthRatio = newWidth / lastWidth;
+        const heightRatio = newHeight / lastHeight;
+
+        for (let key in overlayDefs) {
+            if (data[key]) {
+                data[key].x *= widthRatio;
+                data[key].y *= heightRatio;
+            }
+        }
+        data.save();
+
+        lastWidth = newWidth;
+        lastHeight = newHeight;
+    }
+}
 
 
 export function drawText(cfx, text, info, center = true, overlayName = null) {
@@ -250,7 +260,7 @@ export function drawText(cfx, text, info, center = true, overlayName = null) {
     }
 
     new Text(prefix + text, drawX / s, drawY / s)
-        .setShadow(true)
+        .setShadow(data.globalShadow)
         .setScale(s)
         .setAlign("left") // Always left, even when "centered"
         .draw(cfx);
@@ -279,16 +289,18 @@ function isMouseOver(mx, my, text, info, overlayName) {
         my >= y - 2 && my <= y + h + 2;
 }
 
-function drawBoxAround(text, info, center = true) {
-    const s = info.scale || 1;
-    const w = getActualWidth(text, s);
-    const h = 9 * s;
+function drawBoxAround(ctx, text, info, center = true) {
+    const s = info.scale || 1
+    const w = getActualWidth(text, s)
+    const h = 9 * s
 
-    // Calculate the start X exactly like isMouseOver
-    const x = center ? info.x - (w / 2) : info.x;
-    const y = info.y;
+    const x = center ? info.x - (w / 2) : info.x
+    const y = info.y
 
-    Renderer.drawRect(Renderer.LIGHT_PURPLE, x - 2, y - 2, w + 4, h + 4);
+    // LIGHT_PURPLE equivalent (ARGB)
+    const color = 0x60FF00FF | 0
+
+    ctx.fill(x - 2, y - 2, x + w + 2, y + h + 2, color)
 }
 
 let lastWidth = Renderer.screen.getWidth();

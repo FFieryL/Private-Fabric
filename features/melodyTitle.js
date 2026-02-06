@@ -8,7 +8,7 @@ let currentProgress = "";
 let bestProgress = 0;
 let prevStage = 0;
 const playersInMelody = [];
-registerOverlay("MelodyTitle", { text: () => "&cFiery (Berserk) &dhas Melody! 1/4", align: "center", colors: false})
+registerOverlay("MelodyTitle", { text: () => "&cFiery (Berserk) &dhas Melody! 1/4", align: "center", colors: false, setting: () => c.MelodyTitle})
 
 const stepTrig = register("step", () => {
     const currentStage = dungeonUtils.getStage();

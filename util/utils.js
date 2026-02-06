@@ -13,6 +13,8 @@ export const bossnames = ["Maxor", "Storm", "Goldor", "Necron", "Wither King"]
 export const EntityWither = Java.type("net.minecraft.entity.boss.WitherEntity")
 export const DisconnectedScreen = Java.type("net.minecraft.client.gui.screen.DisconnectedScreen"); // GuiDisconnected
 export const ConnectScreen = Java.type("net.minecraft.client.gui.screen.ConnectScreen"); // GuiConnecting
+export const Vec3 = Java.type("net.minecraft.util.math.Vec3d")
+export const Box = Java.type("net.minecraft.util.math.Box");
 
 
 export function isPlayerInBox(x1, x2, y1, y2, z1, z2) {
@@ -26,7 +28,7 @@ export function isPlayerInBox(x1, x2, y1, y2, z1, z2) {
 };
 
 export function chat(msg) {
-    ChatLib.chat(`&l&0PrivateASF&7 >> &r${msg}`)
+    Client.scheduleTask(0, () => ChatLib.chat(`&l&0PrivateASF&7 >> &r${msg}`))
 }
 
 export function getColorCodes(colorName) {
@@ -101,13 +103,23 @@ export const getTablist = (formatted = true) => {
     });
 }
 
+export const getMatchFromLines = (regex, list, type) => {
+    for (let i = 0; i < list.length; i++) {
+        let match = list[i].match(regex)
+        if (!match) continue
+        return type == "int" ? parseInt(match[1]) : type == "float" ? parseFloat(match[1]) : match[1]
+    }
+    return null
+}
+
+export const removeUnicode = (string) => typeof(string) !== "string" ? "" : string.replace(/[^\u0000-\u007F]/g, "")
+
 export const getScoreboard = (formatted = false) => {
     if (!World.getWorld()) return null
     let sb = Scoreboard.getLines().map(a => a.getName())
     if (formatted) return Scoreboard.getLines()
     return sb.map(a => ChatLib.removeFormatting(a))
 }
-export const removeUnicode = (string) => typeof (string) !== "string" ? "" : string.replace(/[^\u0000-\u007F]/g, "")
 
 export function rightClick(shouldSwing = false) {
     const mc = Client.getMinecraft()
@@ -117,4 +129,38 @@ export function rightClick(shouldSwing = false) {
     else mc.interactionManager.interactItem(mc.player, Hand.field_5808)
 
     if (shouldSwing) mc.player.swingHand(Hand.field_5808)
+}
+
+const numeralValues = {
+    "I": 1,
+    "V": 5,
+    "X": 10,
+    "L": 50,
+    "C": 100,
+    "D": 500,
+    "M": 1000
+}
+
+/**
+ * Decodes a roman numeral into it's respective number. Eg VII -> 7, LII -> 52 etc.
+ * Returns null if the numeral is invalid.
+ * Supported symbols: I, V, X, L, C, D, M
+ * @param {String} numeral 
+ * @returns {Number | null}
+ */
+export const decodeNumeral = (numeral) => {
+    if (!numeral.match(/^[IVXLCDM]+$/)) return null
+    let sum = 0
+    for (let i = 0; i < numeral.length; i++) {
+        let curr = numeralValues[numeral[i]]
+        let next = i < numeral.length-1 ? numeralValues[numeral[i+1]] : 0
+
+        if (curr < next) {
+            sum += next - curr
+            i++
+            continue
+        }
+        sum += curr
+    }
+    return sum
 }

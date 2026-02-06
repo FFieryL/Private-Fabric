@@ -1,11 +1,11 @@
 import c from "../config"
 import { data, drawText, registerOverlay } from "../managers/guimanager"
 import { chat, WorldTimeUpdateS2CPacket, PlayerPositionLookS2CPacket, CommonPingS2CPacket} from "../util/utils"
-registerOverlay("StormTimer", { text: () => "0.00", align: "center"})
-registerOverlay("P3Timer", { text: () => "0.00", align: "center", colors: false})
-registerOverlay("pyLBTimer", { text: () => "10.00", align: "center"})
-registerOverlay("StormDeathTime", { text: () => "36.20", align: "center"})
-registerOverlay("DeathTickTimer", { text: () => "0.00", align: "center", colors: false})
+registerOverlay("StormTimer", { text: () => "0.00", align: "center", colors: true, setting: () => c.stormTimer})
+registerOverlay("P3Timer", { text: () => "0.00", align: "center", colors: false, setting: () => c.goldorTimer})
+registerOverlay("pyLBTimer", { text: () => "10.00", align: "center", colors: true, setting: () => c.pyLBTimer})
+registerOverlay("StormDeathTime", { text: () => "36.20", align: "center", colors: true, setting: () => c.sendStormTime})
+registerOverlay("DeathTickTimer", { text: () => "0.00", align: "center", colors: false, setting: () => c.deathTickTimer})
 
 let deathTime = 0;
 let goldorStarted = false

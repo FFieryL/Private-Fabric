@@ -12,16 +12,17 @@ registerOverlay("PetRuleNoti", {
         if (!c.PetRuleNotiShort) text += " &aequipped";
         return text;
     },
-    align: "center"
+    align: "center",
+    setting: () => c.PetRuleNoti
 })
 
 const chatTrig = register("chat", (event) => {
     if(!c.PetRuleNoti) return;
     const message = event.message.getFormattedText();
 
-    const match = message.match(/§r§cAutopet §eequipped your §7\[Lvl (\d+)\] §(.)(.+?)§e! §a§lVIEW RULE/);
+    const match = message.match(/§r§cAutopet §eequipped your §7\[Lvl (\d+)\] (?:§8\[.*?§8\] )?§(.)(.+?)§e! §a§lVIEW RULE/);
     if (!match) return;
-
+    
     const colorCodes = match[2]; // e.g. "&d"
     const petName = match[3].replace(/\s*✦/g, ""); // "Black Cat"
     currentPet = petName;

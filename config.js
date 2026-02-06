@@ -489,7 +489,7 @@
 //     // If setting isn't ready, return an empty object so property 
 //     // access like config().autoSwap just returns undefined instead of crashing.
 //     if (!setting) return {}; 
-    
+
 //     return setting.settings;
 // }
 
@@ -502,7 +502,7 @@
 
 
 import { chat } from "./util/utils";
-import { activategui, OverlayEditor } from "./managers/guimanager"
+import { activategui, data } from "./managers/guimanager"
 import {
     @ButtonProperty,
     @CheckboxProperty,
@@ -534,6 +534,7 @@ class config {
         this.addDependency("ESP mode", "Wither Highlight");
         this.addDependency("Wither Box Color", "Wither Highlight");
         this.addDependency("Wither Fill Color", "Wither Highlight");
+        this.addDependency("Wither Tracer in P3", "Wither Highlight");
 
         this.addDependency("Shorten Pet Rule Noti", "Pet Rule Notifier");
         this.addDependency("Pet Rule Notifier Sound", "Pet Rule Notifier");
@@ -544,7 +545,7 @@ class config {
 
         this.addDependency("Use seconds instead of ticks", "Death Tick Timer")
 
-        
+
 
         this.addDependency("Archer LB Swapper at Pillars", "Archer Death Bow Swapper")
         this.addDependency("Item to swap to from death bow", "Archer Death Bow Swapper")
@@ -563,12 +564,22 @@ class config {
 
         this.addDependency("Enable Lever Trigger Bot for Device", "Lever Trigger Bot");
 
+        this.addDependency("Item Border Color", "Armor and EQ gui")
+        this.addDependency("GUI Background Color", "Armor and EQ gui")
+
+        this.addDependency("GUI Border Color", "Armor and EQ gui")
+
         this.registerListener("Open Gui Editor", (curr) => {
             Client.currentGui.close()
-            OverlayEditor.open()
             activategui()
         })
 
+
+        this.registerListener("Disable Text Shadow", (curr) => {
+            data.globalShadow = !data.globalShadow
+            data.save()
+            chat(`&aOverlays shadow is now: ${data.globalShadow ? "&bON" : "&cOFF"}`)
+        })
     }
 
     @SwitchProperty({
@@ -584,7 +595,7 @@ class config {
         description: "",
         category: "Highlight",
         subcategory: "Boss",
-        options: ["Box", "Filled"]
+        options: ["Box", "Box Filled"]
     })
     espWitherType = 0;
 
@@ -594,7 +605,7 @@ class config {
         category: "Highlight",
         subcategory: "Boss"
     })
-    witherESPColorBox = new Color(244/255, 0, 25/255, 96/255);
+    witherESPColorBox = new Color(244 / 255, 0, 25 / 255, 96 / 255);
 
     @ColorProperty({
         name: "Wither Fill Color",
@@ -602,7 +613,7 @@ class config {
         category: "Highlight",
         subcategory: "Boss"
     })
-    witherESPColorFill = new Color(244/255, 0, 25/255, 96/255);
+    witherESPColorFill = new Color(244 / 255, 0, 25 / 255, 96 / 255);
 
     @SwitchProperty({
         name: "ESP mode",
@@ -611,7 +622,13 @@ class config {
         subcategory: "Boss"
     })
     witherThruBlocks = false;
-
+    @SwitchProperty({
+        name: "Wither Tracer in P3",
+        description: "",
+        category: "Highlight",
+        subcategory: "Boss"
+    })
+    witherTracer = false;
 
     // --- PETS ---
     @SwitchProperty({
@@ -663,6 +680,7 @@ class config {
     customPetRuleColor = false;
 
     // --- DUNGEON SECTION (Sorted: Party -> Death Tick -> Dupe Class -> Secrets -> Quiz) ---
+
 
     // 1. Party (§a)
     @SwitchProperty({
@@ -762,6 +780,7 @@ class config {
         subcategory: "§eQuiz"
     })
     QuizTimer = false;
+
 
     // --- BOSS ---
     @SwitchProperty({
@@ -932,6 +951,49 @@ class config {
         subcategory: "Editor"
     })
     guiEditor = false
+
+    @SwitchProperty({
+        name: "Disable Text Shadow",
+        description: "Disable the text shadows for PrivateASF GUIS ONLY",
+        category: "GUI",
+        subcategory: "Editor"
+    })
+    disableTextShadow = false
+
+    @SwitchProperty({
+        name: "Armor and EQ gui",
+        description: "Toggle the Armor and Equipment HUD display. (&c not fully working atm &r)",
+        category: "GUI",
+        subcategory: "invGUI"
+    })
+    invGUI = false;
+
+    @ColorProperty({
+        name: "Item Border Color",
+        description: "Color for the individual item boxes.",
+        category: "GUI",
+        subcategory: "invGUI"
+    })
+    // Legacy: [80, 40, 100, 150]
+    itemBorder = new Color(80 / 255, 40 / 255, 100 / 255, 150 / 255);
+
+    @ColorProperty({
+        name: "GUI Background Color",
+        description: "Background color for the inventory overlay.",
+        category: "GUI",
+        subcategory: "invGUI"
+    })
+    // Legacy: [25, 10, 40, 130]
+    invBgColor = new Color(25 / 255, 10 / 255, 40 / 255, 130 / 255);
+
+    @ColorProperty({
+        name: "GUI Border Color",
+        description: "Outer border color for the inventory overlay.",
+        category: "GUI",
+        subcategory: "invGUI"
+    })
+    // Legacy: [120, 40, 180, 200]
+    invBorderColor = new Color(120 / 255, 40 / 255, 180 / 255, 200 / 255);
 }
 
 export default new config()

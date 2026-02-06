@@ -8,7 +8,7 @@ const autopetRegex = /§r§cAutopet §eequipped your §7\[Lvl (\d+)\] §(.)(.+?)
 const levelUpRegex = /§r§aYour §r§([0-9a-fk-or])([^§]+) §r§aleveled up to level §r§9(\d+)§r§a!/;
 const tabpet = /§r §r§7\[Lvl (\d+)\](?: §r§8\[.*?\])? §r§(.)(.+?)§r/
 let currentPet = null
-registerOverlay("CurrentPetGui", { text: () => "No Pet / Unknown", align: "left", colors: false})
+registerOverlay("CurrentPetGui", { text: () => "No Pet / Unknown", align: "left", colors: false, setting: () => c.CurrentPetGui})
 
 
 const overlayTrig = register("renderOverlay", (cfx) => {
