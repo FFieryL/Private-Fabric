@@ -15,12 +15,12 @@ const RAW_BASE = `https://raw.githubusercontent.com/FFieryL/Private-Fabric/main/
 
 register("command", () => {
     chat("&aInitializing Update");
-    
+
     new Thread(() => {
         try {
             const connection = new java.net.URL(API_URL).openConnection();
             connection.setRequestProperty("User-Agent", "ChatTriggers-Updater");
-            
+
             const reader = new java.io.BufferedReader(new java.io.InputStreamReader(connection.getInputStream()));
             let response = "";
             let line;
@@ -36,34 +36,38 @@ register("command", () => {
                 const metaContent = FileLib.getUrlContent(RAW_BASE + "metadata.json");
                 try {
                     version = JSON.parse(metaContent).version || "Unknown";
-                } catch (e) {}
+                } catch (e) { }
             }
 
             const files = data.tree
                 .filter(item => item.type === "blob")
                 .map(item => item.path)
                 .filter(path => !BLACKLIST.includes(path));
-            
-            let state = { modified: false }; 
+
+            let state = { modified: false };
 
             let versionMsg = (version !== "Unknown") ? `files. Updating to version: &e${version}` : "files. Updating...";
             chat(`Found ${versionMsg}`);
 
             files.forEach((path, index) => {
                 const newContent = FileLib.getUrlContent(RAW_BASE + path + CACHE_BUST);
-                
+
                 if (newContent && !newContent.startsWith("404")) {
                     const oldContent = FileLib.read(MODULE_NAME, path);
 
                     if (newContent !== oldContent) {
                         FileLib.write(MODULE_NAME, path, newContent, true);
                         state.modified = true;
+                        if (path.endsWith(".js")) {
+                            const fileName = path.split("/").pop();
+                            chat("&aUpdated: &f" + fileName);
+                        }
                     }
-                    
+
                     if (index % 3 === 0 || index === files.length - 1) {
                         Client.scheduleTask(0, () => {
                             let percent = Math.round(((index + 1) / files.length) * 100);
-                            let filled = Math.round(percent / 5); 
+                            let filled = Math.round(percent / 5);
                             let bar = "&a" + "■".repeat(filled) + "&7" + "■".repeat(20 - filled);
                             ChatLib.actionBar(`&bUpdating: [${bar}&b] &f${percent}%`);
                         });
@@ -72,8 +76,8 @@ register("command", () => {
             });
 
             Client.scheduleTask(0, () => {
-                ChatLib.actionBar(""); 
-                
+                ChatLib.actionBar("");
+
                 if (state.modified) {
                     chat("&aUpdate successful! &8Reloading...");
                     ChatLib.command("ct load", true);
