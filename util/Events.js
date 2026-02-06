@@ -19,9 +19,9 @@ export const onScoreboardLine = (method) => scoreboardLineFuncs.push(method)
 
 
 register("packetReceived", (packet) => {
-
+    if (!(packet instanceof TeamS2CPacket)) return;
     // team name like "team_0"
-    const teamName = packet?.getTeamName()
+    const teamName = packet.getTeamName()
     const match = teamName.match(/^team_(\d+)$/)
     if (!match) return
 
@@ -68,6 +68,7 @@ export const onTabLineAdded = (func) => tablistAddFuncs.push(func)
 export const onTabLineUpdated = (func) => tablistUpdateFuncs.push(func)
 
 register("packetReceived", (packet) => {
+    if (!(packet instanceof PlayerListS2CPacket)) return;
     const players = packet.getEntries()
     const actions = packet.getActions()
 

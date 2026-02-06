@@ -5,9 +5,15 @@ export const data = new PogObject("PrivateASF-Fabric", { globalShadow: true }, "
 const overlayDefs = {}
 let resettime = 0
 /**
- * Call this from any module to register a new overlay.
- * @param {string} name - Unique ID for the overlay
- * @param {{ text: () => string, align: "left" | "center" }} def - Overlay definition
+ * Registers a new overlay with the manager and initializes its data if it doesn't exist.
+ * * @param {string} name - Unique identifier for the overlay (used as the key in the JSON data).
+ * @param {Object} def - The configuration object for the overlay.
+ * @param {function(): string} def.text - Function that returns the string to be rendered.
+ * @param {"left" | "center"} def.align - Horizontal alignment relative to the anchor point.
+ * @param {function(): boolean} [def.setting] - Optional function; returns false to prevent rendering.
+ * @param {boolean} [def.colors=true] - If false, disables color cycling and forces white ("&f").
+ * @param {number} [def.w] - Optional manual width override.
+ * @param {number} [def.h] - Optional manual height override.
  */
 export function registerOverlay(name, def) {
     overlayDefs[name] = {
@@ -58,69 +64,7 @@ data.save()
 
 
 export const OverlayEditor = new Gui()
-export function activategui() {
-    OverlayEditor.open()
-    setTimeout(() => {
-        updateGUIScale()
-        overlay.register()
-        guistuff1.register()
-        guistuff2.register()
-        guistuff2V2.register()
-        guistuff3.register()
-        guistuff4.register()
-        resettime = 0
-    }, 150);
-}
 let activeOverlay = null
-
-
-
-const overlay = register("renderOverlay", (cfx) => {
-    if (OverlayEditor.isOpen()) {
-        for (let key in overlayDefs) {
-            if (!overlayDefs[key].setting()) continue;
-            drawText(cfx, overlayDefs[key].text(), data[key], overlayDefs[key].align === "center", key);
-        }
-
-        if (activeOverlay) {
-            drawBoxAround(cfx, overlayDefs[activeOverlay].text(), data[activeOverlay],
-                overlayDefs[activeOverlay].align === "center");
-
-            const s = data[activeOverlay].scale;
-            const labelText = `&7[${data[activeOverlay].color}${activeOverlay}&7]`;
-            const cleanLabel = ChatLib.removeFormatting(labelText);
-
-            // Get width minus shadow bias
-            const labelWidth = Renderer.getStringWidth(cleanLabel) - 1;
-
-            let labelX = data[activeOverlay].x;
-            // Apply manual centering if the overlay itself is centered
-            if (overlayDefs[activeOverlay].align === "center") {
-                labelX = data[activeOverlay].x - (labelWidth * s / 2);
-            }
-
-            // Draw the label shifted up by 8 scaled pixels
-            new Text(labelText, labelX / s, (data[activeOverlay].y - (9 * s)) / s)
-                .setScale(s)
-                .setAlign("left")
-                .setShadow(data.globalShadow)
-                .draw(cfx);
-        }
-    } else {
-        guistuff1.unregister()
-        guistuff2.unregister()
-        guistuff2V2.unregister()
-        guistuff3.unregister()
-        guistuff4.unregister()
-        activeOverlay = null
-        resettime = 0
-        isDragging = false
-        overlay.unregister()
-    }
-}).unregister()
-
-let dragOffset = { x: 0, y: 0 };
-let isDragging = false;
 
 const guistuff1 = register("guiMouseClick", (mouseX, mouseY, button) => {
     if (!OverlayEditor.isOpen()) return;
@@ -218,6 +162,68 @@ const guistuff4 = register("guiKey", (char, keyCode, gui, event) => {
     }
 }).unregister();
 
+const overlay = register("renderOverlay", (ctx) => {
+    if (OverlayEditor.isOpen()) {
+        for (let key in overlayDefs) {
+            if (!overlayDefs[key].setting()) continue;
+            drawText(ctx, overlayDefs[key].text(), data[key], overlayDefs[key].align === "center", key);
+        }
+
+        if (activeOverlay) {
+            drawBoxAround(ctx, overlayDefs[activeOverlay].text(), data[activeOverlay],
+                overlayDefs[activeOverlay].align === "center");
+
+            const s = data[activeOverlay].scale;
+            const labelText = `&7[${data[activeOverlay].color}${activeOverlay}&7]`;
+            const cleanLabel = ChatLib.removeFormatting(labelText);
+
+            // Get width minus shadow bias
+            const labelWidth = Renderer.getStringWidth(cleanLabel) - 1;
+
+            let labelX = data[activeOverlay].x;
+            // Apply manual centering if the overlay itself is centered
+            if (overlayDefs[activeOverlay].align === "center") {
+                labelX = data[activeOverlay].x - (labelWidth * s / 2);
+            }
+
+            // Draw the label shifted up by 8 scaled pixels
+            new Text(labelText, labelX / s, (data[activeOverlay].y - (9 * s)) / s)
+                .setScale(s)
+                .setAlign("left")
+                .setShadow(data.globalShadow)
+                .draw(ctx);
+        }
+    } else {
+        guistuff1.unregister()
+        guistuff2.unregister()
+        guistuff2V2.unregister()
+        guistuff3.unregister()
+        guistuff4.unregister()
+        activeOverlay = null
+        resettime = 0
+        isDragging = false
+        overlay.unregister()
+    }
+}).unregister()
+
+export function activategui() {
+    OverlayEditor.open()
+    setTimeout(() => {
+        updateGUIScale()
+        overlay.register()
+        guistuff1.register()
+        guistuff2.register()
+        guistuff2V2.register()
+        guistuff3.register()
+        guistuff4.register()
+        resettime = 0
+    }, 150);
+}
+
+let dragOffset = { x: 0, y: 0 };
+let isDragging = false;
+
+
 register("gameUnload", () => { updateGUIScale() })
 
 function updateGUIScale() {
@@ -242,7 +248,20 @@ function updateGUIScale() {
 }
 
 
-export function drawText(cfx, text, info, center = true, overlayName = null) {
+/**
+ * Renders a text string to the screen using the provided metadata. 
+ * Handles scaling and centering logic.
+ * * @param {Object} ctx - The Draw Context from the renderOverlay trigger.
+ * @param {string} text - The raw text (without the color prefix) to draw.
+ * @param {Object} info - The persistent data object for this overlay.
+ * @param {number} info.x - The X coordinate.
+ * @param {number} info.y - The Y coordinate.
+ * @param {number} info.scale - The scale multiplier.
+ * @param {string} info.color - The Minecraft color code (e.g., "&d").
+ * @param {boolean} [center=true] - Whether to center the text on the X coordinate.
+ * @param {string|Object} [overlayName=null] - The overlay ID or definition to check for color settings.
+ */
+export function drawText(ctx, text, info, center = true, overlayName = null) {
     const def = typeof overlayName === "string" ? overlayDefs[overlayName] : overlayName;
     const prefix = def && def.colors === false ? "" : info.color;
     const s = info.scale || 1;
@@ -263,7 +282,7 @@ export function drawText(cfx, text, info, center = true, overlayName = null) {
         .setShadow(data.globalShadow)
         .setScale(s)
         .setAlign("left") // Always left, even when "centered"
-        .draw(cfx);
+        .draw(ctx);
 }
 
 function getActualWidth(text, scale) {
@@ -277,14 +296,13 @@ function isMouseOver(mx, my, text, info, overlayName) {
     if (!def) return false;
 
     const s = info.scale || 1;
-    const w = getActualWidth(text, s); // This is now the full width
+    const w = getActualWidth(text, s); 
     const h = 9 * s;
 
-    // If centered, the leftmost edge is x - half width
     const x = (def.align === "center") ? info.x - (w / 2) : info.x;
     const y = info.y;
 
-    // Check against the full width (w)
+
     return mx >= x - 2 && mx <= x + w + 2 &&
         my >= y - 2 && my <= y + h + 2;
 }
@@ -297,7 +315,6 @@ function drawBoxAround(ctx, text, info, center = true) {
     const x = center ? info.x - (w / 2) : info.x
     const y = info.y
 
-    // LIGHT_PURPLE equivalent (ARGB)
     const color = 0x60FF00FF | 0
 
     ctx.fill(x - 2, y - 2, x + w + 2, y + h + 2, color)

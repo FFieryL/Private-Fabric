@@ -46,10 +46,8 @@ register("command", () => {
             
             let state = { modified: false }; 
 
-            Client.scheduleTask(0, () => {
-                let versionMsg = (version !== "Unknown") ? `files. Updating to version: &e${version}` : "files. Updating...";
-                chat(`Found ${versionMsg}`);
-            });
+            let versionMsg = (version !== "Unknown") ? `files. Updating to version: &e${version}` : "files. Updating...";
+            chat(`Found ${versionMsg}`);
 
             files.forEach((path, index) => {
                 const newContent = FileLib.getUrlContent(RAW_BASE + path + CACHE_BUST);

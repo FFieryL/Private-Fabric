@@ -9,12 +9,19 @@ class OdinRenderer {
         this.consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
         
         // Cache the internal fields
-        this.wireField = this.getInternalField("wireBoxes");
-        this.filledField = this.getInternalField("filledBoxes");
-        this.lineField = this.getInternalField("lines");
+        this.wireField = this._getInternalField("wireBoxes");
+        this.filledField = this._getInternalField("filledBoxes");
+        this.lineField = this._getInternalField("lines");
     }
 
-    getInternalField(fieldName) {
+
+    /**
+     * Uses Java Reflection to access private fields within the RenderConsumer.
+     * @param {string} fieldName - The name of the field to access.
+     * @returns {*} The Java collection or field requested.
+     * @private
+     */
+    _getInternalField(fieldName) {
         try {
             const field = this.consumer.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
@@ -25,12 +32,13 @@ class OdinRenderer {
     }
 
     /**
-     * Translates Vigilance colors to Float arrays [r, g, b, a]
+     * Translates Vigilance color format into a normalized float array.
+     * @param {Object|number} vigColor - A java.awt.Color object or an ARGB integer.
+     * @returns {number[]} A float array [r, g, b, a] where values are 0.0 - 1.0.
      */
     vigtorgba(vigColor) {
-        if (!vigColor) return [1, 1, 1, 1]; // Fallback white
+        if (!vigColor) return [1, 1, 1, 1];
         
-        // Handle java.awt.Color
         if (vigColor.getRed) {
             return [
                 vigColor.getRed() / 255,
@@ -56,6 +64,14 @@ class OdinRenderer {
         return Array.isArray(color) ? color : this.vigtorgba(color);
     }
 
+
+    /**
+     * Queues a wireframe box outline for rendering.
+     * @param {Box} box - The net.minecraft.util.math.Box to render.
+     * @param {number[]|number} color - The color (normalized array or hex).
+     * @param {boolean} phase - If true, the outline renders through walls.
+     * @param {number} [thickness=2] - The line thickness.
+     */
     drawOutline(box, color, phase, thickness = 2) {
         if (!this.wireField) return;
         const c = this._getColor(color);
@@ -63,6 +79,13 @@ class OdinRenderer {
         this.wireField.get(phase ? 1 : 0).add(data);
     }
 
+
+    /**
+     * Queues a solid filled box for rendering.
+     * @param {Box} box - The net.minecraft.util.math.Box to render.
+     * @param {number[]|number} color - The color (normalized array or hex).
+     * @param {boolean} phase - If true, the box renders through walls.
+     */
     drawFilled(box, color, phase) {
         if (!this.filledField) return;
         const c = this._getColor(color);
@@ -70,6 +93,16 @@ class OdinRenderer {
         this.filledField.get(phase ? 1 : 0).add(data);
     }
 
+
+    /**
+     * Creates a Minecraft Box object centered horizontally on X and Z.
+     * @param {number} x - The center X coordinate.
+     * @param {number} y - The bottom Y coordinate.
+     * @param {number} z - The center Z coordinate.
+     * @param {number} w - The width/depth of the box.
+     * @param {number} h - The height of the box.
+     * @returns {Box} A new net.minecraft.util.math.Box instance.
+     */
     getBox(x, y, z, w, h) {
         return new Box(x - w / 2, y, z - w / 2, x + w / 2, y + h, z + w / 2)
     }
@@ -87,6 +120,15 @@ class OdinRenderer {
         return [camX, camY, camZ]
     }
 
+
+    /**
+     * Queues a 3D line (tracer) between two points.
+     * @param {number[]} startPos - The [x, y, z] starting coordinates.
+     * @param {number[]} endPos - The [x, y, z] ending coordinates.
+     * @param {number[]|number} color - The color (normalized array or hex).
+     * @param {boolean} phase - If true, the line renders through walls.
+     * @param {number} [thickness=2] - The line thickness.
+     */
     drawTracer(startPos, endPos, color, phase, thickness = 2) {
         if (!this.lineField) return;
         const c = this._getColor(color);
