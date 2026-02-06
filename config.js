@@ -615,6 +615,14 @@ class config {
     })
     witherESPColorFill = new Color(244 / 255, 0, 25 / 255, 96 / 255);
 
+    @ColorProperty({
+        name: "Wither Tracer Color",
+        description: "",
+        category: "Highlight",
+        subcategory: "Boss"
+    })
+    witherESPColorTracer = new Color(244 / 255, 0, 25 / 255, 96 / 255);
+
     @SwitchProperty({
         name: "ESP mode",
         description: "",
@@ -622,6 +630,7 @@ class config {
         subcategory: "Boss"
     })
     witherThruBlocks = false;
+
     @SwitchProperty({
         name: "Wither Tracer in P3",
         description: "",
@@ -629,6 +638,7 @@ class config {
         subcategory: "Boss"
     })
     witherTracer = false;
+
 
     // --- PETS ---
     @SwitchProperty({

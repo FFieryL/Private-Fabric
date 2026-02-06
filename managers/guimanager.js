@@ -1,6 +1,14 @@
 import PogObject from "../../PogData"
 import { chat } from "../util/utils"
-export const data = new PogObject("PrivateASF-Fabric", { globalShadow: true }, "data/guidata.json")
+export const data = new PogObject(
+    "PrivateASF-Fabric",
+    {
+        globalShadow: true,
+        screenWidth: Renderer.screen.getWidth(),
+        screenHeight: Renderer.screen.getHeight()
+    },
+    "data/guidata.json"
+)
 
 const overlayDefs = {}
 let resettime = 0
@@ -240,12 +248,16 @@ function updateGUIScale() {
                 data[key].y *= heightRatio;
             }
         }
+
+        data.screenWidth = newWidth;
+        data.screenHeight = newHeight;
         data.save();
 
         lastWidth = newWidth;
         lastHeight = newHeight;
     }
 }
+
 
 
 /**
@@ -320,5 +332,5 @@ function drawBoxAround(ctx, text, info, center = true) {
     ctx.fill(x - 2, y - 2, x + w + 2, y + h + 2, color)
 }
 
-let lastWidth = Renderer.screen.getWidth();
-let lastHeight = Renderer.screen.getHeight();
+let lastWidth = data.screenWidth;
+let lastHeight = data.screenHeight;

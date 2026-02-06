@@ -181,12 +181,12 @@ const blockedPhrases = [
 
 const cancelTitlesTrig = register("packetReceived", (packet, event) => {
     const text = packet?.text().toString().removeFormatting().toLowerCase();
-    //if(!InP3) return;
+    if(!InP3 || !c.TermNoti) return;
     if (!text) return;
     if (blockedPhrases.some(phrase => text.includes(phrase.toLowerCase()))) cancel(event)
 }).setFilteredClasses([TitleS2CPacket, SubtitleS2CPacket]).unregister()
 
-if (c.CancelTitles) {
+if (c.CancelTitles && c.TermNoti) {
     cancelTitlesTrig.register();
 }
 
@@ -200,7 +200,7 @@ if (c.TermNoti) {
 }
 
 c.registerListener("Disable standard term titles", (curr) => {
-    if (curr) cancelTitlesTrig.register();
+    if (curr && c.TermNoti) cancelTitlesTrig.register();
     else cancelTitlesTrig.unregister();
 })
 

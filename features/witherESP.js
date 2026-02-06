@@ -34,7 +34,7 @@ const renderTrig = register("renderWorld", () => {
 
     if(c.witherTracer && dungeonUtils.currentPhase == 3 && dungeonUtils.currentStage == 5) {
         let entityPos = [x,y + wither.getHeight() / 2,z]
-        RenderUtils.drawTracer(RenderUtils.calculateCameraPos(), entityPos, c.witherESPColorBox, phase, 5)
+        RenderUtils.drawTracer(RenderUtils.calculateCameraPos(), entityPos, c.witherESPColorTracer, phase, 5)
     }
 }).unregister()
 
