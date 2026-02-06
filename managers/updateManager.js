@@ -71,7 +71,7 @@ register("command", () => {
                 }
             });
 
-            Client.scheduleTask(20, () => {
+            Client.scheduleTask(0, () => {
                 ChatLib.actionBar(""); 
                 
                 if (state.modified) {
