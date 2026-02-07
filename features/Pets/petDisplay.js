@@ -1,6 +1,6 @@
-import c from "../config"
-import { data, drawText, OverlayEditor, registerOverlay } from "../managers/guimanager";
-import { chat, getTablist } from "../util/utils";
+import c from "../../config"
+import { data, drawText, OverlayEditor, registerOverlay } from "../../managers/guimanager";
+import { chat, getTablist } from "../../util/utils";
 
 const summonRegex = /§r§aYou summoned your §r§([0-9a-fk-or])((?:[^§]|§r§[0-9a-fk-or] ✦)+)§r§a!/;
 const despawnmatch = /§r§aYou despawned your §r§([0-9a-fk-or])((?:[^§]|§r§[0-9a-fk-or] ✦)+)§r§a!/;

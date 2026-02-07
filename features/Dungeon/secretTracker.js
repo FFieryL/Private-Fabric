@@ -1,7 +1,7 @@
-import c from "../config"
-import { chat, ConnectScreen, DisconnectedScreen, NativeText } from "../util/utils"
-import request from "../../requestV2"
-import dungeonUtils from "../util/dungeonUtils"
+import c from "../../config"
+import { chat, ConnectScreen, DisconnectedScreen, NativeText } from "../../util/utils"
+import request from "../../../requestV2"
+import dungeonUtils from "../../util/dungeonUtils"
 
 const secretsData = new Map()
 const uuidCache = new Map()

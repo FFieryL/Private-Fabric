@@ -1,6 +1,6 @@
-import c from "../config"
-import { data, drawText, OverlayEditor, registerOverlay } from "../managers/guimanager";
-import dungeonUtils from "../util/dungeonUtils";
+import c from "../../config"
+import { data, drawText, OverlayEditor, registerOverlay } from "../../managers/guimanager";
+import dungeonUtils from "../../util/dungeonUtils";
 registerOverlay("LeapNoti", { text: () => "0/4 Leaped", align: "center", colors: true, setting: () => c.leapNoti})
 
 let playersLeapt = [];

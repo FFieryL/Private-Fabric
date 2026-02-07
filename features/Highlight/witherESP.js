@@ -1,7 +1,7 @@
-import c from "../config"
-import dungeonUtils from "../util/dungeonUtils"
-import { bossnames, chat, EntityWither } from "../util/utils"
-import RenderUtils from "../util/renderUtils"
+import c from "../../config"
+import dungeonUtils from "../../util/dungeonUtils"
+import { bossnames, chat, EntityWither } from "../../util/utils"
+import RenderUtils from "../../util/renderUtils"
 
 const worldTrig = register("worldUnload", () => {
     renderTrig.unregister()

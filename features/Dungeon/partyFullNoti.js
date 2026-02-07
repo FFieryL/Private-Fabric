@@ -1,6 +1,6 @@
-import c from "../config"
-import partyUtils from "../util/partyUtils";
-import { getTablist, playSound } from "../util/utils";
+import c from "../../config"
+import partyUtils from "../../util/partyUtils";
+import { getTablist, playSound } from "../../util/utils";
 
 let notified = false;
 let timerstarted = 0;

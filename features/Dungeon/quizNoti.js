@@ -1,6 +1,6 @@
-import c from "../config"
-import { data, drawText, OverlayEditor, registerOverlay } from "../managers/guimanager"
-import { CommonPingS2CPacket } from "../util/utils"
+import c from "../../config"
+import { data, drawText, OverlayEditor, registerOverlay } from "../../managers/guimanager"
+import { CommonPingS2CPacket } from "../../util/utils"
 let timeElapsed = 0
 let timerDuration = 0
 registerOverlay("QuizTimer", { text: () => "Quiz: &c11.00", align: "center", colors: true, setting: () => c.QuizTimer })

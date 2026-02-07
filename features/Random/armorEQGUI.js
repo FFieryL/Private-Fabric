@@ -1,8 +1,8 @@
 // 1. Imports
-import { data, drawText, OverlayEditor, registerOverlay } from "../managers/guimanager";
-import { chat, CloseScreenS2CPacket, InventoryS2CPacket, OpenScreenS2CPacket, ScreenHandlerSlotUpdateS2CPacket } from "../util/utils";
-import c from "../config";
-import { SkyBlockUtils } from "../util/skyblockUtils";
+import { data, drawText, OverlayEditor, registerOverlay } from "../../managers/guimanager";
+import { chat, CloseScreenS2CPacket, InventoryS2CPacket, OpenScreenS2CPacket, ScreenHandlerSlotUpdateS2CPacket } from "../../util/utils";
+import c from "../../config";
+import { SkyBlockUtils } from "../../util/skyblockUtils";
 
 // 2. Constants and Variables
 const ITEM_BASE_SIZE = 16;

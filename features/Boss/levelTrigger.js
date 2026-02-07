@@ -1,6 +1,6 @@
-import c from "../config"
-import dungeonUtils from "../util/dungeonUtils";
-import { rightClick } from "../util/utils";
+import c from "../../config"
+import dungeonUtils from "../../util/dungeonUtils";
+import { rightClick } from "../../util/utils";
 
 let p3Levers = [
     [106, 124, 113, 5.7], [94, 124, 113, 5.7], [23, 132, 138, 5.7], 

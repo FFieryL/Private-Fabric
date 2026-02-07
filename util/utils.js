@@ -15,7 +15,10 @@ export const DisconnectedScreen = Java.type("net.minecraft.client.gui.screen.Dis
 export const ConnectScreen = Java.type("net.minecraft.client.gui.screen.ConnectScreen"); // GuiConnecting
 export const Vec3 = Java.type("net.minecraft.util.math.Vec3d")
 export const Box = Java.type("net.minecraft.util.math.Box");
-
+export const ArmorStand = Java.type("net.minecraft.entity.decoration.ArmorStandEntity")
+export const EntityBat = Java.type("net.minecraft.entity.passive.BatEntity")
+export const EntityPlayer = Java.type("net.minecraft.entity.player.PlayerEntity")
+export const ClientPlayer = Java.type("net.minecraft.client.network.ClientPlayerEntity")
 
 export function isPlayerInBox(x1, x2, y1, y2, z1, z2) {
     const x = Player.getX();
@@ -83,7 +86,7 @@ const soundMap = {
 export function playSound(soundName, volume = 1, pitch = 1) {
     // Redirect old names to new names if they exist in our map
     const source = soundMap[soundName] || soundName;
-    
+
     new Sound({
         source: source,
         volume: parseFloat(volume),
@@ -98,7 +101,7 @@ export const getTablist = (formatted = true) => {
     if (!rawNames || rawNames.length === 0) return null;
 
     return rawNames.map(name => {
-        const strName = name.toString(); 
+        const strName = name.toString();
         return formatted ? strName : ChatLib.removeFormatting(strName);
     });
 }
@@ -112,7 +115,7 @@ export const getMatchFromLines = (regex, list, type) => {
     return null
 }
 
-export const removeUnicode = (string) => typeof(string) !== "string" ? "" : string.replace(/[^\u0000-\u007F]/g, "")
+export const removeUnicode = (string) => typeof (string) !== "string" ? "" : string.replace(/[^\u0000-\u007F]/g, "")
 
 export const getScoreboard = (formatted = false) => {
     if (!World.getWorld()) return null
@@ -153,7 +156,7 @@ export const decodeNumeral = (numeral) => {
     let sum = 0
     for (let i = 0; i < numeral.length; i++) {
         let curr = numeralValues[numeral[i]]
-        let next = i < numeral.length-1 ? numeralValues[numeral[i+1]] : 0
+        let next = i < numeral.length - 1 ? numeralValues[numeral[i + 1]] : 0
 
         if (curr < next) {
             sum += next - curr
@@ -163,4 +166,12 @@ export const decodeNumeral = (numeral) => {
         sum += curr
     }
     return sum
+}
+
+export function pressMovementKey(key, state, exec) {
+    if (['backKey', 'rightKey', 'leftKey', 'sprintKey', 'forwardKey', 'attackKey', 'sneakKey', 'useKey', 'jumpKey'].includes(key)) {
+        if (!this.mc.options[key]) return this.debugChat('Incorrect key')
+        this.mc.options[key].setPressed(state)
+        if (exec) exec()
+    } else this.debugChat('Incorrect key')
 }

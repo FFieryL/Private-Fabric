@@ -20,15 +20,15 @@ export default new class dungeonUtils {
 
         register("tick", (ticks) => {
             if (ticks % 10) return
-            //if (!SkyBlockUtils.inSkyBlock() && !this.inDungeon) return this.reset()
+            if (!SkyBlockUtils.inSkyBlock() && !this.inDungeon) return this.reset()
 
             const tabList = getTablist(false)
             if (tabList && tabList.length > 60) this.doPartyStuff(tabList)
         })
 
-        register("step", () => {
-            this.dumpState()
-        }).setDelay(1)
+        // register("step", () => {
+        //     this.dumpState()
+        // }).setDelay(1)
 
         // ===== SCOREBOARD DETECTION =====
         onScoreboardLine((lineNumber, text) => {

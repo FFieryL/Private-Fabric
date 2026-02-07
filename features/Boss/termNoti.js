@@ -1,7 +1,7 @@
-import c from "../config"
-import { data, drawText, registerOverlay } from "../managers/guimanager"
-import dungeonUtils from "../util/dungeonUtils"
-import { chat, CommonPingS2CPacket, SubtitleS2CPacket, TitleS2CPacket } from "../util/utils"
+import c from "../../config"
+import { data, drawText, registerOverlay } from "../../managers/guimanager"
+import dungeonUtils from "../../util/dungeonUtils"
+import { chat, CommonPingS2CPacket, SubtitleS2CPacket, TitleS2CPacket } from "../../util/utils"
 let thingydone = null
 let thingycompleted = null
 let thingytotal = null

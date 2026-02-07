@@ -1,7 +1,7 @@
-import { data, drawText, OverlayEditor, registerOverlay } from "../managers/guimanager";
-import dungeonUtils from "../util/dungeonUtils";
-import c from "../config"
-import { playSound } from "../util/utils";
+import { data, drawText, OverlayEditor, registerOverlay } from "../../managers/guimanager";
+import dungeonUtils from "../../util/dungeonUtils";
+import c from "../../config"
+import { playSound } from "../../util/utils";
 
 let playerName = "";
 let currentProgress = "";

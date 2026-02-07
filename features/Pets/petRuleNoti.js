@@ -1,6 +1,6 @@
-import c from "../config"
-import { data, drawText, OverlayEditor, registerOverlay } from "../managers/guimanager";
-import { playSound } from "../util/utils";
+import c from "../../config"
+import { data, drawText, OverlayEditor, registerOverlay } from "../../managers/guimanager";
+import { playSound } from "../../util/utils";
 
 
 let currentPet = null;

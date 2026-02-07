@@ -1,6 +1,6 @@
-import PogObject from "../../PogData";
-import { chat, ChatMessageC2SPacket, getColorCodes } from "../util/utils";
-import WebSocketPASF from "../util/websocket";
+import PogObject from "../../../PogData";
+import { chat, ChatMessageC2SPacket, getColorCodes } from "../../util/utils";
+import WebSocketPASF from "../../util/websocket";
 
 const WS_URL = "wss://private-irc.onrender.com/?user=" + encodeURIComponent(Player.getName());
 

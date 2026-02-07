@@ -3,15 +3,14 @@ import { chat } from "../util/utils";
 const MODULE_NAME = "PrivateASF-Fabric";
 const BLACKLIST = [
     ".gitignore",
-    "data/guidata.json",
-    "data/irc_data.json",
-    "data/settings.json",
     "README.md"
 ];
 
 const CACHE_BUST = `?t=${Date.now()}`;
 const API_URL = `https://api.github.com/repos/FFieryL/Private-Fabric/git/trees/main?recursive=1${CACHE_BUST}`;
 const RAW_BASE = `https://raw.githubusercontent.com/FFieryL/Private-Fabric/main/`;
+
+const File = Java.type("java.io.File");
 
 register("command", () => {
     chat("&aInitializing Update");
@@ -30,6 +29,51 @@ register("command", () => {
             const data = JSON.parse(response);
             if (!data.tree) throw new Error("Could not find repository tree.");
 
+            // 1. Get the list of files from GitHub
+            const remoteFiles = data.tree
+                .filter(item => item.type === "blob")
+                .map(item => item.path);
+
+            const filesToDownload = remoteFiles.filter(path => {
+                return !BLACKLIST.includes(path) && !path.startsWith("data/");
+            });
+
+            // --- CLEANUP PHASE ---
+            const moduleFolder = new File(`./config/ChatTriggers/modules/${MODULE_NAME}`);
+            if (moduleFolder.exists()) {
+                chat("&7Cleaning up old files...");
+                
+                const deleteExtraFiles = (dir, currentPath = "") => {
+                    const list = dir.listFiles();
+                    if (!list) return;
+
+                    list.forEach(file => {
+                        const fileName = file.getName();
+                        const relativePath = currentPath === "" ? fileName : `${currentPath}/${fileName}`;
+                        
+                        // Ignore the data folder entirely
+                        if (fileName === "data" || fileName.startsWith(".") || relativePath.startsWith("data/")) return;
+                        
+                        if (file.isDirectory()) {
+                            deleteExtraFiles(file, relativePath);
+                            // Delete folder if it's now empty
+                            const remaining = file.listFiles();
+                            if (remaining && remaining.length === 0) {
+                                file.delete();
+                            }
+                        } else {
+                            // If local file isn't on GitHub and isn't blacklisted, delete it
+                            if (!remoteFiles.includes(relativePath) && !BLACKLIST.includes(relativePath)) {
+                                file.delete();
+                                chat(`&8Removed: &7${relativePath}`);
+                            }
+                        }
+                    });
+                };
+                deleteExtraFiles(moduleFolder);
+            }
+            // ---------------------
+
             let version = "Unknown";
             const metaFile = data.tree.find(item => item.path === "metadata.json");
             if (metaFile) {
@@ -39,17 +83,12 @@ register("command", () => {
                 } catch (e) { }
             }
 
-            const files = data.tree
-                .filter(item => item.type === "blob")
-                .map(item => item.path)
-                .filter(path => !BLACKLIST.includes(path));
-
             let state = { modified: false };
-
             let versionMsg = (version !== "Unknown") ? `files. Updating to version: &e${version}` : "files. Updating...";
             chat(`Found ${versionMsg}`);
 
-            files.forEach((path, index) => {
+            // 2. Update/Download files
+            filesToDownload.forEach((path, index) => {
                 const newContent = FileLib.getUrlContent(RAW_BASE + path + CACHE_BUST);
 
                 if (newContent && !newContent.startsWith("404")) {
@@ -59,14 +98,14 @@ register("command", () => {
                         FileLib.write(MODULE_NAME, path, newContent, true);
                         state.modified = true;
                         if (path.endsWith(".js")) {
-                            const fileName = path.split("/").pop();
-                            chat("&aUpdated: &f" + fileName);
+                            chat("&aUpdated: &f" + path.split("/").pop());
                         }
                     }
 
-                    if (index % 3 === 0 || index === files.length - 1) {
+                    // Progress bar logic
+                    if (index % 3 === 0 || index === filesToDownload.length - 1) {
                         Client.scheduleTask(0, () => {
-                            let percent = Math.round(((index + 1) / files.length) * 100);
+                            let percent = Math.round(((index + 1) / filesToDownload.length) * 100);
                             let filled = Math.round(percent / 5);
                             let bar = "&a" + "■".repeat(filled) + "&7" + "■".repeat(20 - filled);
                             ChatLib.actionBar(`&bUpdating: [${bar}&b] &f${percent}%`);
@@ -77,19 +116,16 @@ register("command", () => {
 
             Client.scheduleTask(0, () => {
                 ChatLib.actionBar("");
-
                 if (state.modified) {
                     chat("&aUpdate successful! &8Reloading...");
                     ChatLib.command("ct load", true);
                 } else {
-                    chat("&eNo changes detected. &7You are already on the latest version.");
+                    chat("&eNo changes detected. &7Latest version confirmed.");
                 }
             });
 
         } catch (e) {
-            Client.scheduleTask(0, () => {
-                chat("&cUpdate failed! Check console.");
-            });
+            Client.scheduleTask(0, () => chat("&cUpdate failed! Check console."));
             console.error(e);
         }
     }).start();

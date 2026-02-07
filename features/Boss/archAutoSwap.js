@@ -1,5 +1,5 @@
-import { chat, isPlayerInBox, playSound } from "../util/utils";
-import c from "../config"
+import { chat, isPlayerInBox, playSound } from "../../util/utils";
+import c from "../../config"
 
 
 let swapping = false;
@@ -46,7 +46,7 @@ c.registerListener("Archer Death Bow Swapper", (curr) => {
 
 //Will move later idk
 
-import dungeonUtils from "../util/dungeonUtils";
+import dungeonUtils from "../../util/dungeonUtils";
 
 register("chat", (message) => {
     if (!dungeonUtils.inBoss) return;
