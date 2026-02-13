@@ -29,6 +29,28 @@ class config {
         this.addDependency("Wither Box Color", "Wither Highlight");
         this.addDependency("Wither Fill Color", "Wither Highlight");
         this.addDependency("Wither Tracer in P3", "Wither Highlight");
+        this.addDependency("Wither Tracer Color", "Wither Highlight" && "Wither Tracer in P3")
+
+        this.addDependency("Star ESP mode", "Star mob Highlight");
+        this.addDependency("Star Render Mode", "Star mob Highlight");
+        this.addDependency("Highlight Size", "Star mob Highlight");
+        this.addDependency("Star Mobs Color", "Star mob Highlight");
+        this.addDependency("SA Color", "Star mob Highlight");
+        this.addDependency("Fel Color", "Star mob Highlight");
+
+        this.addDependency("Pest Color", "Pest Highlight");
+        this.addDependency("Pest ESP mode", "Pest Highlight");
+        this.addDependency("Pest Render Mode", "Pest Highlight");
+        this.addDependency("Pest Tracer", "Pest Highlight");
+
+        this.addDependency("Bats Color", "Bat Highlight");
+        this.addDependency("Bats ESP mode", "Bat Highlight");
+        this.addDependency("Bat Render Mode", "Bat Highlight");
+
+        this.addDependency("Secret Locked Box Color", "Secret Highlight");
+        this.addDependency("Secret Locked Fill Color", "Secret Highlight");
+        this.addDependency("Secret Opened Box Color", "Secret Highlight");
+        this.addDependency("Secret Opened Fill Color", "Secret Highlight");
 
         this.addDependency("Shorten Pet Rule Noti", "Pet Rule Notifier");
         this.addDependency("Pet Rule Notifier Sound", "Pet Rule Notifier");
@@ -41,6 +63,10 @@ class config {
         this.addDependency("Invincibility Display Mode", "Invincibility Display")
         this.addDependency("Always show", "Invincibility Display")
 
+        this.addDependency("Only when leader", "Party Full Alarm")
+        this.addDependency("Party Full Alarm Volume", "Party Full Alarm" || "Party Dequeued Alarm")
+        this.addDependency("Party Full Alarm Time", "Party Full Alarm")
+
         this.addDependency("Ignore dupe mage", "Dupe Class Notifier");
 
 
@@ -52,7 +78,7 @@ class config {
         this.addDependency("Send to Party", "Blood Timer")
 
         this.addDependency("Archer LB Swapper at Pillars", "Archer Death Bow Swapper")
-        this.addDependency("Item to swap to from death bow", "Archer Death Bow Swapper")
+        this.addDependency("Death Bow Swap Item", "Archer Death Bow Swapper")
 
         this.addDependency("py LB seconds", "py Last Breath Timer")
 
@@ -252,7 +278,7 @@ class config {
         name: "Bat Highlight",
         description: "",
         category: "Highlight",
-        subcategory: "§bBats"
+        subcategory: "§cBats"
     })
     batESP = false;
 
@@ -260,7 +286,7 @@ class config {
         name: "Bats Color",
         description: "",
         category: "Highlight",
-        subcategory: "§bBats"
+        subcategory: "§cBats"
     })
     batESPColor = new Color(1, 1, 1, 1);
 
@@ -268,7 +294,7 @@ class config {
         name: "Bats ESP mode",
         description: "",
         category: "Highlight",
-        subcategory: "§bBats",
+        subcategory: "§cBats",
     })
     batESPThruBlocks = false;
 
@@ -276,7 +302,7 @@ class config {
         name: "Bat Render Mode",
         description: "",
         category: "Highlight",
-        subcategory: "§bBats",
+        subcategory: "§cBats",
         options: ["Box", "Box Filled"]
     })
     batHighlightType = 0;
@@ -285,7 +311,7 @@ class config {
         name: "Secret Highlight",
         description: "",
         category: "Highlight",
-        subcategory: "§cSecrets"
+        subcategory: "§bSecrets"
     })
     secretHighlight = false;
 
@@ -293,7 +319,7 @@ class config {
         name: "Secret Locked Box Color",
         description: "",
         category: "Highlight",
-        subcategory: "§cSecrets"
+        subcategory: "§bSecrets"
     })
     secretLockedColor = new Color(1, 1, 1, 1);
 
@@ -301,7 +327,7 @@ class config {
         name: "Secret Locked Fill Color",
         description: "",
         category: "Highlight",
-        subcategory: "§cSecrets"
+        subcategory: "§bSecrets"
     })
     secretLockedColorFill = new Color(1, 1, 1, 1);
     
@@ -309,7 +335,7 @@ class config {
         name: "Secret Opened Box Color",
         description: "",
         category: "Highlight",
-        subcategory: "§cSecrets"
+        subcategory: "§bSecrets"
     })
     secretOpenedColor = new Color(1, 1, 1, 1);
 
@@ -317,7 +343,7 @@ class config {
         name: "Secret Opened Fill Color",
         description: "",
         category: "Highlight",
-        subcategory: "§cSecrets"
+        subcategory: "§bSecrets"
     })
     secretOpenedColorFill = new Color(1, 1, 1, 1);
 
@@ -574,6 +600,7 @@ class config {
     // --- BOSS ---
     @SwitchProperty({
         name: "Storm Timer",
+        description: "",
         category: "Boss",
         subcategory: "§aStorm"
     })
@@ -589,6 +616,7 @@ class config {
 
     @SwitchProperty({
         name: "Archer Death Bow Swapper",
+        description: "",
         category: "Boss",
         subcategory: "§aStorm"
     })
@@ -596,13 +624,15 @@ class config {
 
     @SwitchProperty({
         name: "Archer LB Swapper at Pillars",
+        description: "",
         category: "Boss",
         subcategory: "§aStorm"
     })
     lastBreathSwap = false;
 
     @TextProperty({
-        name: "Item to swap to from death bow",
+        name: "Death Bow Swap Item",
+        description: "Item to swap to from death bow",
         category: "Boss",
         subcategory: "§aStorm",
         placeholder: "ex. fabled hyperion"
@@ -611,6 +641,7 @@ class config {
 
     @SwitchProperty({
         name: "py Last Breath Timer",
+        description: "",
         category: "Boss",
         subcategory: "§aStorm"
     })
@@ -618,6 +649,7 @@ class config {
 
     @TextProperty({
         name: "py LB seconds",
+        description: "",
         category: "Boss",
         subcategory: "§aStorm",
         placeholder: "34.6"
@@ -627,6 +659,7 @@ class config {
     // 2. GOLDOR (§b)
     @SwitchProperty({
         name: "Goldor Start Timer",
+        description: "",
         category: "Boss",
         subcategory: "§bGoldor"
     })
@@ -634,6 +667,7 @@ class config {
 
     @SwitchProperty({
         name: "Goldor Timer",
+        description: "",
         category: "Boss",
         subcategory: "§bGoldor"
     })
@@ -641,6 +675,7 @@ class config {
 
     @SelectorProperty({
         name: "Goldor Timer Version",
+        description: "",
         category: "Boss",
         subcategory: "§bGoldor",
         options: ["death tick", "full section"]
@@ -649,6 +684,7 @@ class config {
 
     @SwitchProperty({
         name: "Show Goldor timer in ticks",
+        description: "",
         category: "Boss",
         subcategory: "§bGoldor"
     })
@@ -657,6 +693,7 @@ class config {
     // 3. P3 (§c)
     @SwitchProperty({
         name: "Leap Notifier",
+        description: "Gui for how many people leapt",
         category: "Boss",
         subcategory: "§cP3"
     })
@@ -664,6 +701,7 @@ class config {
 
     @SwitchProperty({
         name: "Melody Title",
+        description: "",
         category: "Boss",
         subcategory: "§cP3"
     })
@@ -671,6 +709,7 @@ class config {
 
     @SwitchProperty({
         name: "Lever Trigger Bot",
+        description: "&cUSE AT YOUR OWN RISK",
         category: "Boss",
         subcategory: "§cP3"
     })
@@ -678,6 +717,7 @@ class config {
 
     @SwitchProperty({
         name: "Enable Lever Trigger Bot for Device",
+        description: "",
         category: "Boss",
         subcategory: "§cP3"
     })
@@ -791,7 +831,7 @@ class config {
         name: "Prefix for mod chats",
         description: "",
         category: "Settings",
-        subcategory: "Prefix",
+        subcategory: "§0Prefix",
         options: ["PrivateASF", "Private", "PA", "PASF"]
     })
     customPrefix = 0;
@@ -800,9 +840,9 @@ class config {
         name: "More legit right clicks???",
         description: "Might be a more legit version of right click for features that right click for you, idk might be schitzo",
         category: "Settings",
-        subcategory: "Right Clicks"
+        subcategory: "Clicks"
     })
-    legitRightClicks = false
+    legitClicks = false
     
 }
 

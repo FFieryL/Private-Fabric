@@ -1,7 +1,7 @@
 import c from "../../config"
 import { data, drawText, registerOverlay } from "../../managers/guimanager"
 import dungeonUtils from "../../util/dungeonUtils"
-import { bloodStartMessages, chat, CommonPingS2CPacket, leftClick, playSound } from "../../util/utils"
+import { bloodStartMessages, chat, CommonPingS2CPacket, playSound } from "../../util/utils"
 
 registerOverlay("BloodTimer", { text: () => "Kill Now", align: "center", colors: true, setting: () => c.bloodTimer})
 
@@ -24,7 +24,7 @@ function reset() {
 }
 
 const chatTrig1 = register("chat", (message) => {
-    if (!bloodStartMessages.includes(message)) return
+    if (!bloodStartMessages.includes(message.removeFormatting())) return
     bloodStartTime = Date.now()
     bloodStartTicks = 0
     bloodServerTicks.register()
@@ -118,47 +118,3 @@ if (c.bloodTimer) {
     chatTrig1.register()
     chatTrig2.register()
 }
-
-// register("clicked", (mouseX, mouseY, button, isButtonDown) => {
-//     if (button != 0) return
-
-//     if (isButtonDown) {
-//         const item = Player.getHeldItem()
-//         if (!item) return
-
-//         const isMageItem = items.some(s => item.getName()?.toLowerCase().includes(s))
-//         if (!isMageItem) return
-
-//         keyCanceled = true
-//         lastClick = 3
-//     } else {
-//         keyCanceled = false
-//     }
-// })
-// let lastClick = 0
-// let keyCanceled = false
-// const items = ["claymore", "hyperion", "midas", "ragnarock", "ice spray"]
-// register("tick", () => {
-//     const mc = Client.getMinecraft()
-
-//     // GUI open = stop clicking
-//     if (mc.currentScreen != null) {
-//         keyCanceled = false
-//         return
-//     }
-//     lastClick--
-
-//     const attackHeld = mc.options.attackKey.isPressed()
-
-//     if ((keyCanceled || attackHeld) && mc.player && !mc.player.isUsingItem()) {
-//         const item = Player.getHeldItem()
-//         if (!item) return
-
-//         if (items.some(s => item.getName()?.toLowerCase().includes(s))) {
-//             if (lastClick <= 0) {
-//                 leftClick()
-//                 lastClick = Math.random() > 0.8 ? 3 : 2
-//             }
-//         }
-//     }
-// })

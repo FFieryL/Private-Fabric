@@ -1,5 +1,7 @@
 import * as ConfigModule from "../config";
 export const ChatMessageC2SPacket = Java.type("net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket")
+export const ChatMessageS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.ChatMessageS2CPacket")
+export const GameMessageS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.GameMessageS2CPacket")
 export const OpenScreenS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket") // S2DPacketOpenWindow
 export const ScreenHandlerSlotUpdateS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket"); // S2FPacketSetSlot
 export const CloseScreenS2CPacket = Java.type('net.minecraft.network.packet.s2c.play.CloseScreenS2CPacket'); // S2EPacketCloseWindow
@@ -112,7 +114,7 @@ export function playSound(soundName, volume = 0.7, pitch = 1) {
         }).play();
 
     } catch (e) {
-        
+
         console.error(`[PrivateASF] Failed to play sound "${soundName}": ${e}`);
     }
 }
@@ -148,29 +150,32 @@ export const getScoreboard = (formatted = false) => {
 }
 
 export function rightClick(shouldSwing = false) {
-    const mc = Client.getMinecraft()
-    const hit = mc.crosshairTarget
+    const c = ConfigModule.default;
+    if (c && c.legitClicks) {
+        Client.getMinecraft().options["useKey"].setPressed(true)
+        Client.scheduleTask(1, () => Client.getMinecraft().options["useKey"].setPressed(false))
+    }
+    else {
+        const mc = Client.getMinecraft()
+        const hit = mc.crosshairTarget
 
-    if (hit && hit.getType().toString() === "BLOCK") mc.interactionManager.interactBlock(mc.player, Hand.field_5808, hit)
-    else mc.interactionManager.interactItem(mc.player, Hand.field_5808)
+        if (hit && hit.getType().toString() === "BLOCK") mc.interactionManager.interactBlock(mc.player, Hand.field_5808, hit)
+        else mc.interactionManager.interactItem(mc.player, Hand.field_5808)
 
-    if (shouldSwing) mc.player.swingHand(Hand.field_5808)
+        if (shouldSwing) mc.player.swingHand(Hand.field_5808)
+    }
 }
 
 export function leftClick() {
+
     const mc = Client.getMinecraft()
     const hit = mc.crosshairTarget
 
     if (!hit) return
-
     const type = hit.getType().toString()
 
-    if (type === "ENTITY") {
-        mc.interactionManager.attackEntity(mc.player, hit.getEntity())
-    } 
-    else if (type === "BLOCK") {
-        mc.interactionManager.attackBlock(hit.getBlockPos(), hit.getSide())
-    }
+    if (type === "BLOCK") mc.interactionManager.attackBlock(hit.getBlockPos(), hit.getSide())
+    else if (type === "ENTITY") mc.interactionManager.attackEntity(mc.player, hit.getEntity())
 
     mc.player.swingHand(Hand.field_5808)
 }

@@ -1,6 +1,6 @@
 import c from "../../config"
 import dungeonUtils from "../../util/dungeonUtils";
-import { pressMovementKey, rightClick } from "../../util/utils";
+import { rightClick } from "../../util/utils";
 
 let p3Levers = [
     [106, 124, 113, 5.7], [94, 124, 113, 5.7], [23, 132, 138, 5.7], 
@@ -39,12 +39,7 @@ const leverTrigger = register("tick", () => {
     const lastClick = leverCooldowns.get(key) || 0;
 
     if (Date.now() - lastClick < CLICK_DELAY) return;
-    if (c.legitRightClicks) {
-        pressMovementKey("useKey", true, () => {
-            Client.scheduleTask(1, () => pressMovementKey("useKey", false))
-        })
-    }
-    else rightClick(true);
+    rightClick(true);
     leverCooldowns.set(key, Date.now());
 }).unregister()
 

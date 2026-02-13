@@ -18,6 +18,8 @@ const FEATURE_FOLDERS = [
     "Random"
 ];
 
+
+
 let ClassifiedASF = null
 
 try {
@@ -98,5 +100,3 @@ register("command", () => {
         activategui()
     }, 25);
 }).setName("pagui")
-
-
