@@ -46,50 +46,6 @@ const tickScanner = register("tick", () => {
     let SAsFound = []
 
     if (c.starMobESP) {
-        // const allEntities = World.getAllEntities().map(e => ({ ct: e, mc: e.toMC() }));
-        // const stands = allEntities.filter(e => e.ct.getName().includes("✯"));
-
-        // stands.forEach(stand => {
-        //     const mcArmor = stand.mc;
-        //     if (!mcArmor.isAlive()) return;
-
-        //     // Pre-match regex so we don't do it inside the next loop
-        //     const name = stand.ct.getName();
-        //     const match = name.match(starMobRegex);
-        //     if (!match) return;
-
-        //     const boundingBox = mcArmor.getBoundingBox()
-        //         .offset(0.0, -1.0, 0.0)
-        //         .expand(0.5, 0.5, 0.5);
-
-        //     // Only look for nearby entities to check intersection
-        //     const possibleMobs = allEntities.filter(e =>
-        //         validEntity(e.mc) &&
-        //         e.ct.distanceTo(stand.ct) < 7
-        //     );
-
-        //     for (let mob of possibleMobs) {
-        //         if (mob.mc.getBoundingBox().intersects(boundingBox)) {
-        //             let starMob = new StarMob(stand.ct);
-        //             let [_, mobName, sa] = match;
-
-        //             let height = 2;
-        //             if (!sa) {
-        //                 if (mobName.includes("Fels")) height = 3;
-        //                 if (mobName.includes("Withermancer")) height = 2.5;
-        //             } else {
-        //                 height = 1.8;
-        //             }
-
-        //             starMob.height = height;
-        //             trackedStands.add(stand.ct);
-        //             starMobs.add(starMob);
-        //             break; // Found the mob for this stand, stop looking for this specific stand
-        //         }
-        //     }
-        // });
-        // 1. Get the list of actual mobs ONCE per trigger execution
-        // This avoids calling World.getAllEntities() hundreds of times inside the loop
         const allPossibleMobs = World.getAllEntities().filter(e => {
             const mcEnt = e.toMC();
             return validEntity(mcEnt);
@@ -105,7 +61,7 @@ const tickScanner = register("tick", () => {
             if (!starMobRegex.test(name)) return;
 
 
-            const box = mcStand.getBoundingBox().offset(0.0, -1.0, 0.0).expand(0.5, 0.75, 0.5);
+            const box = mcStand.getBoundingBox().offset(0.0, -1.0, 0.0).expand(0.25, 0.5, 0.25);
 
 
             for (let mob of allPossibleMobs) {
@@ -115,12 +71,12 @@ const tickScanner = register("tick", () => {
                 const ent = mob.toMC();
 
 
-                if (ent.getBoundingBox().expand(0.5, 0.75, 0.5).intersects(box)) {
+                if (ent.getBoundingBox().expand(0.25, 0.5, 0.25).intersects(box)) {
                     let match = name.match(starMobRegex);
 
                     if (match) {
 
-                        let starMob = new StarMob(stand);
+                        let starMob = new StarMob(mob, stand);
                         let [_, mobName, sa] = match;
 
                         let height = 2;
@@ -142,41 +98,6 @@ const tickScanner = register("tick", () => {
                 }
             }
         });
-
-        // World.getAllEntitiesOfType(ArmorStand).forEach(stand => {
-        //     const mcStand = stand.toMC()
-        //     if (!mcStand.isAlive()) return
-        //     if (!starMobRegex.test(stand.getName())) return
-        //     const box = mcStand.getBoundingBox().offset(0.0, -1.0, 0.0).expand(0.5, 0.75, 0.5)
-
-        //     World.getAllEntities().forEach(entities => {
-        //         const ent = entities.toMC()
-        //         if (!validEntity(ent)) return
-        //         if (ent.getBoundingBox().expand(0.5, 0.75, 0.5).intersects(box)) {
-        //             let match = stand.getName().match(starMobRegex)
-        //             if (match) {
-        //                 let starMob = new StarMob(stand)
-        //                 let [_, mobName, sa] = match
-
-        //                 let height = 2
-        //                 if (!sa) {
-        //                     if (mobName.includes("Fels")) {
-        //                         height = 3;
-        //                     }
-        //                     if (mobName.includes("Withermancer")) height = 2.5
-        //                 }
-        //                 else {
-        //                     height = 1.8
-        //                 }
-        //                 starMob.height = height
-
-        //                 trackedStands.add(stand)
-        //                 starMobs.add(starMob)
-        //             }
-        //         }
-        //     })
-        // })
-
 
         if (trackedStands.size) validStarMobs = true
         else validStarMobs = false
@@ -266,7 +187,7 @@ const mobRenderer = register("renderWorld", () => {
         for (let mob of starMobs) {
             if (!mob) continue;
             let x = mob.entity.getRenderX()
-            let y = mob.entity.getRenderY() - mob.height
+            let y = mob.entity.getRenderY() //- mob.height
             let z = mob.entity.getRenderZ()
             let h = mob.height
 

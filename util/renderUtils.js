@@ -7,12 +7,7 @@ const ItemStateRenderer = Java.type("com.odtheking.odin.utils.render.ItemStateRe
 
 class OdinRenderer {
     constructor() {
-        this.consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
 
-        // Cache the internal fields
-        this.wireField = this._getInternalField("wireBoxes");
-        this.filledField = this._getInternalField("filledBoxes");
-        this.lineField = this._getInternalField("lines");
     }
 
 
@@ -22,13 +17,13 @@ class OdinRenderer {
      * @returns {*} The Java collection or field requested.
      * @private
      */
-    _getInternalField(fieldName) {
+    _getInternalFieldFrom(consumer, fieldName) {
         try {
-            const field = this.consumer.getClass().getDeclaredField(fieldName);
+            const field = consumer.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
-            return field.get(this.consumer);
+            return field.get(consumer);
         } catch (e) {
-            return this.consumer[fieldName] || this.consumer[fieldName + "$odin"];
+            return consumer[fieldName] || consumer[fieldName + "$odin"];
         }
     }
 
@@ -74,10 +69,15 @@ class OdinRenderer {
      * @param {number} [thickness=2] - The line thickness.
      */
     drawOutline(box, color, phase, thickness = 2) {
-        if (!this.wireField) return;
+        const consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
+        if (!consumer) return;
+
+        const wireField = this._getInternalFieldFrom(consumer, "wireBoxes");
+        if (!wireField) return;
+
         const c = this._getColor(color);
         const data = new BoxData(box, c[0], c[1], c[2], c[3], thickness);
-        this.wireField.get(phase ? 1 : 0).add(data);
+        wireField.get(phase ? 1 : 0).add(data);
     }
 
 
@@ -88,10 +88,16 @@ class OdinRenderer {
      * @param {boolean} phase - If true, the box renders through walls.
      */
     drawFilled(box, color, phase) {
-        if (!this.filledField) return;
+        const consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
+        if (!consumer) return;
+
+        const filledField = this._getInternalField(consumer, "filledBoxes");
+        if (!filledField) return;
+
         const c = this._getColor(color);
         const data = new BoxData(box, c[0], c[1], c[2], c[3], 1);
-        this.filledField.get(phase ? 1 : 0).add(data);
+
+        filledField.get(phase ? 1 : 0).add(data);
     }
 
 
@@ -131,7 +137,11 @@ class OdinRenderer {
      * @param {number} [thickness=2] - The line thickness.
      */
     drawTracer(startPos, endPos, color, phase, thickness = 2) {
-        if (!this.lineField) return;
+        const consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
+        if (!consumer) return;
+
+        const lineField = this._getInternalField(consumer, "lines");
+        if (!lineField) return;
         const c = this._getColor(color);
 
         const start = new Vec3d(startPos[0], startPos[1], startPos[2]);
@@ -141,7 +151,7 @@ class OdinRenderer {
         const argb = ((c[3] * 255) << 24) | ((c[0] * 255) << 16) | ((c[1] * 255) << 8) | (c[2] * 255);
 
         const data = new LineData(start, end, argb, argb, thickness);
-        this.lineField.get(phase ? 1 : 0).add(data);
+        lineField.get(phase ? 1 : 0).add(data);
     }
 
 }

@@ -1,7 +1,7 @@
 export default class StarMob {
-    constructor(entity) {
+    constructor(entity, stand) {
         this.entity = entity
-        this.name = entity.getName()
+        this.name = stand.getName()
         this.updateHeight()
         this.update()
     }
