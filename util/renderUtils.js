@@ -91,7 +91,7 @@ class OdinRenderer {
         const consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
         if (!consumer) return;
 
-        const filledField = this._getInternalField(consumer, "filledBoxes");
+        const filledField = this._getInternalFieldFrom(consumer, "filledBoxes");
         if (!filledField) return;
 
         const c = this._getColor(color);
@@ -140,7 +140,7 @@ class OdinRenderer {
         const consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
         if (!consumer) return;
 
-        const lineField = this._getInternalField(consumer, "lines");
+        const lineField = this._getInternalFieldFrom(consumer, "lines");
         if (!lineField) return;
         const c = this._getColor(color);
 
