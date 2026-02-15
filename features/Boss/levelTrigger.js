@@ -45,7 +45,8 @@ const leverTrigger = register("tick", () => {
 
 const chatTrig = register("chat", (name, event) => {
     name = name.removeFormatting();
-    if (name === "Goldor") {
+    const enableBeforeP3 = (c.enableBeforeP3 && (dungeonUtils.currentPhase == 2 || dungeonUtils.currentPhase == 1))
+    if (name === "Goldor" || enableBeforeP3) {
         leverTrigger.register()
         chatTrig.unregister()
     }
@@ -68,7 +69,7 @@ if (c.leverTriggerBot) {
     chatTrig2.register()
 }
 
-if (c.EnableForDevice) {
+if (c.enableForDevice) {
     addDeviceLevers()
 }
 else {
@@ -99,7 +100,7 @@ c.registerListener("Enable Lever Trigger Bot for Device", (curr) => {
 c.registerListener("Lever Trigger Bot", (curr) => {
     if (curr) {
         worldTrig.register()
-        if(dungeonUtils.currentPhase == 3) {
+        if(dungeonUtils.currentPhase == 3 || (c.enableBeforeP3 && (dungeonUtils.currentPhase == 2 || dungeonUtils.currentPhase == 1))) {
             chatTrig.unregister()
             leverTrigger.register()
             chatTrig2.register()

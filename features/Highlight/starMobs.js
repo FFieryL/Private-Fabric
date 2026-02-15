@@ -17,6 +17,21 @@ let validBats = false
 let validSAs = false
 let validPests = false
 
+const smoothers = new Map();
+
+/**
+ * Gets or creates a smoother for a specific entity.
+ * @param {Entity} entity 
+ * @returns {SmoothPos}
+ */
+function getSmoother(entity) {
+    const id = entity.getUUID().toString();
+    if (!smoothers.has(id)) {
+        smoothers.set(id, new RenderUtils.SmoothPos(0.25));
+    }
+    return smoothers.get(id);
+}
+
 function validEntity(entity) {
     if (!entity) return false
     else if ((entity instanceof ArmorStand) || (entity instanceof EntityWither) || (entity instanceof ClientPlayer)) return false;
@@ -186,15 +201,16 @@ const mobRenderer = register("renderWorld", () => {
 
         for (let mob of starMobs) {
             if (!mob) continue;
-            let x = mob.entity.getRenderX()
-            let y = mob.entity.getRenderY() //- mob.height
-            let z = mob.entity.getRenderZ()
-            let h = mob.height
+            const pos = getSmoother(mob.entity).update(
+                mob.entity.getRenderX(), 
+                mob.entity.getRenderY(), 
+                mob.entity.getRenderZ()
+            );
 
             let color = normalColor;
             if (mob.mobType === "fel") color = felColor;
 
-            let newBox = RenderUtils.getBox(x, y, z, w, h)
+            let newBox = RenderUtils.getBox(pos.x, pos.y, pos.z, w, mob.height)
 
             RenderUtils.drawOutline(newBox, color, phase, 2)
             if (highlighttype) RenderUtils.drawFilled(newBox, color, phase)
@@ -204,10 +220,10 @@ const mobRenderer = register("renderWorld", () => {
     if (validSAs) {
         for (let i = 0; i < shadowAssassins.length; i++) {
             let sa = shadowAssassins[i]
-            let [x, y, z] = [sa.getRenderX(), sa.getRenderY(), sa.getRenderZ()]
-            let h = 1.8
+            const pos = getSmoother(sa).update(sa.getRenderX(), sa.getRenderY(), sa.getRenderZ());
+            const h = 1.8
 
-            let newBox = RenderUtils.getBox(x, y, z, w, h)
+            let newBox = RenderUtils.getBox(pos.x, pos.y, pos.z, w, h)
 
             RenderUtils.drawOutline(newBox, c.starMobESPColorSA, phase, 2)
             if (highlighttype) RenderUtils.drawFilled(newBox, c.starMobESPColorSA, phase)
@@ -222,8 +238,8 @@ const mobRenderer = register("renderWorld", () => {
         const batColor = c.batESPColor
         for (let i = 0; i < secretBats.length; ++i) {
             let bat = secretBats[i]
-            let [x, y, z] = [bat.getRenderX(), bat.getRenderY(), bat.getRenderZ()]
-            let newBox = RenderUtils.getBox(x, y, z, w, h)
+            const pos = getSmoother(bat).update(bat.getRenderX(), bat.getRenderY(), bat.getRenderZ());
+            let newBox = RenderUtils.getBox(pos.x, pos.y, pos.z, w, h)
             RenderUtils.drawOutline(newBox, batColor, batPhase, 2)
             if (batHighlightType) RenderUtils.drawFilled(newBox, batColor, batPhase)
         }
@@ -238,13 +254,16 @@ const mobRenderer = register("renderWorld", () => {
         const phase = c.pestESPThruBlocks
         for (let i = 0; i < pests.length; ++i) {
             let pest = pests[i]
-            let [x, y, z] = [pest.getRenderX(), pest.getRenderY() + 1.2, pest.getRenderZ()]
-            let newBox = RenderUtils.getBox(x, y, z, w, h)
+            const pos = getSmoother(pest).update(pest.getRenderX(), pest.getRenderY(), pest.getRenderZ());
+            
+            let drawY = pos.y + 1.2;
+            let newBox = RenderUtils.getBox(pos.x, drawY, pos.z, 0.8, 0.8)
 
             if (c.pestESPHighlightType == 1) RenderUtils.drawFilled(newBox, fillColor, phase)
             RenderUtils.drawOutline(newBox, outlineColor, phase, 2)
+
             if (!c.pestESPTracer) continue;
-            let entityPos = [x, y + 0.6, z]
+            let entityPos = [pos.x, drawY - 0.6, pos.z]
             RenderUtils.drawTracer(RenderUtils.calculateCameraPos(), entityPos, tracerColor, true, 5)
         }
     }
@@ -262,6 +281,7 @@ register("worldUnload", () => {
     validPests = false
     gardenTickChecker.unregister()
     gardenRegistered = false
+    smoothers.clear();
 })
 
 if (c.starMobESP) tickScanner.register()
@@ -275,6 +295,7 @@ c.registerListener("Star mob Highlight", (prev, curr) => {
         if (!c.batESP) {
             tickScanner.unregister()
             mobRenderer.unregister()
+            smoothers.clear();
         }
         starMobs.clear()
         trackedStands.clear()
@@ -291,6 +312,7 @@ c.registerListener("Bat Highlight", (prev, curr) => {
         if (!c.starMobESP) {
             tickScanner.unregister()
             mobRenderer.unregister()
+            smoothers.clear();
         }
         secretBats = []
         validBats = false

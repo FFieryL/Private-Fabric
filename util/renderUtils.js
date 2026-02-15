@@ -5,6 +5,34 @@ const Vec3d = Java.type("net.minecraft.util.math.Vec3d");
 const RenderBatchManager = Java.type("com.odtheking.odin.utils.render.RenderBatchManager");
 const ItemStateRenderer = Java.type("com.odtheking.odin.utils.render.ItemStateRenderer");
 
+class SmoothPos {
+    constructor(smoothing = 0.25) {
+        this.smoothing = smoothing;
+        this.pos = null;
+    }
+
+    /**
+     * Updates and returns the smoothed coordinates.
+     * @param {number} tx - Target X
+     * @param {number} ty - Target Y
+     * @param {number} tz - Target Z
+     */
+    update(tx, ty, tz) {
+        if (!this.pos) {
+            this.pos = { x: tx, y: ty, z: tz };
+        } else {
+            this.pos.x += (tx - this.pos.x) * this.smoothing;
+            this.pos.y += (ty - this.pos.y) * this.smoothing;
+            this.pos.z += (tz - this.pos.z) * this.smoothing;
+        }
+        return this.pos;
+    }
+
+    reset() {
+        this.pos = null;
+    }
+}
+
 class OdinRenderer {
     constructor() {
 
@@ -157,4 +185,5 @@ class OdinRenderer {
 }
 
 const RenderUtils = new OdinRenderer();
+RenderUtils.SmoothPos = SmoothPos;
 export default RenderUtils;

@@ -1,6 +1,7 @@
 import c from "./config"
 import { activategui } from "./managers/guimanager";
 import "./managers/updateManager"
+import { triggerPacketChat } from "./util/Events";
 
 
 const File = Java.type("java.io.File")
@@ -92,6 +93,7 @@ register("command", () => {
 
 register("command", (...args) => {
     const fullMessage = args.join(" ")
+    triggerPacketChat(fullMessage)
     ChatLib.simulateChat(fullMessage)
 }).setName("simulatechat")
 

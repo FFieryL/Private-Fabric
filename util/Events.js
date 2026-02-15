@@ -67,23 +67,30 @@ export const onTabLineAdded = (func) => tablistAddFuncs.push(func)
 
 export const onTabLineUpdated = (func) => tablistUpdateFuncs.push(func)
 
+
+
+const GameMessageS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.GameMessageS2CPacket")
+const packetChatTriggers = [];
+
+export function registerPacketChat(callback) {
+    packetChatTriggers.push(callback);
+}
+
+export function triggerPacketChat(message) {
+    for (let callback of packetChatTriggers) {
+        callback(message);
+    }
+}
+
 register("packetReceived", (packet) => {
-    if (!(packet instanceof PlayerListS2CPacket)) return;
-    const players = packet.getEntries()
-    const actions = packet.getActions()
+    if (packet.overlay()) return;
 
-    const isUpdate = actions == "[UPDATE_DISPLAY_NAME]"
-    const isAdd = actions == "[ADD_PLAYER]"
+    const message = packet.content().getString();
+    if (!message || message.trim().length === 0) return;
 
-    if (!isUpdate && !isAdd) return
+    for (let callback of packetChatTriggers) {
+        callback(message);
+    }
 
-    players.forEach(entry => {
-        const name = entry.displayName() // or entry.getDisplayName()
-        if (!name) return
+}).setFilteredClass(GameMessageS2CPacket);
 
-        const text = name.getString()
-
-        if (isUpdate) triggerEvent(tablistUpdateFuncs, text)
-        if (isAdd) triggerEvent(tablistAddFuncs, text)
-    })
-}).setFilteredClass(PlayerListS2CPacket)

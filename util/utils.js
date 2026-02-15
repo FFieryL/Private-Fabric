@@ -1,7 +1,6 @@
 import * as ConfigModule from "../config";
 export const ChatMessageC2SPacket = Java.type("net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket")
 export const ChatMessageS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.ChatMessageS2CPacket")
-export const GameMessageS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.GameMessageS2CPacket")
 export const OpenScreenS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.OpenScreenS2CPacket") // S2DPacketOpenWindow
 export const ScreenHandlerSlotUpdateS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket"); // S2FPacketSetSlot
 export const CloseScreenS2CPacket = Java.type('net.minecraft.network.packet.s2c.play.CloseScreenS2CPacket'); // S2EPacketCloseWindow
@@ -12,7 +11,7 @@ export const TitleS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.T
 export const SubtitleS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.SubtitleS2CPacket")
 export const WorldTimeUpdateS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket"); // S03packet
 export const PlayerPositionLookS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket"); // s08packet
-export const bossnames = ["Maxor", "Storm", "Goldor", "Necron", "Wither King"]
+export const bossnames = ["Maxor", "Storm", "Goldor", "Necron"]
 export const EntityWither = Java.type("net.minecraft.entity.boss.WitherEntity")
 export const DisconnectedScreen = Java.type("net.minecraft.client.gui.screen.DisconnectedScreen"); // GuiDisconnected
 export const ConnectScreen = Java.type("net.minecraft.client.gui.screen.ConnectScreen"); // GuiConnecting

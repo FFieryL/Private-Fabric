@@ -93,6 +93,7 @@ class config {
         this.addDependency("Show names", "Terminal Notifier");
 
         this.addDependency("Enable Lever Trigger Bot for Device", "Lever Trigger Bot");
+        this.addDependency("Enable Before P3", "Lever Trigger Bot")
 
         this.addDependency("Item Border Color", "Armor and EQ gui")
         this.addDependency("GUI Background Color", "Armor and EQ gui")
@@ -721,7 +722,15 @@ class config {
         category: "Boss",
         subcategory: "§cP3"
     })
-    EnableForDevice = false;
+    enableForDevice = false;
+
+    @SwitchProperty({
+        name: "Enable Before P3",
+        description: "This will allow lever trigger bot to work between p1-p3",
+        category: "Boss",
+        subcategory: "§cP3"
+    })
+    enableBeforeP3 = false
 
     // 4. TERMINALS (§d)
     @SwitchProperty({

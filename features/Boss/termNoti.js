@@ -180,7 +180,8 @@ const blockedPhrases = [
 // }
 
 const cancelTitlesTrig = register("packetReceived", (packet, event) => {
-    const text = packet?.text().toString().removeFormatting().toLowerCase();
+    if (!(packet instanceof TitleS2CPacket || packet instanceof SubtitleS2CPacket)) return;
+    const text = packet.text().toString().removeFormatting().toLowerCase();
     if(!InP3 || !c.TermNoti) return;
     if (!text) return;
     if (blockedPhrases.some(phrase => text.includes(phrase.toLowerCase()))) cancel(event)

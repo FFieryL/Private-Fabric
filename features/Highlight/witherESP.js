@@ -3,50 +3,73 @@ import dungeonUtils from "../../util/dungeonUtils"
 import { bossnames, EntityWither } from "../../util/utils"
 import RenderUtils from "../../util/renderUtils"
 
-const worldTrig = register("worldUnload", () => {
-    renderTrig.unregister()
+let cachedWither = null
+const smoother = new RenderUtils.SmoothPos(0.25)
+
+
+const witherFinder = register("tick", () => {
+    cachedWither = World.getAllEntitiesOfType(EntityWither)
+        .find(entity => !entity.isInvisible() && entity.getHP() != 300)
+
+    if (!cachedWither) smoother.reset()
 }).unregister()
 
-const chatTrig = register("chat", (name, event) => {
-    name = name.removeFormatting();
+const worldTrig = register("worldUnload", () => {
+    renderTrig.unregister()
+    cachedWither = null
+    smoother.reset()
+}).unregister()
+
+const chatTrig = register("chat", (name) => {
+    name = name.removeFormatting()
     if (name === "Wither King") {
         renderTrig.unregister()
-        return;
+        witherFinder.unregister()
+        return
     }
-    if (bossnames.some(boss => boss.includes(name))) renderTrig.register()
+    else if (bossnames.some(boss => boss.includes(name))) {
+        renderTrig.register()
+        witherFinder.register()
+    }
 }).setCriteria("[BOSS] ${name}: ${*}").unregister()
 
-
 const renderTrig = register("renderWorld", () => {
-    const wither = World.getAllEntitiesOfType(EntityWither).find(entity => !entity.isInvisible() && entity.getHP() != 300)
-    if (!wither) return
+    if (!cachedWither) return
 
-    let [x, y, z] = [wither.getRenderX(), wither.getRenderY(), wither.getRenderZ()]
+    const pos = smoother.update(cachedWither.getRenderX(), cachedWither.getRenderY(), cachedWither.getRenderZ())
+
     const h = 3.4
     const w = 1
 
-    const witherBox = RenderUtils.getBox(x, y, z, w, h)
-
+    const witherBox = RenderUtils.getBox(pos.x, pos.y, pos.z, w, h)
     const phase = c.witherThruBlocks
 
     if (c.espWitherType == 1) RenderUtils.drawFilled(witherBox, c.witherESPColorFill, phase)
+
     RenderUtils.drawOutline(witherBox, c.witherESPColorBox, phase, 2)
 
-    if(c.witherTracer && dungeonUtils.currentPhase == 3 && dungeonUtils.currentStage == 5) {
-        let entityPos = [x,y + wither.getHeight() / 2,z]
-        RenderUtils.drawTracer(RenderUtils.calculateCameraPos(), entityPos, c.witherESPColorTracer, phase, 5)
+    if (c.witherTracer && dungeonUtils.currentPhase == 3 && dungeonUtils.currentStage == 5) {
+        const entityPos = [pos.x, pos.y + cachedWither.getHeight() / 2, pos.z]
+        RenderUtils.drawTracer(
+            RenderUtils.calculateCameraPos(),
+            entityPos,
+            c.witherESPColorTracer,
+            phase,
+            5
+        )
     }
 }).unregister()
 
-
 if (c.espWither) {
-    if((dungeonUtils.currentPhase > 0 && dungeonUtils.currentPhase < 5)) renderTrig.register()
+    if ((dungeonUtils.currentPhase > 0 && dungeonUtils.currentPhase < 5))
+        renderTrig.register()
     chatTrig.register()
 }
 
 c.registerListener("Wither Highlight", (curr) => {
     if (curr) {
-        if((dungeonUtils.currentPhase > 0 && dungeonUtils.currentPhase < 5)) renderTrig.register()
+        if ((dungeonUtils.currentPhase > 0 && dungeonUtils.currentPhase < 5))
+            renderTrig.register()
         chatTrig.register()
         worldTrig.register()
     }
@@ -54,5 +77,7 @@ c.registerListener("Wither Highlight", (curr) => {
         renderTrig.unregister()
         chatTrig.unregister()
         worldTrig.unregister()
+        smoothPos = null
+        cachedWither = null
     }
 })
