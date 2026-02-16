@@ -6,8 +6,9 @@ const RenderBatchManager = Java.type("com.odtheking.odin.utils.render.RenderBatc
 const ItemStateRenderer = Java.type("com.odtheking.odin.utils.render.ItemStateRenderer");
 
 class SmoothPos {
-    constructor(smoothing = 0.25) {
+    constructor(smoothing = 0.25, snapThreshold = 0.01) {
         this.smoothing = smoothing;
+        this.snapThreshold = snapThreshold;
         this.pos = null;
     }
 
@@ -20,11 +21,30 @@ class SmoothPos {
     update(tx, ty, tz) {
         if (!this.pos) {
             this.pos = { x: tx, y: ty, z: tz };
-        } else {
-            this.pos.x += (tx - this.pos.x) * this.smoothing;
-            this.pos.y += (ty - this.pos.y) * this.smoothing;
-            this.pos.z += (tz - this.pos.z) * this.smoothing;
+            return this.pos;
         }
+
+        const dx = tx - this.pos.x;
+        const dy = ty - this.pos.y;
+        const dz = tz - this.pos.z;
+        const distanceSq = dx * dx + dy * dy + dz * dz;
+
+        if (distanceSq > 100) { 
+            this.pos = { x: tx, y: ty, z: tz };
+            return this.pos;
+        }
+
+        if (distanceSq < (this.snapThreshold * this.snapThreshold)) {
+            this.pos.x = tx;
+            this.pos.y = ty;
+            this.pos.z = tz;
+        } else {
+            // Apply smoothing
+            this.pos.x += dx * this.smoothing;
+            this.pos.y += dy * this.smoothing;
+            this.pos.z += dz * this.smoothing;
+        }
+
         return this.pos;
     }
 
@@ -35,7 +55,12 @@ class SmoothPos {
 
 class OdinRenderer {
     constructor() {
+        this.consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
 
+        // Cache the internal fields
+        this.wireField = this._getInternalField("wireBoxes");
+        this.filledField = this._getInternalField("filledBoxes");
+        this.lineField = this._getInternalField("lines");
     }
 
 
@@ -45,13 +70,13 @@ class OdinRenderer {
      * @returns {*} The Java collection or field requested.
      * @private
      */
-    _getInternalFieldFrom(consumer, fieldName) {
+    _getInternalField(fieldName) {
         try {
-            const field = consumer.getClass().getDeclaredField(fieldName);
+            const field = this.consumer.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
-            return field.get(consumer);
+            return field.get(this.consumer);
         } catch (e) {
-            return consumer[fieldName] || consumer[fieldName + "$odin"];
+            return this.consumer[fieldName] || this.consumer[fieldName + "$odin"];
         }
     }
 
@@ -97,15 +122,10 @@ class OdinRenderer {
      * @param {number} [thickness=2] - The line thickness.
      */
     drawOutline(box, color, phase, thickness = 2) {
-        const consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
-        if (!consumer) return;
-
-        const wireField = this._getInternalFieldFrom(consumer, "wireBoxes");
-        if (!wireField) return;
-
+        if (!this.wireField) return;
         const c = this._getColor(color);
         const data = new BoxData(box, c[0], c[1], c[2], c[3], thickness);
-        wireField.get(phase ? 1 : 0).add(data);
+        this.wireField.get(phase ? 1 : 0).add(data);
     }
 
 
@@ -116,16 +136,10 @@ class OdinRenderer {
      * @param {boolean} phase - If true, the box renders through walls.
      */
     drawFilled(box, color, phase) {
-        const consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
-        if (!consumer) return;
-
-        const filledField = this._getInternalFieldFrom(consumer, "filledBoxes");
-        if (!filledField) return;
-
+        if (!this.filledField) return;
         const c = this._getColor(color);
         const data = new BoxData(box, c[0], c[1], c[2], c[3], 1);
-
-        filledField.get(phase ? 1 : 0).add(data);
+        this.filledField.get(phase ? 1 : 0).add(data);
     }
 
 
@@ -165,11 +179,7 @@ class OdinRenderer {
      * @param {number} [thickness=2] - The line thickness.
      */
     drawTracer(startPos, endPos, color, phase, thickness = 2) {
-        const consumer = RenderBatchManager.INSTANCE.getRenderConsumer();
-        if (!consumer) return;
-
-        const lineField = this._getInternalFieldFrom(consumer, "lines");
-        if (!lineField) return;
+        if (!this.lineField) return;
         const c = this._getColor(color);
 
         const start = new Vec3d(startPos[0], startPos[1], startPos[2]);
@@ -179,7 +189,7 @@ class OdinRenderer {
         const argb = ((c[3] * 255) << 24) | ((c[0] * 255) << 16) | ((c[1] * 255) << 8) | (c[2] * 255);
 
         const data = new LineData(start, end, argb, argb, thickness);
-        lineField.get(phase ? 1 : 0).add(data);
+        this.lineField.get(phase ? 1 : 0).add(data);
     }
 
 }

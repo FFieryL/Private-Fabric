@@ -42,7 +42,7 @@ register("command", () => {
             const moduleFolder = new File(`./config/ChatTriggers/modules/${MODULE_NAME}`);
             if (moduleFolder.exists()) {
                 chat("&7Cleaning up old files...");
-                
+
                 const deleteExtraFiles = (dir, currentPath = "") => {
                     const list = dir.listFiles();
                     if (!list) return;
@@ -50,10 +50,10 @@ register("command", () => {
                     list.forEach(file => {
                         const fileName = file.getName();
                         const relativePath = currentPath === "" ? fileName : `${currentPath}/${fileName}`;
-                        
+
                         // Ignore the data folder entirely
                         if (fileName === "data" || fileName.startsWith(".") || relativePath.startsWith("data/")) return;
-                        
+
                         if (file.isDirectory()) {
                             deleteExtraFiles(file, relativePath);
                             // Delete folder if it's now empty
@@ -117,8 +117,25 @@ register("command", () => {
             Client.scheduleTask(0, () => {
                 ChatLib.actionBar("");
                 if (state.modified) {
-                    chat("&aUpdate successful! &8Reloading...");
-                    ChatLib.command("ct load", true);
+                    // chat("&aUpdate successful! &8Reloading...");
+                    // ChatLib.command("ct load", true);
+                    const reloadMessage = new TextComponent(
+                        "",
+                        {
+                            "text": "&5&lREADY TO RELOAD! &b&l[CLICK HERE]",
+                            "clickEvent": {
+                                "action": "run_command",
+                                "value": "/ct load"
+                            },
+                            "hoverEvent": {
+                                "action": "show_text",
+                                "value": "&eClick to reload your modules!"
+                            }
+                        },
+                        "&7 to ct load."
+                    );
+
+                    reloadMessage.chat();
                 } else {
                     chat("&eNo changes detected. &7Latest version confirmed.");
                 }

@@ -4,7 +4,7 @@ import { bossnames, EntityWither } from "../../util/utils"
 import RenderUtils from "../../util/renderUtils"
 
 let cachedWither = null
-const smoother = new RenderUtils.SmoothPos(0.23)
+const smoother = new RenderUtils.SmoothPos(0.15)
 
 
 const witherFinder = register("tick", () => {

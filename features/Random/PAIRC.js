@@ -1,7 +1,7 @@
 import PogObject from "../../../PogData";
-import { chat, ChatMessageC2SPacket, getColorCodes } from "../../util/utils";
+import { chat, ChatMessageC2SPacket, getColorCodes, playSound } from "../../util/utils";
 import WebSocketPASF from "../../util/websocket";
-
+import c from "../../config"
 const WS_URL = "wss://private-irc.onrender.com/?user=" + encodeURIComponent(Player.getName());
 
 const ircData = new PogObject("PrivateASF-Fabric",{color: "&5", fulldisable: false}, "data/irc_data.json");
@@ -11,6 +11,7 @@ let username = Player.getName();
 let color = ircData.color;
 let inIRC = false;
 let manuallyDisabled = false;
+let noSoundNext = false;
 
 const WS_STATE = {
     DISCONNECTED: 0,
@@ -31,6 +32,8 @@ const helpMsg = [
 
 function ircChat(msg) {
     ChatLib.chat(`&l&0PA IRC&7 >> ${msg}`);
+    if (!noSoundNext && c.ircChatSound) playSound(c.ircChatSoundType, c.ircChatSoundVolume / 100, c.ircChatSoundPitch / 100)
+    noSoundNext = false
 }
 
 function ensureConnected() {
@@ -227,7 +230,7 @@ const ifInIRC = register("packetSent", (packet, event) => {
     if (!message) return;
     if (!message.startsWith("/") && !message.startsWith("!")) {
         cancel(event)
-        
+        noSoundNext = true
         if (myWS && myWS.isOpen()) {
             myWS.send(JSON.stringify({
                 user: color + username,
@@ -271,3 +274,5 @@ register("serverConnect", () => {
 register("serverDisconnect", () => {
     disconnect()
 });
+
+connect()

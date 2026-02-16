@@ -104,6 +104,10 @@ class config {
 
         this.addDependency("GUI Border Color", "Armor and EQ gui")
 
+        this.addDependency("IRC Sound Type", "IRC toggle sound")
+        this.addDependency("IRC Sound Volume", "IRC toggle sound")
+        this.addDependency("IRC Sound Pitch", "IRC toggle sound")
+
         this.registerListener("Open Gui Editor", (curr) => {
             Client.currentGui.close()
             activategui()
@@ -333,20 +337,20 @@ class config {
         description: "Adjust the volume of the secret chime",
         category: "Highlight",
         subcategory: "§bSecrets",
-        min: 0.01,   
-        max: 1,   
+        min: 0.01,
+        max: 1,
     })
     secretVolume = 0.5;
 
-    @PercentSliderProperty({
+    @SliderProperty({
         name: "Secret Pitch",
         description: "Adjust the pitch of the secret chime",
         category: "Highlight",
         subcategory: "§bSecrets",
         min: 0,
-        max: 1
+        max: 200
     })
-    secretPitch = 0.5;
+    secretPitch = 1;
 
     @SwitchProperty({
         name: "Secret Highlight",
@@ -884,6 +888,43 @@ class config {
         options: ["PrivateASF", "Private", "PA", "PASF"]
     })
     customPrefix = 0;
+
+    @SwitchProperty({
+        name: "IRC toggle sound",
+        description: "make a sound when you recieve a IRC message",
+        category: "Settings",
+        subcategory: "§1IRC",
+    })
+    ircChatSound = false;
+
+    @TextProperty({
+        name: "IRC Sound Type",
+        description: "default 0.6",
+        category: "Settings",
+        subcategory: "§1IRC",
+    })
+    ircChatSoundType = "random.orb";
+
+    @SliderProperty({
+        name: "IRC Sound Volume",
+        description: "",
+        category: "Settings",
+        subcategory: "§1IRC",
+        min: 0,
+        max: 100
+    })
+    ircChatSoundVolume = 1;
+
+    @SliderProperty({
+        name: "IRC Sound Pitch",
+        description: "",
+        category: "Settings",
+        subcategory: "§1IRC",
+        min: 0,
+        max: 200
+    })
+    ircChatSoundPitch = 1;
+
 
 }
 

@@ -66,7 +66,7 @@ register("packetSent", (packet) => {
     const blockName = block.type.getRegistryName();
     if (!validBlocks.includes(blockName)) return;
     if (blockName === "minecraft:player_head" && !isValidSkull(x, y, z)) return;
-    if (c.secretChime) playSound(c.secretSoundType, c.secretVolume, c.secretPitch)
+    if (c.secretChime) playSound(c.secretSoundType, c.secretVolume, (c.secretPitch / 100).toFixed(2))
     if (c.secretHighlight) highlightBlock(block);
 }).setFilteredClass(PlayerInteractBlockC2SPacket);
 
