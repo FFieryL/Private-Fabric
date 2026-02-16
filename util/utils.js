@@ -34,6 +34,7 @@ export function getPrefix() {
     return `&l&0${name}&7 >>`;
 }
 
+
 export function isPlayerInBox(x1, x2, y1, y2, z1, z2) {
     const x = Player.getX();
     const y = Player.getY();
@@ -86,10 +87,63 @@ export function getColorCodes(colorName) {
 }
 
 const soundMap = {
-    "random.orb": "entity.experience_orb.pickup",
-    "note.pling": "block.note_block.pling",
-    "random.explode": "entity.generic.explode"
-}
+  // Player & Entity
+  "game.player.hurt":                "entity.player.hurt",
+  "game.player.die":                 "entity.player.death",
+  "game.player.jump":                "entity.player.jump",
+  "game.player.levelup":             "entity.player.levelup",
+  "game.player.swim.splash":         "entity.player.splash",
+  "game.player.swim":                "entity.player.swim",
+  "game.hostile.hurt":               "entity.generic.hurt",
+  "game.hostile.die":                "entity.generic.death",
+
+  // Mobs
+  "random.orb":                      "entity.experience_orb.pickup",
+  "note.pling":                      "block.note_block.pling",
+  "random.explode":                  "entity.generic.explode",
+  "game.enderdragon.end":            "entity.ender_dragon.death",
+  "game.enderdragon.wings":          "entity.ender_dragon.flap",
+  "game.ghast.fireball":             "entity.ghast.shoot",
+  "game.blaze.breathe":              "entity.blaze.ambient",
+  "game.creeper.hiss":               "entity.creeper.primed",
+
+  // Block interactions
+  "dig.grass":                       "block.grass.break",
+  "dig.stone":                       "block.stone.break",
+  "dig.wood":                        "block.wood.break",
+  "fire.ignite":                     "item.flintandsteel.use",
+  "fire.fire":                       "block.fire.ambient",
+
+  // Doors / Chests
+  "door.open":                      "block.wooden_door.open",
+  "door.close":                     "block.wooden_door.close",
+  "chest.open":                     "block.chest.open",
+  "chest.close":                    "block.chest.close",
+
+  // Liquids
+  "liquid.water":                  "block.water.ambient",
+  "liquid.lavapop":                "block.lava.pop",
+  "liquid.lava":                   "block.lava.ambient",
+
+  // Weather / Ambient
+  "ambient.cave.cave":             "ambient.cave",
+  "ambient.weather.rain":          "weather.rain",
+  "ambient.weather.thunder":       "entity.lightning.thunder",
+
+  // UI
+  "random.click":                  "ui.button.click",
+
+  // Music / Records
+  "music.menu":                   "music.menu",
+  "record.cat":                   "music_disc.cat",
+  "record.11":                    "music_disc.11",
+
+  // Anvil
+  "random.anvil_use":          "block.anvil.use",
+  "random.anvil_land":         "block.anvil.land",
+  "random.anvil_break":        "block.anvil.break",
+};
+
 
 /**
  * Plays a sound compatible with 1.21.10
@@ -148,9 +202,8 @@ export const getScoreboard = (formatted = false) => {
     return sb.map(a => ChatLib.removeFormatting(a))
 }
 
-export function rightClick(shouldSwing = false) {
-    const c = ConfigModule.default;
-    if (c && c.legitClicks) {
+export function rightClick(shouldSwing = false, legitClick = true) {
+    if (legitClick) {
         Client.getMinecraft().options["useKey"].setPressed(true)
         Client.scheduleTask(1, () => Client.getMinecraft().options["useKey"].setPressed(false))
     }

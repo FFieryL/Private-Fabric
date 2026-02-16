@@ -1,6 +1,7 @@
 import c from "../../config"
 import { data, drawText, registerOverlay } from "../../managers/guimanager"
 import dungeonUtils from "../../util/dungeonUtils"
+import { registerPacketChat } from "../../util/Events"
 import { bloodStartMessages, chat, CommonPingS2CPacket, playSound } from "../../util/utils"
 
 registerOverlay("BloodTimer", { text: () => "Kill Now", align: "center", colors: true, setting: () => c.bloodTimer})
@@ -23,12 +24,12 @@ function reset() {
     scheduled = false
 }
 
-const chatTrig1 = register("chat", (message) => {
-    if (!bloodStartMessages.includes(message.removeFormatting())) return
+const chatTrig1 = registerPacketChat((message) => {
+    if (!bloodStartMessages.includes(message)) return
     bloodStartTime = Date.now()
     bloodStartTicks = 0
     bloodServerTicks.register()
-}).setCriteria("${message}").unregister()
+}).unregister()
 
 const bloodServerTicks = register('packetReceived', (packet) => {
     if (!(packet instanceof CommonPingS2CPacket) || packet.getParameter() == 0) return;
@@ -41,7 +42,8 @@ const bloodServerTicks = register('packetReceived', (packet) => {
     }
 }).setFilteredClass(CommonPingS2CPacket).unregister()
 
-const chatTrig2 = register("chat", () => {
+const chatTrig2 = registerPacketChat((message) => {
+    if (message != "[BOSS] The Watcher: Let's see how you can handle this.") return
     const bloodMove = ((Math.floor((Date.now() - bloodStartTime) / 10) / 100) + 0.10).toFixed(2)
     let bloodMovePredictionTicks
     const bloodMoveTicks = (bloodStartTicks * 0.05 + 0.1).toFixed(2)
@@ -79,7 +81,7 @@ const chatTrig2 = register("chat", () => {
             }, bloodTicks * 50 + 750)
         }
     }
-}).setCriteria("[BOSS] The Watcher: Let's see how you can handle this.").unregister()
+}).unregister()
 
 
 const bloodOverlay = register("renderOverlay", (ctx) => {

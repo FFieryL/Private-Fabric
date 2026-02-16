@@ -27,7 +27,7 @@ const smoothers = new Map();
 function getSmoother(entity) {
     const id = entity.getUUID().toString();
     if (!smoothers.has(id)) {
-        smoothers.set(id, new RenderUtils.SmoothPos(0.25));
+        smoothers.set(id, new RenderUtils.SmoothPos(0.23));
     }
     return smoothers.get(id);
 }

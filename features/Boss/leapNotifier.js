@@ -1,6 +1,7 @@
 import c from "../../config"
 import { data, drawText, OverlayEditor, registerOverlay } from "../../managers/guimanager";
 import dungeonUtils from "../../util/dungeonUtils";
+import { registerPacketChat } from "../../util/Events";
 registerOverlay("LeapNoti", { text: () => "0/4 Leaped", align: "center", colors: true, setting: () => c.leapNoti})
 
 let playersLeapt = [];
@@ -66,14 +67,14 @@ function inRange(spot) {
     return false;
 }
 
-const chatTrig = register("chat", (name, event) => {
-    name = name.removeFormatting();
+const chatTrig = dungeonUtils.onBossMessage((name) => {
     if (name === "Storm" || name === "Goldor") locationListener.register()
     if (name === "Wither King") {
         locationListener.unregister();
         display.unregister();
     }
-}).setCriteria("[BOSS] ${name}: ${*}").unregister()
+}).unregister()
+
 
 const worldTrig = register("worldLoad", () => {
     locationListener.unregister();

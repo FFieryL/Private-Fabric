@@ -1,6 +1,7 @@
 import c from "../../config"
 import { data, drawText, registerOverlay } from "../../managers/guimanager"
 import dungeonUtils from "../../util/dungeonUtils"
+import { registerPacketChat } from "../../util/Events"
 import { chat, WorldTimeUpdateS2CPacket, PlayerPositionLookS2CPacket, CommonPingS2CPacket, bloodStartMessages } from "../../util/utils"
 registerOverlay("StormTimer", { text: () => "0.00", align: "center", colors: true, setting: () => c.stormTimer })
 registerOverlay("P3Timer", { text: () => "0.00", align: "center", colors: false, setting: () => c.goldorTimer })
@@ -47,24 +48,29 @@ const worldLoad = register("worldUnload", () => {
     LBTimer.unregister()
 }).unregister()
 
-register("chat", () => {
-    global.stormTicks = 0
-    if (c.pyLBTimer || c.stormTimer) {
-        stormTickListener.register()
-        if (c.stormTimer) {
-            overlay.register();
+
+registerPacketChat((message) => {
+    
+    if (message == "[BOSS] Storm: Pathetic Maxor, just like expected.") {
+        global.stormTicks = 0
+        if (c.pyLBTimer || c.stormTimer) {
+            stormTickListener.register()
+            if (c.stormTimer) {
+                overlay.register();
+            }
         }
     }
-}).setCriteria("[BOSS] Storm: Pathetic Maxor, just like expected.")
 
-register("chat", () => {
-    resetStuffStorm()
-    LBTimer.unregister()
-    if (!c.goldorStartTimer) return;
-    global.goldorTicks = 104
-    stormEnded = true
-    goldorStartOverlay.register()
-}).setCriteria("[BOSS] Storm: I should have known that I stood no chance.")
+
+    else if (message == "[BOSS] Storm: I should have known that I stood no chance.") {
+        resetStuffStorm()
+        LBTimer.unregister()
+        if (!c.goldorStartTimer) return;
+        global.goldorTicks = 104
+        stormEnded = true
+        goldorStartOverlay.register()
+    }
+})
 
 
 // Storm Timer
@@ -90,7 +96,8 @@ function resetStuffGoldor() {
     goldorOverlay.unregister()
 }
 
-register("chat", () => {
+registerPacketChat((message) => {
+    if (message != "[BOSS] Goldor: Who dares trespass into my domain?") return;
     stormEnded = false
     if (!c.goldorTimer) return;
     if (c.goldorTimerType == 0) global.goldorTicks = 60;
@@ -99,11 +106,12 @@ register("chat", () => {
     goldorStarted = true
     goldorOverlay.register();
     goldorStartOverlay.unregister()
-}).setCriteria("[BOSS] Goldor: Who dares trespass into my domain?")
+})
 
-const chatTrig3 = register("chat", () => {
+const chatTrig3 = registerPacketChat((message) => {
+    if (message != "The Core entrance is opening!") return;
     resetStuffGoldor()
-}).setCriteria("The Core entrance is opening!").unregister()
+}).unregister()
 
 const goldorOverlay = register("renderOverlay", (cfx) => {
     const timeT = global.goldorTicks
@@ -136,9 +144,9 @@ const goldorStartOverlay = register("renderOverlay", (cfx) => {
 
 //Timer for perfect LB release
 
-const chatTrig1 = register("chat", () => {
-    LBTimer.register()
-}).setCriteria(/\[BOSS\] Storm: (ENERGY HEED MY CALL!|THUNDER LET ME BE YOUR CATALYST!)/).unregister()
+const chatTrig1 = registerPacketChat((message) => {
+    if (message.match(/\[BOSS\] Storm: (ENERGY HEED MY CALL!|THUNDER LET ME BE YOUR CATALYST!)/)) LBTimer.register()
+}).unregister()
 
 
 const LBTimer = register("renderOverlay", (cfx) => {
@@ -168,7 +176,8 @@ const LBTimer = register("renderOverlay", (cfx) => {
 }).unregister()
 
 
-register("chat", () => {
+registerPacketChat((message) => {
+    if (message != "⚠ Storm is enraged! ⚠") return;
     if (!c.sendStormTime) return;
     deathTime = global.stormTicks
     chat(`&aStorm died at &e${(global.stormTicks / 20).toFixed(2)}s&r.`)
@@ -176,8 +185,8 @@ register("chat", () => {
     setTimeout(() => {
         stormDeathTime.unregister()
     }, 2000);
+})
 
-}).setCriteria("⚠ Storm is enraged! ⚠")
 
 const stormDeathTime = register("renderOverlay", (cfx) => {
     let displayText = (deathTime / 20).toFixed(2)
@@ -253,24 +262,20 @@ const spawnPosition = register('packetReceived', (packet) => {
     }
 }).setFilteredClass(PlayerPositionLookS2CPacket);
 
-register("chat", (message) => {
-    const newMSG = message.removeFormatting()
+registerPacketChat((message) => {
     const messageTrig = c.deathTickTimerBloodOpen;
-
     const isBloodStart = bloodStartMessages.includes(message);
-    const isMort = newMSG.includes("[NPC] Mort: Here, I found this map when I first entered the dungeon.") ||
-        newMSG.includes("[NPC] Mort: Good luck.");
-
+    const isMort = message.includes("[NPC] Mort: Here, I found this map when I first entered the dungeon.") || message.includes("[NPC] Mort: Good luck.");
     if ((messageTrig && isBloodStart) || (!messageTrig && isMort)) {
         spawnPos = null;
         serverTick.unregister();
         deathTickOverlay.unregister();
     }
-    if (!newMSG.includes("Sending to server")) return;
+    if (!message.includes("Sending to server")) return;
     deathTicks = -1;
     spawnPos = null;
     spawnPosition.register()
-}).setCriteria("${message}")
+})
 
 const deathTickOverlay = register("renderOverlay", (cfx) => {
     if (dungeonUtils.inBoss) deathTickOverlay.unregister()

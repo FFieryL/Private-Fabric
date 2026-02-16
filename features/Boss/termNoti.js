@@ -1,6 +1,7 @@
 import c from "../../config"
 import { data, drawText, registerOverlay } from "../../managers/guimanager"
 import dungeonUtils from "../../util/dungeonUtils"
+import { registerPacketChat } from "../../util/Events"
 import { CommonPingS2CPacket, SubtitleS2CPacket, TitleS2CPacket } from "../../util/utils"
 let thingydone = null
 let thingycompleted = null
@@ -48,14 +49,16 @@ register("worldLoad", () => {
     InP3 = false
 })
 
-const chatTrig = register("chat", () => {
-    registerTriggers(true)
-    resetstuff()
-    InP3 = true
-}).setCriteria("[BOSS] Storm: I should have known that I stood no chance.").unregister()
+const chatTrig = registerPacketChat((message) => {
+    if (message == "[BOSS] Storm: I should have known that I stood no chance.") {
+        registerTriggers(true)
+        resetstuff()
+        InP3 = true
+    }
+}).unregister()
 
-
-const corestuff = register("chat", () => {
+const corestuff = registerPacketChat((message) => {
+    if (message != "The Core entrance is opening!") return;
     thingydone = "&5Core Open!"
     thingytotal = null
     thingycompleted = null
@@ -65,10 +68,11 @@ const corestuff = register("chat", () => {
         completedat = 0
         registerTriggers(false)
     }, 2000);
-}).setCriteria("The Core entrance is opening!").unregister()
+}).unregister()
 
 
-const gatestuff = register("chat", () => {
+const gatestuff = registerPacketChat((message) => {
+    if (message != "The gate has been destroyed!") return;
     if(!c.GateNoti && !gatenotblown) return;
     if(!c.KeepTitles) tickListener.register()
     completedat = 40
@@ -76,10 +80,11 @@ const gatestuff = register("chat", () => {
     thingytotal = null
     thingycompleted = null
     playername = null
-}).setCriteria("The gate has been destroyed!").unregister()
+}).unregister()
 
 
-const gatestuff1 = register("chat", () => {
+const gatestuff1 = registerPacketChat((message) => {
+    if (message != "The gate will open in 5 seconds!") return;
     if(!c.KeepTitles) tickListener.register()
     completedat = 40
     thingydone = "&cGate: 5s"
@@ -87,12 +92,14 @@ const gatestuff1 = register("chat", () => {
     thingytotal = null
     thingycompleted = null
     playername = null
-}).setCriteria("The gate will open in 5 seconds!").unregister()
+}).unregister()
 
 let lastcompleted = 0
 
-
-const inp3 = register("chat", (name, action, object, completed, total, event) => {
+const inp3 = registerPacketChat((message) => {
+    const match = message.match(/(.+) (activated|completed) a (terminal|device|lever)! \((\d)\/(\d)\)/)
+    if (!match) return;
+    const [_, name, action, object, completed, total, event] = match
     if(!c.KeepTitles) tickListener.register()
     completedat = 40
     thingycompleted = completed
@@ -137,7 +144,7 @@ const inp3 = register("chat", (name, action, object, completed, total, event) =>
         default:
             break;
     }
-}).setCriteria(/(.+) (activated|completed) a (terminal|device|lever)! \((\d)\/(\d)\)/).unregister()
+}).unregister()
 
 const tickListener = register('packetReceived', (packet, event) => {
     if (!(packet instanceof CommonPingS2CPacket)) return;

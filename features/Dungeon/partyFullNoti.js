@@ -1,4 +1,5 @@
 import c from "../../config"
+import { registerPacketChat } from "../../util/Events";
 import partyUtils from "../../util/partyUtils";
 import { getTablist, playSound } from "../../util/utils";
 
@@ -10,7 +11,7 @@ let lastPartySize = 0;
 let tries = 0
 
 const alarm = register("renderOverlay", () => {
-    playSound("random.orb", c.partyNotiVolume / 10, 0);
+    playSound("random.orb", c.partyNotiVolume.toFixed(2), 1);
     inAlarm = true
     if (Date.now() - timerstarted > (c.partyNotiTime * 1000)) {
         inAlarm = false
@@ -59,18 +60,13 @@ const stepTrig = register("step", () => {
     lastPartySize = partySize
 }).setDelay(3).unregister()
 
-const chatTrig = register("chat", () => {
-    if(inAlarm) return timerstarted = Date.now();
-    alarm.register()
-    timerstarted = Date.now()
-}).setCriteria("Party Finder > Your group has been removed from the party finder!").unregister()
+const chatTrig = registerPacketChat((message) => {
+    if (message != "The party was disbanded because all invites expired and the party was empty." && message != "Party Finder > Your group has been removed from the party finder!") return;
 
-const chatTrig1 = register("chat", () => {
     if (inAlarm) return timerstarted = Date.now();
     alarm.register()
     timerstarted = Date.now()
-}).setCriteria("The party was disbanded because all invites expired and the party was empty.").unregister()
-
+}).unregister()
 
 const worldLoadTrig = register("worldLoad", () => {
     stepTrig.register()
@@ -90,16 +86,11 @@ if (c.partyFullNoti) {
 
 if(c.partyDequeuedAlarm) {
     chatTrig.register()
-    chatTrig1.register()
 }
 
 c.registerListener("Party Dequeued Alarm", (curr) => {
-    if (curr) {
-        chatTrig.register()
-        chatTrig1.register()
-    }
+    if (curr) chatTrig.register()
     else {
-        chatTrig1.unregister()
         chatTrig.unregister()
         alarm.unregister()
     }

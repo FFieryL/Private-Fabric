@@ -70,10 +70,23 @@ export const onTabLineUpdated = (func) => tablistUpdateFuncs.push(func)
 
 
 const GameMessageS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.GameMessageS2CPacket")
-const packetChatTriggers = [];
+const packetChatTriggers = new Set();
 
 export function registerPacketChat(callback) {
-    packetChatTriggers.push(callback);
+    const trigger = {
+        register: () => {
+            packetChatTriggers.add(callback);
+            return trigger;
+        },
+        unregister: () => {
+            packetChatTriggers.delete(callback);
+            return trigger;
+        }
+    };
+
+    // By default, we usually want it registered immediately 
+    // but you can call .unregister() at the end of the declaration.
+    return trigger.register();
 }
 
 export function triggerPacketChat(message) {
@@ -82,15 +95,14 @@ export function triggerPacketChat(message) {
     }
 }
 
-register("packetReceived", (packet) => {
+register("packetReceived", (packet, event) => {
     if (packet.overlay()) return;
 
-    const message = packet.content().getString();
+    const formatted = packet.content().getString();
+    const message = formatted.removeFormatting()
     if (!message || message.trim().length === 0) return;
 
-    for (let callback of packetChatTriggers) {
-        callback(message);
-    }
+    packetChatTriggers.forEach(cb => cb(message, formatted, event));
 
 }).setFilteredClass(GameMessageS2CPacket);
 

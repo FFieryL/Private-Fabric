@@ -4,7 +4,7 @@ import { bossnames, EntityWither } from "../../util/utils"
 import RenderUtils from "../../util/renderUtils"
 
 let cachedWither = null
-const smoother = new RenderUtils.SmoothPos(0.25)
+const smoother = new RenderUtils.SmoothPos(0.23)
 
 
 const witherFinder = register("tick", () => {
@@ -20,8 +20,7 @@ const worldTrig = register("worldUnload", () => {
     smoother.reset()
 }).unregister()
 
-const chatTrig = register("chat", (name) => {
-    name = name.removeFormatting()
+const chatTrig = dungeonUtils.onBossMessage((name) => {
     if (name === "Wither King") {
         renderTrig.unregister()
         witherFinder.unregister()
@@ -31,7 +30,7 @@ const chatTrig = register("chat", (name) => {
         renderTrig.register()
         witherFinder.register()
     }
-}).setCriteria("[BOSS] ${name}: ${*}").unregister()
+}).unregister()
 
 const renderTrig = register("renderWorld", () => {
     if (!cachedWither) return

@@ -2,6 +2,7 @@ import c from "../../config"
 import { data, drawText, registerOverlay } from "../../managers/guimanager"
 import { chat, CommonPingS2CPacket} from "../../util/utils";
 import dungeonUtils from "../../util/dungeonUtils";
+import { registerPacketChat } from "../../util/Events";
 let inPre4 = false;
 let bonzopop;
 let phoenixpop;
@@ -24,8 +25,10 @@ c.registerListener("Invincibility Display", (curr) => {
 })
 
 
-register("chat", (message) => {
+
+registerPacketChat((message) => {
     if (!c.invincibilityDisplay) return;
+    
     if (/^Your (?:\S+ )?Bonzo's Mask saved your life!$/.test(message)) {
         bonzopop = bonzocd;
         getBonzoCd();
@@ -42,7 +45,7 @@ register("chat", (message) => {
         handlePop(c.spiritText)
     }
 
-}).setCriteria("${message}")
+})
 
 register("packetReceived", (packet) => {
     if (!c.invincibilityDisplay || !(packet instanceof CommonPingS2CPacket) || packet.getParameter() == 0) return;

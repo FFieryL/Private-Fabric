@@ -2,6 +2,7 @@ import { data, drawText, OverlayEditor, registerOverlay } from "../../managers/g
 import dungeonUtils from "../../util/dungeonUtils";
 import c from "../../config"
 import { playSound } from "../../util/utils";
+import { registerPacketChat } from "../../util/Events";
 
 let playerName = "";
 let currentProgress = "";
@@ -18,7 +19,7 @@ const stepTrig = register("step", () => {
     }
 }).setFps(1).unregister()
 
-const chatTrig = register("chat", (message) => {
+const chatTrig = registerPacketChat((message) => {
     if (!dungeonUtils.inStage([1, 2, 3, 4])) return;
 
     const melodyMatch = message.match(/^Party >[\s\[\w+\]]* (\w+): .*(\d\/\d|\d\d%)$/);
@@ -66,7 +67,9 @@ const chatTrig = register("chat", (message) => {
     const index = playersInMelody.indexOf(completedPlayer);
     if (index > -1) playersInMelody.splice(index, 1);
     if (completedPlayer === playerName) resetMelody();
-}).setCriteria("${message}").unregister()
+}).unregister()
+
+
 
 const overlayTrig = register("renderOverlay", (cfx) => {
     if (OverlayEditor.isOpen()) return;

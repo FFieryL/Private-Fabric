@@ -1,5 +1,6 @@
 import c from "../../config"
 import { data, drawText, OverlayEditor, registerOverlay } from "../../managers/guimanager"
+import { registerPacketChat } from "../../util/Events"
 import { CommonPingS2CPacket } from "../../util/utils"
 let timeElapsed = 0
 let timerDuration = 0
@@ -34,21 +35,17 @@ const QuizTimerStart = (duration) => {
 register("worldLoad", () => quizTimer.unregister())
 
 
-const chatTrig1 = register("chat", () => {QuizTimerStart(220); quizTimer.register()}).setCriteria("[STATUE] Oruo the Omniscient: I am Oruo the Omniscient. I have lived many lives. I have learned all there is to know.").unregister()
-const chatTrig2 = register("chat", () => {QuizTimerStart(140); quizTimer.register()}).setCriteria(/\[STATUE\] Oruo the Omniscient: .+ answered Question #\d correctly!/).unregister()
+const chatTrig = registerPacketChat((message) => {
+    if (message == "[STATUE] Oruo the Omniscient: I am Oruo the Omniscient. I have lived many lives. I have learned all there is to know.") QuizTimerStart(220);
+    else if (message.match(/\[STATUE\] Oruo the Omniscient: .+ answered Question #\d correctly!/)) QuizTimerStart(140);
+    quizTimer.register()
+}).unregister()
 
 if (c.QuizTimer) {
-    chatTrig1.register()
-    chatTrig2.register()
+    chatTrig.register()
 }
 
 c.registerListener("Quiz Timer", (curr) => {
-    if (curr) {
-        chatTrig1.register()
-        chatTrig2.register()
-    }
-    else {
-        chatTrig1.unregister()
-        chatTrig2.unregister()
-    }
+    if (curr) chatTrig.register()
+    else chatTrig.unregister()
 })

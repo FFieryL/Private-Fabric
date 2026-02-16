@@ -1,6 +1,8 @@
 import dungeonUtils from "../../util/dungeonUtils";
 import c from "../../config";
 import RenderUtils from "../../util/renderUtils";
+import { registerPacketChat } from "../../util/Events";
+import { playSound } from "../../util/utils";
 
 
 const PlayerInteractBlockC2SPacket = Java.type("net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket");
@@ -52,7 +54,7 @@ const isValidSkull = (x, y, z) => {
 register("worldUnload", () => highlights.clear());
 
 register("packetSent", (packet) => {
-    if (!c.secretHighlight || !dungeonUtils.inDungeon) return;
+    if (!dungeonUtils.inDungeon) return;
     const hitResult = packet.getBlockHitResult();
     const pos = hitResult.getBlockPos();
     
@@ -64,7 +66,8 @@ register("packetSent", (packet) => {
     const blockName = block.type.getRegistryName();
     if (!validBlocks.includes(blockName)) return;
     if (blockName === "minecraft:player_head" && !isValidSkull(x, y, z)) return;
-    highlightBlock(block);
+    if (c.secretChime) playSound(c.secretSoundType, c.secretVolume, c.secretPitch)
+    if (c.secretHighlight) highlightBlock(block);
 }).setFilteredClass(PlayerInteractBlockC2SPacket);
 
 
@@ -79,7 +82,7 @@ const renderBlockHighlight = (block, locked) => {
     let shape = null;
 
     try {
-        shape = blockState.getCollisionShape(world, mcPos);
+        shape = blockState.getCollisionShape(world, mcPos);was
     } catch (e) {}
 
     if (!shape || shape.isEmpty()) {
@@ -111,8 +114,6 @@ const renderBlockHighlight = (block, locked) => {
 
 
 
-
-
 const renderTrigger = register("renderWorld", () => {
     const now = Date.now();
 
@@ -129,17 +130,12 @@ const renderTrigger = register("renderWorld", () => {
     if (!highlights.size) renderTrigger.unregister();
 }).unregister();
 
-
-register("chat", (event) => {
-    // Get the block the player is currently looking at
-    const lookingAt = Player.lookingAt();
+registerPacketChat((message) => {
+    if (!c.secretHighlight || !dungeonUtils.inDungeon) return;
+    if (!message.match(/^That chest is locked!$/)) return;
     
-    // Safety check: ensure it's actually a chest
+    const lookingAt = Player.lookingAt();
     if (!lookingAt || !lookingAt.getType() || !lookingAt.getType().getRegistryName().includes("chest")) return;
 
-    // Force an immediate update to the locked state
     highlightBlock(lookingAt, true);
-    
-    // Optional: Debug to verify it's working
-    // ChatLib.chat("&c[Debug] Chest set to locked color.");
-}).setCriteria(/^That chest is locked!$/);
+})

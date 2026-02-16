@@ -2,6 +2,7 @@ import c from "../../config"
 import { chat, ConnectScreen, DisconnectedScreen, NativeText } from "../../util/utils"
 import request from "../../../requestV2"
 import dungeonUtils from "../../util/dungeonUtils"
+import { registerPacketChat } from "../../util/Events"
 
 const secretsData = new Map()
 const uuidCache = new Map()
@@ -93,78 +94,95 @@ const stepTrig = register("step", () => {
     })
 }).setDelay(10).unregister()
 
-const chatTrig1 = register("chat", () => {
+let tempClassCache = {};
+
+const chatTrig = registerPacketChat((message) => {
     if(!c.SecretTracker) return;
-    const members = [...dungeonUtils.party]
-    hasStarted = true
-    if (members.length === 0) {
-        ownSecrets = null;
-        chat("Tracking secrets for: &a" + Player.getName())
-        return;
-    }
-    startSecrets.clear()
 
-    members.forEach(name => {
-        if(name == Player.getName()) return;
-        const uuid = getUUIDFromName(name)
-        if (!uuid) return
-        queuePlayerSecrets(uuid, 120000, secrets => {
-            startSecrets.set(name, secrets);
-        });
-    })
-
-    chat("Tracking secrets for: &a" + members.join("&7, &a"))
-}).setChatCriteria("Starting in 1 second.").unregister()
-
-
-const chatTrig2 = register("chat", () => {
-    if(!c.SecretTracker) return;
-    if (!hasStarted) return
-
-    const members = [...dungeonUtils.party]
-    if (members.length === 0) {
-        members.push(Player.getName())
-    }
-    endSecrets.clear()
-    ChatLib.command("showextrastats", false)
-    setTimeout(() => {
-        let lines = []
-        lines.push("")
-        lines.push("&5&lRun Summary")
-        let completed = 0
-        let total = members.length
+    if (message == "Starting in 1 second.") {
+        const members = [...dungeonUtils.party]
+        hasStarted = true
+        if (members.length === 0) {
+            ownSecrets = null;
+            chat("Tracking secrets for: &a" + Player.getName())
+            return;
+        }
+        startSecrets.clear()
 
         members.forEach(name => {
+            if(name == Player.getName()) return;
             const uuid = getUUIDFromName(name)
-            if (!uuid) {
-                completed++
-                if (completed === total) sendFinalMessage(lines)
-                return
-            }
-            if (name === Player.getName()) {
-                const playerclass = dungeonUtils.getPlayerClass(name)
-                const color = dungeonUtils.getClassColor(playerclass)
-                if(!ownSecrets) ownSecrets = "???"
-                lines.push(`&l&0PA&7 >> &r${color}${name} (${playerclass}): &d${ownSecrets} secrets`)
-                ownSecrets = null
-                completed++
-                if (completed === total) sendFinalMessage(lines)
-                return
-            }
-            queuePlayerSecrets(uuid, 10000, secrets => {
-                const start = startSecrets.get(name) ?? secrets
-                const gained = secrets - start
-                const playerclass = dungeonUtils.getPlayerClass(name)
-                const color = dungeonUtils.getClassColor(playerclass)
-                //const color = "&a"
-                lines.push(`&l&0PA&7 >> &r${color}${name} (${playerclass}): &d${gained} secrets`)
-
-                completed++
-                if (completed === total) sendFinalMessage(lines)
-            })
+            if (!uuid) return
+            queuePlayerSecrets(uuid, 120000, secrets => {
+                startSecrets.set(name, secrets);
+            });
         })
-    }, 1750)
-}).setChatCriteria(/^\s*(Master Mode)? ?(?:The)? Catacombs - (Entrance|Floor .{1,3})$/).unregister()
+
+        chat("Tracking secrets for: &a" + members.join("&7, &a"))
+    }
+
+
+    else if (message.match(/^\s*(Master Mode)? ?(?:The)? Catacombs - (Entrance|Floor .{1,3})$/)) {
+        if (!hasStarted) return
+        tempClassCache = {}
+        const members = [...dungeonUtils.party]
+        if (members.length === 0) {
+            members.push(Player.getName())
+        }
+        endSecrets.clear()
+        ChatLib.command("showextrastats", false)
+        setTimeout(() => {
+            let lines = []
+            lines.push("")
+            lines.push("&5&lRun Summary")
+            let completed = 0
+            let total = members.length
+
+            members.forEach(name => {
+                const uuid = getUUIDFromName(name)
+                if (!uuid) {
+                    completed++
+                    if (completed === total) sendFinalMessage(lines)
+                    return
+                }
+
+                const playerclass = dungeonUtils.getPlayerClass(name);
+                if (playerclass) tempClassCache[uuid] = playerclass;
+
+                if (name === Player.getName()) {
+                    const playerclass = dungeonUtils.getPlayerClass(name) || tempClassCache[uuid] || "Unknown";
+                    const color = dungeonUtils.getClassColor(playerclass)
+                    if(!ownSecrets) ownSecrets = "???"
+                    lines.push(`&l&0PA&7 >> &r${color}${name} (${playerclass}): &d${ownSecrets} secrets`)
+                    ownSecrets = null
+                    completed++
+                    if (completed === total) sendFinalMessage(lines)
+                    return
+                }
+                queuePlayerSecrets(uuid, 10000, secrets => {
+                    const start = startSecrets.get(name) ?? secrets
+                    const gained = secrets - start
+                    const playerclass = dungeonUtils.getPlayerClass(name) || tempClassCache[uuid] || "Unknown";
+                    const color = dungeonUtils.getClassColor(playerclass)
+                    //const color = "&a"
+                    lines.push(`&l&0PA&7 >> &r${color}${name} (${playerclass}): &d${gained} secrets`)
+
+                    completed++
+                    if (completed === total) {
+                        sendFinalMessage(lines)
+                        tempClassCache = {}
+                    }
+                })
+            })
+        }, 1500)
+    }
+
+
+    const match = message.match(/^\s*Secrets Found: (\d+)$/);
+    if (match) {
+        ownSecrets = parseInt(match[1]);
+    }
+}).unregister()
 
 function sendFinalMessage(lines) {
     lines.push("")
@@ -173,30 +191,20 @@ function sendFinalMessage(lines) {
     ownSecrets = null
 }
 
-const chatTrig3 = register("chat", (secrets) => {
-    ownSecrets = parseInt(secrets)
-}).setChatCriteria(/^\s*Secrets Found: (\d+)$/).unregister()
-
 
 if (c.SecretTracker) {
-    chatTrig1.register()
-    chatTrig2.register()
+    chatTrig.register()
     stepTrig.register()
-    chatTrig3.register()
 }
 
 c.registerListener("Secret Tracker", (curr) => {
     if (curr) {
-        chatTrig1.register()
-        chatTrig2.register()
         stepTrig.register()
-        chatTrig3.register()
+        chatTrig.register()
     }
     else {
-        chatTrig1.unregister()
-        chatTrig2.unregister()
+        chatTrig.unregister()
         stepTrig.unregister()
-        chatTrig3.unregister()
     }
 })
 

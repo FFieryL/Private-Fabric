@@ -1,5 +1,5 @@
 import { SkyBlockUtils } from "./skyblockUtils"
-import { onScoreboardLine, onTabLineUpdated } from "./Events"
+import { onScoreboardLine, onTabLineUpdated, registerPacketChat } from "./Events"
 import { decodeNumeral, getTablist, removeUnicode, getMatchFromLines } from "./utils"
 
 global.goldorTicks = 0;
@@ -12,6 +12,7 @@ export default new class dungeonUtils {
         this.reset()
 
         this.dungeonChangeFuncs = []
+        this.bossMessageListeners = new Set();
 
         const initialChecker = register("tick", () => {
             this.checkStuff()
@@ -46,9 +47,15 @@ export default new class dungeonUtils {
             if (text === "Dungeon: Catacombs") this._setInDungeon(true)
         })
 
-        // ===== BOSS PHASE TRACKER (CHAT) =====
-        register("chat", (name) => {
-            name = name.removeFormatting()
+        registerPacketChat((message) => {
+            if (message === "[BOSS] Storm: I should have known that I stood no chance.") this.currentStage = 1
+            if ((message.includes("(7/7)") || message.includes("(8/8)")) && !message.includes(":") && this.currentPhase === 3) this.currentStage += 1
+
+            const match = message.match(/\[BOSS\] (.+): (.+)/)
+            if (!match) return;
+
+            const name = match[1];
+            const bossmsg = match[2]
 
             const phases = {
                 "Maxor": 1,
@@ -62,12 +69,10 @@ export default new class dungeonUtils {
                 this.currentPhase = phases[name]
                 this.inBoss = true
             }
-        }).setCriteria("[BOSS] ${name}: ${*}")
-
-        register("chat", (msg) => {
-            if (msg === "[BOSS] Storm: I should have known that I stood no chance.") this.currentStage = 1
-            if ((msg.includes("(7/7)") || msg.includes("(8/8)")) && !msg.includes(":") && this.currentPhase === 3) this.currentStage += 1
-        }).setCriteria("${msg}")
+            this.bossMessageListeners.forEach(listener => {
+                listener(name, bossmsg);
+            });
+        })
 
         register("worldUnload", () => this.reset())
     }
@@ -111,6 +116,25 @@ export default new class dungeonUtils {
             if (inDungeon) trigger.register()
             else trigger.unregister()
         })
+    }
+
+    /**
+     * Creates a custom trigger for boss messages.
+     * @param {Function} callback 
+     * @returns {Object} An object with register() and unregister() methods.
+     */
+    onBossMessage(callback) {
+        const listener = {
+            register: () => {
+                this.bossMessageListeners.add(callback);
+                return listener;
+            },
+            unregister: () => {
+                this.bossMessageListeners.delete(callback);
+                return listener;
+            },
+        };
+        return listener.register();
     }
 
     dumpState() {

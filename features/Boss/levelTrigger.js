@@ -1,5 +1,6 @@
 import c from "../../config"
 import dungeonUtils from "../../util/dungeonUtils";
+import { registerPacketChat } from "../../util/Events";
 import { rightClick } from "../../util/utils";
 
 let p3Levers = [
@@ -13,6 +14,7 @@ const deviceLevers = [
     [58, 136, 142, 5.7],
     [60, 135, 142, 5.7],
     [60, 134, 142, 5.7],
+    [60, 133, 142, 5.7],
     [62, 133, 142, 5.7],
     [62, 136, 142, 5.7],
 ];
@@ -39,24 +41,25 @@ const leverTrigger = register("tick", () => {
     const lastClick = leverCooldowns.get(key) || 0;
 
     if (Date.now() - lastClick < CLICK_DELAY) return;
-    rightClick(true);
+    rightClick(true, true);
     leverCooldowns.set(key, Date.now());
 }).unregister()
 
-const chatTrig = register("chat", (name, event) => {
-    name = name.removeFormatting();
+const chatTrig = dungeonUtils.onBossMessage((name) => {
     const enableBeforeP3 = (c.enableBeforeP3 && (dungeonUtils.currentPhase == 2 || dungeonUtils.currentPhase == 1))
     if (name === "Goldor" || enableBeforeP3) {
         leverTrigger.register()
         chatTrig.unregister()
     }
     else leverTrigger.unregister()
-}).setCriteria("[BOSS] ${name}: ${*}").unregister()
+}).unregister()
 
-const chatTrig2 = register("chat", () => {
-    leverTrigger.unregister()
-    chatTrig2.unregister()
-}).setCriteria("The Core entrance is opening!").unregister()
+const chatTrig2 = registerPacketChat((msg) => {
+    if (msg == "The Core entrance is opening!") {
+        leverTrigger.unregister()
+        chatTrig2.unregister()
+    }
+}).unregister()
 
 const worldTrig = register("worldUnload", () => {
     chatTrig.register()
@@ -65,7 +68,7 @@ const worldTrig = register("worldUnload", () => {
 
 if (c.leverTriggerBot) {
     worldTrig.register()
-    chatTrig.register()
+    chatTrig.register() 
     chatTrig2.register()
 }
 

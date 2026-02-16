@@ -47,8 +47,9 @@ c.registerListener("Archer Death Bow Swapper", (curr) => {
 //Will move later idk
 
 import dungeonUtils from "../../util/dungeonUtils";
+import { registerPacketChat } from "../../util/Events";
 
-register("chat", (message) => {
+registerPacketChat((message) => {
     if (!dungeonUtils.inBoss) return;
     const match = message.match(/Your Explosive Shot hit (\d+) enem\w* for ([\d,\.]+) damage\./);
     if (!match) return;
@@ -66,4 +67,4 @@ register("chat", (message) => {
         Client.showTitle("", "§c" + formattedDamage, 0, 40, 0)
         playSound("note.pling", 0.5, 1)
     }, 10);
-}).setCriteria("${message}")
+})

@@ -47,6 +47,10 @@ class config {
         this.addDependency("Bats ESP mode", "Bat Highlight");
         this.addDependency("Bat Render Mode", "Bat Highlight");
 
+        this.addDependency("Secret Volume", "Secret Chime")
+        this.addDependency("Secret Pitch", "Secret Chime")
+        this.addDependency("Secret Sound Type", "Secret Chime")
+
         this.addDependency("Secret Locked Box Color", "Secret Highlight");
         this.addDependency("Secret Locked Fill Color", "Secret Highlight");
         this.addDependency("Secret Opened Box Color", "Secret Highlight");
@@ -237,7 +241,7 @@ class config {
         subcategory: "§aPests"
     })
     pestESP = false;
-    
+
 
     @ColorProperty({
         name: "Pest Color",
@@ -309,6 +313,42 @@ class config {
     batHighlightType = 0;
 
     @SwitchProperty({
+        name: "Secret Chime",
+        description: "IM TOO LAZY TO MOVE IT SHUSH",
+        category: "Highlight",
+        subcategory: "§bSecrets"
+    })
+    secretChime = false;
+
+    @TextProperty({
+        name: "Secret Sound Type",
+        description: "Enter the sound type for the secret chime",
+        category: "Highlight",
+        subcategory: "§bSecrets"
+    })
+    secretSoundType = "note.pling";
+
+    @PercentSliderProperty({
+        name: "Secret Volume",
+        description: "Adjust the volume of the secret chime",
+        category: "Highlight",
+        subcategory: "§bSecrets",
+        min: 0.01,   
+        max: 1,   
+    })
+    secretVolume = 0.5;
+
+    @PercentSliderProperty({
+        name: "Secret Pitch",
+        description: "Adjust the pitch of the secret chime",
+        category: "Highlight",
+        subcategory: "§bSecrets",
+        min: 0,
+        max: 1
+    })
+    secretPitch = 0.5;
+
+    @SwitchProperty({
         name: "Secret Highlight",
         description: "",
         category: "Highlight",
@@ -331,7 +371,7 @@ class config {
         subcategory: "§bSecrets"
     })
     secretLockedColorFill = new Color(1, 1, 1, 1);
-    
+
     @ColorProperty({
         name: "Secret Opened Box Color",
         description: "",
@@ -483,16 +523,16 @@ class config {
     })
     partyDequeuedAlarm = false;
 
-    @SliderProperty({
+    @PercentSliderProperty({
         name: "Party Full Alarm Volume",
         description: "",
         category: "Dungeon",
         subcategory: "§5Party",
         min: 0,
-        max: 10,
+        max: 100,
         increment: 1
     })
-    partyNotiVolume = 1;
+    partyNotiVolume = 0.5;
 
     @SliderProperty({
         name: "Party Full Alarm Time",
@@ -834,7 +874,7 @@ class config {
     invBorderColor = new Color(120 / 255, 40 / 255, 180 / 255, 200 / 255);
 
 
-    
+
 
     @SelectorProperty({
         name: "Prefix for mod chats",
@@ -845,14 +885,6 @@ class config {
     })
     customPrefix = 0;
 
-    @SwitchProperty({
-        name: "More legit right clicks???",
-        description: "Might be a more legit version of right click for features that right click for you, idk might be schitzo",
-        category: "Settings",
-        subcategory: "Clicks"
-    })
-    legitClicks = false
-    
 }
 
 export default new config()
