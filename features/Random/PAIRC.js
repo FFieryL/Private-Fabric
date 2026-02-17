@@ -36,7 +36,7 @@ function ircChat(msg) {
     noSoundNext = false
 }
 
-function ensureConnected() {
+export function ensureConnected() {
     if (wsState == WS_STATE.DISCONNECTED) {
         connect();
     }
@@ -251,6 +251,7 @@ register("gameUnload", () => {
 });
 
 register("gameLoad", () => {
+    if (!World.isLoaded()) return;
     connect()
 });
 
@@ -274,5 +275,3 @@ register("serverConnect", () => {
 register("serverDisconnect", () => {
     disconnect()
 });
-
-connect()

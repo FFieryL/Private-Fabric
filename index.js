@@ -2,7 +2,7 @@ import c from "./config"
 import { activategui } from "./managers/guimanager";
 import "./managers/updateManager"
 import { triggerPacketChat } from "./util/Events";
-
+import { ensureConnected } from "./features/Random/PAIRC";
 
 const File = Java.type("java.io.File")
 const modulesDir = new File("./config/ChatTriggers/modules")
@@ -75,6 +75,7 @@ Client.scheduleTask(0, () => {
 
     ChatLib.chat(`${Prefix}&aModule Loaded! (&f${loadedCount}&a features)`);
     if (ClassifiedASF) ClassifiedASF()
+    if (World.isLoaded()) ensureConnected()
 });
 
 

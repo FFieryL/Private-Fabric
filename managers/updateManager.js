@@ -6,7 +6,7 @@ const BLACKLIST = [
     "README.md"
 ];
 
-const CACHE_BUST = `?t=${Date.now()}`;
+const CACHE_BUST = `&t=${Date.now()}`;
 const API_URL = `https://api.github.com/repos/FFieryL/Private-Fabric/git/trees/main?recursive=1${CACHE_BUST}`;
 const RAW_BASE = `https://raw.githubusercontent.com/FFieryL/Private-Fabric/main/`;
 
@@ -89,7 +89,7 @@ register("command", () => {
 
             // 2. Update/Download files
             filesToDownload.forEach((path, index) => {
-                const newContent = FileLib.getUrlContent(RAW_BASE + path + CACHE_BUST);
+                const newContent = FileLib.getUrlContent(RAW_BASE + path + `?t=${Date.now()}`);
 
                 if (newContent && !newContent.startsWith("404")) {
                     const oldContent = FileLib.read(MODULE_NAME, path);
