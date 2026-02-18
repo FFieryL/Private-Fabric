@@ -3,7 +3,7 @@ const BoxData = Java.type("com.odtheking.odin.utils.render.BoxData");
 const LineData = Java.type("com.odtheking.odin.utils.render.LineData");
 const Vec3d = Java.type("net.minecraft.util.math.Vec3d");
 const RenderBatchManager = Java.type("com.odtheking.odin.utils.render.RenderBatchManager");
-const ItemStateRenderer = Java.type("com.odtheking.odin.utils.render.ItemStateRenderer");
+const TextData = Java.type("com.odtheking.odin.utils.render.TextData");
 
 class SmoothPos {
     constructor(smoothing = 0.25, snapThreshold = 0.01) {
@@ -61,6 +61,7 @@ class OdinRenderer {
         this.wireField = this._getInternalField("wireBoxes");
         this.filledField = this._getInternalField("filledBoxes");
         this.lineField = this._getInternalField("lines");
+        this.textField = this._getInternalField("texts");
     }
 
 
@@ -111,6 +112,16 @@ class OdinRenderer {
      */
     _getColor(color) {
         return Array.isArray(color) ? color : this.vigtorgba(color);
+    }
+
+    reduceAlpha(color, multiplier = 0.3) {
+        const rgba = this._getColor(color); // ensures float [r,g,b,a]
+        return [
+            rgba[0],
+            rgba[1],
+            rgba[2],
+            rgba[3] * multiplier
+        ];
     }
 
 
@@ -190,6 +201,58 @@ class OdinRenderer {
 
         const data = new LineData(start, end, argb, argb, thickness);
         this.lineField.get(phase ? 1 : 0).add(data);
+    }
+
+    /**
+     * Queues 3D text to be rendered in the world.
+     * @param {string} text - The string to display.
+     * @param {number} x - World X position.
+     * @param {number} y - World Y position.
+     * @param {number} z - World Z position.
+     * @param {number} scale - Scale multiplier (default 1.0).
+     * @param {boolean} depth - If true, text is occluded by blocks.
+     */
+    /**
+     * Queues 3D text to be rendered in the world.
+     */
+    drawText(text, x, y, z, scale = 1, depth = false) {
+        if (!this.textField) return;
+
+        const font = Renderer.getFontRenderer();
+        
+        const mc = Client.getMinecraft();
+        if (!mc || !mc.gameRenderer) return;
+
+        const camera = mc.gameRenderer.getCamera();
+        const cameraRotation = camera.getRotation();
+        
+        const pos = new Vec3d(x, y, z);
+        const textWidth = font.getWidth(text);
+
+        const data = new TextData(
+            text, 
+            pos, 
+            parseFloat(scale), 
+            depth, 
+            cameraRotation, 
+            font, 
+            parseFloat(textWidth)
+        );
+
+        this.textField.add(data);
+    }
+
+    /**
+     * Helper to draw a "Waypoint" style text (larger based on distance)
+     */
+    drawWaypointText(text, x, y, z, color = "§f") {
+        const playerPos = Player.asPlayerMP().getPos();
+        const dist = Math.sqrt(Math.pow(x - playerPos.x, 2) + Math.pow(y - playerPos.y, 2) + Math.pow(z - playerPos.z, 2));
+        
+        const dynamicScale = Math.max(1.0, dist * 0.05);
+        const displayString = `${text} ${color}(${Math.round(dist)}m)`;
+        
+        this.drawText(displayString, x, y + 0.5, z, dynamicScale, false);
     }
 
 }

@@ -191,6 +191,7 @@ const gardenTickChecker = register("tick", () => {
 
 }).unregister();
 
+
 const mobRenderer = register("renderWorld", () => {
     const phase = c.starMobESPThruBlocks
     const w = parseFloat(c.starHighlightSize);
@@ -213,7 +214,7 @@ const mobRenderer = register("renderWorld", () => {
             let newBox = RenderUtils.getBox(pos.x, pos.y, pos.z, w, mob.height)
 
             RenderUtils.drawOutline(newBox, color, phase, 2)
-            if (highlighttype) RenderUtils.drawFilled(newBox, color, phase)
+            if (highlighttype) RenderUtils.drawFilled(newBox, RenderUtils.reduceAlpha(color, 0.3), phase)
         }
     }
 
@@ -226,7 +227,7 @@ const mobRenderer = register("renderWorld", () => {
             let newBox = RenderUtils.getBox(pos.x, pos.y, pos.z, w, h)
 
             RenderUtils.drawOutline(newBox, c.starMobESPColorSA, phase, 2)
-            if (highlighttype) RenderUtils.drawFilled(newBox, c.starMobESPColorSA, phase)
+            if (highlighttype) RenderUtils.drawFilled(newBox, RenderUtils.reduceAlpha(c.starMobESPColorSA, 0.3), phase)
         }
     }
 
@@ -241,7 +242,7 @@ const mobRenderer = register("renderWorld", () => {
             const pos = getSmoother(bat).update(bat.getRenderX(), bat.getRenderY(), bat.getRenderZ());
             let newBox = RenderUtils.getBox(pos.x, pos.y, pos.z, w, h)
             RenderUtils.drawOutline(newBox, batColor, batPhase, 2)
-            if (batHighlightType) RenderUtils.drawFilled(newBox, batColor, batPhase)
+            if (batHighlightType) RenderUtils.drawFilled(newBox, RenderUtils.reduceAlpha(batColor, 0.3), batPhase)
         }
     }
 
