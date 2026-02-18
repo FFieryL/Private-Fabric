@@ -15,7 +15,7 @@ import {
 
 @Vigilant("PrivateASF-Fabric/data", "§5PrivateASF-Fabric", {
     getCategoryComparator: () => (a, b) => {
-        const categories = ['Highlight', 'Pets', 'Dungeon', 'Boss', 'GUI', "Settings"];
+        const categories = ['Highlight', "Party", 'Pets', 'Dungeon', 'Boss', 'GUI', "Settings"];
         return categories.indexOf(a.name) - categories.indexOf(b.name);
     }
 })
@@ -70,6 +70,13 @@ class config {
         this.addDependency("Only when leader", "Party Full Alarm")
         this.addDependency("Party Full Alarm Volume", "Party Full Alarm" || "Party Dequeued Alarm")
         this.addDependency("Party Full Alarm Time", "Party Full Alarm")
+
+        this.addDependency("Party Invite Sound Type", "Party Invite Sound")
+        this.addDependency("Party Invite Sound Volume", "Party Invite Sound")
+        this.addDependency("Party Invite Sound Pitch", "Party Invite Sound")
+        this.addDependency("Party Join Sound Type", "Party Join Sound")
+        this.addDependency("Party Join Sound Volume", "Party Join Sound")
+        this.addDependency("Party Join Sound Pitch", "Party Join Sound")
 
         this.addDependency("Ignore dupe mage", "Dupe Class Notifier");
 
@@ -326,7 +333,7 @@ class config {
 
     @TextProperty({
         name: "Secret Sound Type",
-        description: "Enter the sound type for the secret chime",
+        description: "Enter the sound type for the secret chime (/testsound soundname volume pitch) to test sounds",
         category: "Highlight",
         subcategory: "§bSecrets"
     })
@@ -344,7 +351,7 @@ class config {
 
     @SliderProperty({
         name: "Secret Pitch",
-        description: "Adjust the pitch of the secret chime",
+        description: "Adjust the pitch of the secret chime (Pitch is divided by 100 so 200 = 2)",
         category: "Highlight",
         subcategory: "§bSecrets",
         min: 0,
@@ -394,11 +401,136 @@ class config {
 
 
 
+    // --- Party ---
+    @SwitchProperty({
+        name: "Party Full Alarm",
+        description: "plays a loud sound if party is full ",
+        category: "Party",
+        subcategory: "§0Party"
+    })
+    partyFullNoti = false;
+
+    @SwitchProperty({
+        name: "Only when leader",
+        description: "Only when leader do you hear the sound",
+        category: "Party",
+        subcategory: "§0Party"
+    })
+    partyLeaderOnly = false;
+
+    @SwitchProperty({
+        name: "Party Dequeued Alarm",
+        description: "plays a loud sound if party is dequeued ",
+        category: "Party",
+        subcategory: "§0Party"
+    })
+    partyDequeuedAlarm = false;
+
+    @PercentSliderProperty({
+        name: "Party Full Alarm Volume",
+        description: "",
+        category: "Party",
+        subcategory: "§0Party",
+        min: 0,
+        max: 100,
+        increment: 1
+    })
+    partyNotiVolume = 0.5;
+
+    @SliderProperty({
+        name: "Party Full Alarm Time",
+        description: "How long the alarm should sound for",
+        category: "Party",
+        subcategory: "§0Party",
+        min: 0,
+        max: 10,
+        increment: 1
+    })
+    partyNotiTime = 1;
+
+    @SwitchProperty({
+        name: "Party Invite Sound",
+        description: "Plays a sound when you get invited",
+        category: "Party",
+        subcategory: "§1Party Invite"
+    })
+    partyInviteSound = false;
+
+    @TextProperty({
+        name: "Party Invite Sound Type",
+        description: "Sound to play (/testsound soundname volume pitch) to test sounds",
+        category: "Party",
+        subcategory: "§1Party Invite",
+        placeholder: "entity.cat.ambient"
+    })
+    partyInviteSoundType = "entity.cat.ambient";
+
+    @PercentSliderProperty({
+        name: "Party Invite Sound Volume",
+        description: "",
+        category: "Party",
+        subcategory: "§1Party Invite",
+        min: 0,
+        max: 100,
+        increment: 1
+    })
+    partyInviteSoundVolume = 0.5;
+
+    @SliderProperty({
+        name: "Party Invite Sound Pitch",
+        description: "Pitch is divided by 100 so 200 = 2",
+        category: "Party",
+        subcategory: "§1Party Invite",
+        min: 0,
+        max: 200,
+    })
+    partyInviteSoundPitch = 1;
+
+    @SwitchProperty({
+        name: "Party Join Sound",
+        description: "Plays a sound when someone joins the party",
+        category: "Party",
+        subcategory: "§2Party Join"
+    })
+    partyJoinSound = false;
+
+    @TextProperty({
+        name: "Party Join Sound Type",
+        description: "Sound to play. (/testsound soundname volume pitch) to test sounds",
+        category: "Party",
+        subcategory: "§2Party Join",
+        placeholder: "entity.cat.ambient"
+    })
+    partyJoinSoundType = "entity.cat.ambient";
+
+    @PercentSliderProperty({
+        name: "Party Join Sound Volume",
+        description: "",
+        category: "Party",
+        subcategory: "§2Party Join",
+        min: 0,
+        max: 100,
+        increment: 1
+    })
+    partyJoinSoundVolume = 0.5;
+
+    @SliderProperty({
+        name: "Party Join Sound Pitch",
+        description: "Pitch is divided by 100 so 200 = 2",
+        category: "Party",
+        subcategory: "§2Party Join",
+        min: 0,
+        max: 200,
+    })
+    partyJoinSoundPitch = 1;
+
+
+
 
     // --- PETS ---
     @SwitchProperty({
         name: "Current pet display",
-        description: "displays your current pet §cWIP",
+        description: "displays your current pet",
         category: "Pets",
         subcategory: "§0GUI"
     })
@@ -501,54 +633,6 @@ class config {
         subcategory: "§0Masks",
     })
     invincibilityDisplayAlways = false;
-
-    // 1. Party (§a)
-    @SwitchProperty({
-        name: "Party Full Alarm",
-        description: "plays a loud sound if party is full §cWIP§r",
-        category: "Dungeon",
-        subcategory: "§5Party"
-    })
-    partyFullNoti = false;
-
-    @SwitchProperty({
-        name: "Only when leader",
-        description: "Only when leader do you hear the sound",
-        category: "Dungeon",
-        subcategory: "§5Party"
-    })
-    partyLeaderOnly = false;
-
-    @SwitchProperty({
-        name: "Party Dequeued Alarm",
-        description: "plays a loud sound if party is dequeued §cWIP§r",
-        category: "Dungeon",
-        subcategory: "§5Party"
-    })
-    partyDequeuedAlarm = false;
-
-    @PercentSliderProperty({
-        name: "Party Full Alarm Volume",
-        description: "",
-        category: "Dungeon",
-        subcategory: "§5Party",
-        min: 0,
-        max: 100,
-        increment: 1
-    })
-    partyNotiVolume = 0.5;
-
-    @SliderProperty({
-        name: "Party Full Alarm Time",
-        description: "How long the alarm should sound for",
-        category: "Dungeon",
-        subcategory: "§5Party",
-        min: 0,
-        max: 10,
-        increment: 1
-    })
-    partyNotiTime = 1;
-
 
     // 2. Death Tick (§b)
     @SwitchProperty({
@@ -899,7 +983,7 @@ class config {
 
     @TextProperty({
         name: "IRC Sound Type",
-        description: "default 0.6",
+        description: "What sound to play (/testsound soundname volume pitch) to test sounds",
         category: "Settings",
         subcategory: "§1IRC",
     })
@@ -917,13 +1001,14 @@ class config {
 
     @SliderProperty({
         name: "IRC Sound Pitch",
-        description: "",
+        description: "Pitch is divided by 100 so 200 = 2",
         category: "Settings",
         subcategory: "§1IRC",
         min: 0,
         max: 200
     })
     ircChatSoundPitch = 1;
+
 
 
 }

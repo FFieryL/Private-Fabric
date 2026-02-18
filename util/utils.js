@@ -168,7 +168,7 @@ export function playSound(soundName, volume = 0.7, pitch = 1) {
 
     } catch (e) {
 
-        console.error(`[PrivateASF] Failed to play sound "${soundName}": ${e}`);
+        chat(`[PrivateASF] Failed to play sound "${soundName}": ${e}`);
     }
 }
 

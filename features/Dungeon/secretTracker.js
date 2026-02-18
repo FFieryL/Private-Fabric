@@ -54,14 +54,14 @@ function getPlayerSecrets(uuid, cacheMs, callback) {
     }).then(body => {
         const secrets = parseInt(body);
         if (isNaN(secrets)) {
-            console.log(`Invalid secrets value received for UUID ${uuid}: ${body}`);
+            chat(`Invalid secrets value received for UUID ${uuid}: ${body}`);
             callback(0);
             return;
         }
         secretsData.set(uuid, [Date.now(), secrets]);
         callback(secrets);
     }).catch(error => {
-        console.log(`Error fetching secrets for UUID ${uuid}: ${error}`);
+        chat(`Error fetching secrets for UUID ${uuid}: ${error}`);
         callback(0);
     });
 }
@@ -82,7 +82,7 @@ function processQueue() {
         activeRequest = false; 
 
         
-        setTimeout(processQueue, 100); 
+        setTimeout(processQueue, 200); 
     });
 }
 
@@ -174,7 +174,7 @@ const chatTrig = registerPacketChat((message) => {
                     }
                 })
             })
-        }, 1500)
+        }, 1300)
     }
 
 

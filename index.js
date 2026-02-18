@@ -3,6 +3,7 @@ import { activategui } from "./managers/guimanager";
 import "./managers/updateManager"
 import { triggerPacketChat } from "./util/Events";
 import { ensureConnected } from "./features/Random/PAIRC";
+import { playSound } from "./util/utils";
 
 const File = Java.type("java.io.File")
 const modulesDir = new File("./config/ChatTriggers/modules")
@@ -16,7 +17,8 @@ const FEATURE_FOLDERS = [
     "Dungeon",
     "Highlight",
     "Pets",
-    "Random"
+    "Random",
+    "Party"
 ];
 
 
@@ -103,3 +105,10 @@ register("command", () => {
         activategui()
     }, 25);
 }).setName("pagui")
+
+register("command", (soundName, volume, pitch) => {
+    volume = parseFloat(volume) || 1;
+    pitch = parseFloat(pitch) || 1;
+
+    playSound(soundName, volume, pitch);
+}).setName("testsound")
