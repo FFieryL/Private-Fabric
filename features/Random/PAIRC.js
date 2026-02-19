@@ -186,7 +186,7 @@ function connect() {
                 }
 
                 else if(data.user) ircChat(`${data.user}&r: ${data.text}`);
-                else ircChat(`${data.text}`);
+                else ChatLib.chat(`&l&0PA IRC&7 >> ${data.text}`)
             } catch (e) {
                 console.log("IRC Parse Error: " + e);
             }
