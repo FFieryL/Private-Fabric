@@ -35,7 +35,7 @@ const moduleFolder = new File(`./config/ChatTriggers/modules/${MODULE_NAME}`);
 
 Client.scheduleTask(0, () => {
     if (!modulesDir.exists()) return;
-    
+
     // Find our specific module folder
     if (!moduleFolder.exists()) return;
 
@@ -112,3 +112,32 @@ register("command", (soundName, volume, pitch) => {
 
     playSound(soundName, volume, pitch);
 }).setName("testsound")
+
+// register("packetSent", (packet) => {
+//     // Check if the packet is a PlayerInteractBlockC2SPacket
+//     // You can inspect the packet here
+//     let blockPos = packet.entityId // Get the block position
+//     ChatLib.chat(`Player interacted with entityId ${blockPos}`);
+// }).setFilteredClass(net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket)
+
+// register("packetSent", (packet) => {
+//     // Check if the packet is a PlayerInteractBlockC2SPacket
+//     // You can inspect the packet here
+//     let blockPos = packet.getAction() // Get the block position
+//     ChatLib.chat(`Player interacted ${blockPos}`);
+// }).setFilteredClass(net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket)
+
+// register("packetSent", (packet) => {
+//     // Check if the packet is a PlayerInteractBlockC2SPacket
+//     // You can inspect the packet here
+//     let blockPos = packet.hand // Get the block position
+//     ChatLib.chat(`Player interacted with ${blockPos}`);
+// }).setFilteredClass(net.minecraft.network.packet.c2s.play.HandSwingC2SPacket)
+
+// register("packetSent", (packet) => {
+//     // Check if the packet is a PlayerInteractBlockC2SPacket
+//     // You can inspect the packet here
+//     let blockPos = packet.getHand() // Get the block position
+//     ChatLib.chat(`Player interacted with ${blockPos} 11 1`);
+// }).setFilteredClass(net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket)
+

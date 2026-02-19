@@ -1,3 +1,5 @@
+import { chat } from "./utils"
+
 export default class StarMob {
     constructor(entity, stand) {
         this.entity = entity
@@ -28,7 +30,7 @@ export default class StarMob {
     update() {
         let mobName = this.entity.getName();
         this.mobType = 0;
-        if(mobName.includes("Fels")) this.mobType = "fel"
+        if(mobName.includes("Dinnerbone")) this.mobType = "fel"
         if(mobName.includes("Shadow Assassin")) this.mobType = "sa";
         this.name = mobName;
         this.x = this.entity.getX()

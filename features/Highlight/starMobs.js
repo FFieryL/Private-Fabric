@@ -1,7 +1,7 @@
 import dungeonUtils from "../../util/dungeonUtils";
 import c from "../../config"
 import StarMob from "../../util/starMobUtils";
-import { ArmorStand, EntityBat, EntityPlayer, EntityWither, ClientPlayer, getTablist} from "../../util/utils";
+import { ArmorStand, EntityBat, EntityPlayer, EntityWither, ClientPlayer, getTablist, chat} from "../../util/utils";
 import RenderUtils from "../../util/renderUtils"
 import { onScoreboardLine } from "../../util/Events";
 
@@ -264,7 +264,7 @@ const mobRenderer = register("renderWorld", () => {
             RenderUtils.drawOutline(newBox, outlineColor, phase, 2)
 
             if (!c.pestESPTracer) continue;
-            let entityPos = [pos.x, drawY - 0.6, pos.z]
+            let entityPos = [pos.x, drawY, pos.z]
             RenderUtils.drawTracer(RenderUtils.calculateCameraPos(), entityPos, tracerColor, true, 5)
         }
     }

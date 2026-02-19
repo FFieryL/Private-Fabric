@@ -9,8 +9,8 @@ global.goldorColor = "&a"
 
 export default new class dungeonUtils {
     constructor() {
+        this.inDungeon = false
         this.reset()
-
         this.dungeonChangeFuncs = []
         this.bossMessageListeners = new Set();
 
@@ -21,7 +21,7 @@ export default new class dungeonUtils {
 
         register("tick", (ticks) => {
             if (ticks % 10) return
-            if (!SkyBlockUtils.inSkyBlock() && !this.inDungeon) return this.reset()
+            if (!SkyBlockUtils.inSkyBlock() && this.inDungeon) return this.reset()
 
             const tabList = getTablist(false)
             if (tabList && tabList.length > 60) this.doPartyStuff(tabList)
@@ -80,7 +80,7 @@ export default new class dungeonUtils {
     // ================= RESET =================
 
     reset() {
-        this.inDungeon = false
+        this._setInDungeon(false)
         this.inBoss = false
         this.floor = null
         this.floorNumber = null
@@ -95,7 +95,6 @@ export default new class dungeonUtils {
     }
 
     // ================= STATE =================
-
     _setInDungeon(state) {
         if (state !== this.inDungeon) this.dungeonChangeFuncs.forEach(f => f(state))
         this.inDungeon = state
