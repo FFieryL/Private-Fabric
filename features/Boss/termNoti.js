@@ -186,13 +186,14 @@ const blockedPhrases = [
 //     return match ? match[1] : null;
 // }
 
+const subtitleRegex = /^(\w+) (activated|completed) a (terminal|device|lever)! \((\d+)\/(\d+)\)$/
 const cancelTitlesTrig = register("packetReceived", (packet, event) => {
-    if (!(packet instanceof TitleS2CPacket || packet instanceof SubtitleS2CPacket)) return;
-    const text = packet.text().toString().removeFormatting().toLowerCase();
+    if (!(packet instanceof SubtitleS2CPacket)) return;
     if(!InP3 || !c.TermNoti) return;
-    if (!text) return;
-    if (blockedPhrases.some(phrase => text.includes(phrase.toLowerCase()))) cancel(event)
-}).setFilteredClasses([TitleS2CPacket, SubtitleS2CPacket]).unregister()
+    const match = packet.text().getString().replace(/§[0-9a-fk-or]/g, '').match(subtitleRegex);
+    if (!match) return;
+    cancel(event)
+}).setFilteredClass(SubtitleS2CPacket).unregister()
 
 if (c.CancelTitles && c.TermNoti) {
     cancelTitlesTrig.register();

@@ -13,7 +13,7 @@ export default new class dungeonUtils {
         this.reset()
         this.dungeonChangeFuncs = []
         this.bossMessageListeners = new Set();
-
+        this.debug = false
         const initialChecker = register("tick", () => {
             this.checkStuff()
             initialChecker.unregister()
@@ -27,9 +27,14 @@ export default new class dungeonUtils {
             if (tabList && tabList.length > 60) this.doPartyStuff(tabList)
         })
 
-        // register("step", () => {
-        //     this.dumpState()
-        // }).setDelay(1)
+        register("command", () => {
+            if (this.debug) debug.unregister()
+            else debug.register()
+        }).setName("debugdungeons")
+
+        const debug = register("step", () => {
+            this.dumpState()
+        }).setDelay(1).unregister()
 
         // ===== SCOREBOARD DETECTION =====
         onScoreboardLine((lineNumber, text) => {

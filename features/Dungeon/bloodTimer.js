@@ -60,7 +60,7 @@ const chatTrig2 = registerPacketChat((message) => {
         if (c.btSendParty) ChatLib.command("pc Watcher Prediction: " + bloodMovePredictionTicks)
         else chat(`&cWatcher Prediction&b: &3${bloodMovePredictionTicks} Seconds`)
         displayText = `&3${bloodMovePredictionTicks}`
-        if (c.btMageOnly && dungeonUtils.getPlayerClass(Player.getName())) return;
+        if (c.btMageOnly && dungeonUtils.getPlayerClass(Player.getName()) != "Mage") return;
         const timeToKill = (bloodMovePredictionTicks - bloodMoveTicks) * 1000
         if (c.btCountDown) {
             timeLeft = (bloodTicks / 20) //(timeToKill - 150) / 1000

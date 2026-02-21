@@ -15,7 +15,7 @@ import {
 
 @Vigilant("PrivateASF-Fabric/data", "§5PrivateASF-Fabric", {
     getCategoryComparator: () => (a, b) => {
-        const categories = ['Highlight', "Party", 'Pets', 'Dungeon', 'Boss', 'GUI', "Settings"];
+        const categories = ['Highlight', "Party", 'Pets', 'Dungeon', 'Boss', "Random", 'GUI', "Settings"];
         return categories.indexOf(a.name) - categories.indexOf(b.name);
     }
 })
@@ -909,6 +909,14 @@ class config {
         subcategory: "§dTerminals"
     })
     detailedMode = false;
+
+    @CheckboxProperty({
+        name: "Show Lowestbin ToolTips",
+        description: "idk &cWIP",
+        category: "Random",
+        subcategory: "Lowest Bin"
+    })
+    lowestBinTT = false
 
     @SwitchProperty({
         name: "Open Gui Editor",

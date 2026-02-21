@@ -1,7 +1,7 @@
 import dungeonUtils from "../../util/dungeonUtils";
 import c from "../../config"
 import StarMob from "../../util/starMobUtils";
-import { ArmorStand, EntityBat, EntityPlayer, EntityWither, ClientPlayer, getTablist, chat} from "../../util/utils";
+import { ArmorStand, EntityBat, EntityPlayer, EntityWither, ClientPlayer, getTablist, chat } from "../../util/utils";
 import RenderUtils from "../../util/renderUtils"
 import { onScoreboardLine } from "../../util/Events";
 
@@ -39,11 +39,12 @@ function validEntity(entity) {
 }
 
 function inGarden() {
-    const names = getTablist(false)
-    if (!names) return false;
-    const area = names.find(tab => tab.includes("Area"));
-    if (!area || !area.includes("Garden")) return false;
-    return true;
+    const lines = Scoreboard.getLines()
+    if (!lines) return false
+
+    return lines.some(l =>
+        ChatLib.removeFormatting(l.getName()).includes("The Garden")
+    )
 }
 
 const tickScanner = register("tick", () => {
@@ -76,17 +77,17 @@ const tickScanner = register("tick", () => {
             if (!starMobRegex.test(name)) return;
 
 
-            const box = mcStand.getBoundingBox().offset(0.0, -1.0, 0.0).expand(0.25, 0.5, 0.25);
+            const box = mcStand.getBoundingBox().offset(0.0, -1.0, 0.0).expand(0.3, 0.5, 0.3);
 
 
             for (let mob of allPossibleMobs) {
 
-                if (mob.distanceTo(stand) > 7) continue;
+                if (mob.distanceTo(stand) > 8) continue;
 
                 const ent = mob.toMC();
 
 
-                if (ent.getBoundingBox().expand(0.25, 0.5, 0.25).intersects(box)) {
+                if (ent.getBoundingBox().expand(0.3, 0.5, 0.3).intersects(box)) {
                     let match = name.match(starMobRegex);
 
                     if (match) {
@@ -149,12 +150,21 @@ const tickScanner = register("tick", () => {
     else mobRenderer.unregister()
 }).unregister()
 
+//   Plot - 3   Plot - 6 ൠ x1 
 const pestsInScoreboardPattern = / ⏣ The Garden ൠ x(\d+)/;
+const noPests = /   Plot - (\d+)/
+const hasPests = /   Plot - (\d+) ൠ x(\d+)/
 let gardenRegistered = false
 onScoreboardLine((line, text) => {
-    if (text.removeFormatting().match(pestsInScoreboardPattern) && c.pestESP && !gardenRegistered) {
+    if (text.removeFormatting().match(hasPests) && c.pestESP && !gardenRegistered) {
         gardenTickChecker.register()
         gardenRegistered = true
+    }
+    else if (gardenRegistered && text.removeFormatting().match(noPests)){
+        gardenTickChecker.unregister()
+        gardenRegistered = false
+        pests = []
+        validPests = false
     }
 })
 
@@ -203,8 +213,8 @@ const mobRenderer = register("renderWorld", () => {
         for (let mob of starMobs) {
             if (!mob) continue;
             const pos = getSmoother(mob.entity).update(
-                mob.entity.getRenderX(), 
-                mob.entity.getRenderY(), 
+                mob.entity.getRenderX(),
+                mob.entity.getRenderY(),
                 mob.entity.getRenderZ()
             );
 
@@ -256,7 +266,7 @@ const mobRenderer = register("renderWorld", () => {
         for (let i = 0; i < pests.length; ++i) {
             let pest = pests[i]
             const pos = getSmoother(pest).update(pest.getRenderX(), pest.getRenderY(), pest.getRenderZ());
-            
+
             let drawY = pos.y + 1.2;
             let newBox = RenderUtils.getBox(pos.x, drawY, pos.z, 0.8, 0.8)
 

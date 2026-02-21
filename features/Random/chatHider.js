@@ -13,14 +13,17 @@ export const data = new PogObject(
 let lastListMessages = []
 let hiddenRegexes = []
 const defaultPatterns = [
-    "Your Implosion hit (.+) for (.+) damage",
+    "Your Implosion hit (.+) for (.+) damage.",
     "Your Kill Combo has expired! You reached a (.+) Kill Combo!",
     "There are blocks in the way!",
-    "\\+(.+) Kill Combo (.+)",
-    "(.+) has obtained Superboom TNT!",
+    "\\+(.+) Kill Combo(.+)",
+    /^(?:\[(.+)\]*)?.+ has obtained (?:a\s)?(.+)!$/,
     "Your Guided Sheep hit \* for \* damage.",
     "A Crypt Wither Skull exploded, hitting you for \* damage.",
-    "\\[NPC\\] Mort: (.+)"
+    /\[NPC\] Mort: (.+)./,
+    "(.+) has obtained Blessing of (.+)!",
+    "Your radio is weak. Find another enjoyer to boost it."
+
 ]
 
 function loadRegexes() {
@@ -28,8 +31,14 @@ function loadRegexes() {
 
     data.chatHiderPatterns.forEach(pattern => {
         try {
-            const regexPattern = pattern.replace(/\*/g, "(.+)")
-            hiddenRegexes.push(new RegExp(regexPattern, "i"))
+            if (pattern instanceof RegExp) {
+                // Already a regex, use as-is
+                hiddenRegexes.push(pattern)
+            } else {
+                // Convert string pattern to regex
+                const regexPattern = "^" + pattern.replace(/\*/g, "(.+)") + "$"
+                hiddenRegexes.push(new RegExp(regexPattern, "i"))
+            }
         } catch (e) {
             chat(`&cInvalid saved regex removed: &e${pattern}`)
         }
@@ -38,18 +47,29 @@ function loadRegexes() {
 
 loadRegexes()
 
-registerPacketChat((message, formatted, event) => {
-
+register("chat", (message, event) => {
     if (!hiddenRegexes.length) return
 
     for (let regex of hiddenRegexes) {
-        if (regex.test(message)) {
+        if (regex.test(message.removeFormatting())) {
             cancel(event)
             return
         }
     }
+}).setCriteria("${message}")
 
-})
+// registerPacketChat((message, formatted, event) => {
+
+//     if (!hiddenRegexes.length) return
+
+//     for (let regex of hiddenRegexes) {
+//         if (regex.test(message)) {
+//             cancel(event)
+//             return
+//         }
+//     }
+
+// })
 
 register("command", (action, ...args) => {
 
@@ -215,7 +235,25 @@ function showDefaultPatterns(page = 1) {
 
     // Pagination buttons
     if (totalPages > 1) {
-        if (page > 1) {
+        if (page > 1 && page < totalPages) {
+            const both = new TextComponent(
+                "",
+                {
+                    text: "&a[Prev Page] ",
+                    clickEvent: { action: "run_command", value: `/pahc default ${page - 1}` },
+                    hoverEvent: { action: "show_text", value: "&eClick to go to previous page" }
+                },
+                {
+                    text: "&a[Next Page] ",
+                    clickEvent: { action: "run_command", value: `/pahc default ${page + 1}` },
+                    hoverEvent: { action: "show_text", value: "&eClick to go to next page" }
+                },
+                ""
+            );
+            ChatLib.chat(both);
+            lastListMessages.push(both);
+        }
+        else if (page == totalPages) {
             const prev = new TextComponent(
                 "",
                 {
@@ -229,7 +267,7 @@ function showDefaultPatterns(page = 1) {
             lastListMessages.push(prev);
         }
 
-        if (page < totalPages) {
+        else {
             const next = new TextComponent(
                 "",
                 {
@@ -242,6 +280,7 @@ function showDefaultPatterns(page = 1) {
             ChatLib.chat(next);
             lastListMessages.push(next);
         }
+
     }
 }
 
@@ -307,7 +346,25 @@ function showHiddenChatList(page = 1) {
 
     // Pagination buttons
     if (totalPages > 1) {
-        if (page > 1) {
+        if (page > 1 && page < totalPages) {
+            const both = new TextComponent(
+                "",
+                {
+                    text: "&a[Prev Page] ",
+                    clickEvent: { action: "run_command", value: `/pahc list ${page - 1}` },
+                    hoverEvent: { action: "show_text", value: "&eClick to go to previous page" }
+                },
+                {
+                    text: "&a[Next Page] ",
+                    clickEvent: { action: "run_command", value: `/pahc list ${page + 1}` },
+                    hoverEvent: { action: "show_text", value: "&eClick to go to next page" }
+                },
+                ""
+            );
+            ChatLib.chat(both);
+            lastListMessages.push(both);
+        }
+        else if (page == totalPages) {
             const prev = new TextComponent(
                 "",
                 {
@@ -321,7 +378,7 @@ function showHiddenChatList(page = 1) {
             lastListMessages.push(prev);
         }
 
-        if (page < totalPages) {
+        else {
             const next = new TextComponent(
                 "",
                 {
@@ -334,5 +391,7 @@ function showHiddenChatList(page = 1) {
             ChatLib.chat(next);
             lastListMessages.push(next);
         }
+
     }
+
 }
