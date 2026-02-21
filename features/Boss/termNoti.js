@@ -50,7 +50,7 @@ register("worldLoad", () => {
 })
 
 const chatTrig = registerPacketChat((message) => {
-    if (message == "[BOSS] Storm: I should have known that I stood no chance.") {
+    if (message == "[BOSS] Goldor: Who dares trespass into my domain?") {
         registerTriggers(true)
         resetstuff()
         InP3 = true
@@ -125,13 +125,13 @@ const inp3 = registerPacketChat((message) => {
                     playername = null
                     return;
                 }
-                if(playerclass == "Berserk") {
+                if(playerclass == "Berserk" && dungeonUtils.getStage() == 1) {
                     thingydone = "&5I4 Done"
                     thingycompleted = null
                     thingytotal = null
                     break;
                 }
-                else /*if (playerclass == "Archer")*/ {
+                else if (dungeonUtils.getStage() == 1 || dungeonUtils.getPhase() == 2) {
                     thingydone = "&5Lights Done"
                     thingycompleted = null
                     thingytotal = null
@@ -175,7 +175,7 @@ const blockedPhrases = [
     "activated a terminal!",
     "completed a device!",
     "activated a lever!",
-    "destroyed",
+    "gate has been destroyed!",
     "gate will open in 5 seconds!",
     "core entrance is opening!"
 ];
@@ -186,13 +186,10 @@ const blockedPhrases = [
 //     return match ? match[1] : null;
 // }
 
-const subtitleRegex = /^(\w+) (activated|completed) a (terminal|device|lever)! \((\d+)\/(\d+)\)$/
+//const subtitleRegex = /^(\w+) (activated|completed) a (terminal|device|lever)! \((\d+)\/(\d+)\)$/
 const cancelTitlesTrig = register("packetReceived", (packet, event) => {
-    if (!(packet instanceof SubtitleS2CPacket)) return;
     if(!InP3 || !c.TermNoti) return;
-    const match = packet.text().getString().replace(/§[0-9a-fk-or]/g, '').match(subtitleRegex);
-    if (!match) return;
-    cancel(event)
+    if (blockedPhrases.some(phrase => packet.text().getString().removeFormatting().includes(phrase))) cancel(event)
 }).setFilteredClass(SubtitleS2CPacket).unregister()
 
 if (c.CancelTitles && c.TermNoti) {

@@ -152,7 +152,7 @@ const tickScanner = register("tick", () => {
 
 //   Plot - 3   Plot - 6 ൠ x1 
 const pestsInScoreboardPattern = / ⏣ The Garden ൠ x(\d+)/;
-const noPests = /   Plot - (\d+)/
+const noPests = / ⏣ Plot - (\d+)/
 const hasPests = /   Plot - (\d+) ൠ x(\d+)/
 let gardenRegistered = false
 onScoreboardLine((line, text) => {
@@ -169,9 +169,8 @@ onScoreboardLine((line, text) => {
 })
 
 const gardenTickChecker = register("tick", () => {
-
     if (!c.pestESP || !inGarden()) return;
-
+    pests = []
     // Pests
     if (c.pestESP) {
         let pestsFound = []

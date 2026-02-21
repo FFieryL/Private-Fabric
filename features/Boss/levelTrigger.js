@@ -22,7 +22,7 @@ const deviceLevers = [
 const leverCooldowns = new Map(); 
 const CLICK_DELAY = 1000;
 
-const leverTrigger = register("tick", () => {
+const leverTrigger = register("step", () => {
     if(Client.isInGui()) return;
     const lookingAt = Player.lookingAt();
     if (!lookingAt) return;
@@ -43,7 +43,7 @@ const leverTrigger = register("tick", () => {
     if (Date.now() - lastClick < CLICK_DELAY) return;
     rightClick(true, true);
     leverCooldowns.set(key, Date.now());
-}).unregister()
+}).setFps(40).unregister()
 
 const chatTrig = dungeonUtils.onBossMessage((name) => {
     const enableBeforeP3 = (c.enableBeforeP3 && (dungeonUtils.currentPhase == 2 || dungeonUtils.currentPhase == 1))

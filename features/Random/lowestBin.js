@@ -35,10 +35,9 @@ function fetchLowestBins() {
         }
     }).start();
 }
-let stuff = 0
+
 function getAuctionIdentifier(item) {
     if (!item) return null;
-    if (stuff == 1) return;
     try {
         const nbtString = item.getNBT().toString();
 
