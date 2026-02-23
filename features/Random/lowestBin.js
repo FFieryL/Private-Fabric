@@ -173,6 +173,9 @@ if (c.lowestBinTT) {
     priceFetcher.register()
     lowestBinRegister.register()
 }
+if (c.customAHGui) {
+    priceFetcher.register()
+}
 
 c.registerListener("Show Lowestbin ToolTips", (curr) => {
     if (curr) {
@@ -180,7 +183,7 @@ c.registerListener("Show Lowestbin ToolTips", (curr) => {
         lowestBinRegister.register()
     }
     else {
-        priceFetcher.unregister()
+        if (!c.customAHGui) priceFetcher.unregister()
         lowestBinRegister.unregister()
     }
 })

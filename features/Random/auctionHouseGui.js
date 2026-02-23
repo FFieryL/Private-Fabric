@@ -227,7 +227,7 @@ const signKeyHandler = register("guiKey", (char, keyCode, gui, event) => {
     } else if (keyCode === KEY_ENTER_NUMPAD || keyCode === KEY_ENTER_MAIN || keyCode === KEY_ESCAPE) { // Enter or escape key
         signGui.close();
         sendSignPacket();
-    } else if (char && currentPriceInput.length < 13) {
+    } else if (char && currentPriceInput.length < 11) {
         const c = char.toLowerCase();
         if (/[0-9.]/.test(c) || (/[kmb]/.test(c) && !/[kmb]/.test(currentPriceInput) && currentPriceInput.length > 0)) {
             currentPriceInput += c;
