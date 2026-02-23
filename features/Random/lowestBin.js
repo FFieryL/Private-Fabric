@@ -2,7 +2,7 @@ import c from "../../config"
 import PogObject from "../../../PogData";
 import { chat } from "../../util/utils";
 
-const binData = new PogObject(
+export const binData = new PogObject(
     "PrivateASF-Fabric",
     {
         prices: {},
@@ -36,7 +36,7 @@ function fetchLowestBins() {
     }).start();
 }
 
-function getAuctionIdentifier(item) {
+export function getAuctionIdentifier(item) {
     if (!item) return null;
     try {
         const nbtString = item.getNBT().toString();
@@ -123,6 +123,7 @@ function extractCustomData(nbtString) {
 const priceFetcher = register("step", () => {
     fetchLowestBins();
 }).setDelay(60).unregister()
+
 
 const lowestBinRegister = register("itemTooltip", (lore, item) => {
     if (!item) return;

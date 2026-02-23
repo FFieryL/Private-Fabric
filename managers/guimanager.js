@@ -316,5 +316,5 @@ function drawBoxAround(ctx, text, info, center = true) {
     ctx.fill(x - 2, y - 2, x + w + 2, y + h + 2, color);
 }
 
-let lastWidth = data.screenWidth;
-let lastHeight = data.screenHeight;
+// let lastWidth = data.screenWidth;
+// let lastHeight = data.screenHeight;

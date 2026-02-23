@@ -6,8 +6,9 @@ const summonRegex = /§r§aYou summoned your §r§([0-9a-fk-or])((?:[^§]|§r§[
 const despawnmatch = /§r§aYou despawned your §r§([0-9a-fk-or])((?:[^§]|§r§[0-9a-fk-or] ✦)+)§r§a!/;
 const autopetRegex = /§r§cAutopet §eequipped your §7\[Lvl (\d+)\] §(.)(.+?)§e! §a§lVIEW RULE/;
 const levelUpRegex = /§r§aYour §r§([0-9a-fk-or])([^§]+) §r§aleveled up to level §r§9(\d+)§r§a!/;
-const tabpet = /§r §r§7\[Lvl (\d+)\](?: §r§8\[.*?\])? §r§(.)(.+?)§r/
+const tabpet = /§r §r§7\[Lvl (\d+)\](?: §r§8\[.*?\])? §r§([0-9a-f])(.+)/
 let currentPet = null
+
 registerOverlay("CurrentPetGui", { text: () => "No Pet / Unknown", align: "left", colors: false, setting: () => c.CurrentPetGui})
 
 
@@ -93,7 +94,6 @@ const worldLoadTrig = register("worldLoad", () => {
 
         const petIndex = names.findIndex(line => line.includes("Pet:"))
         if (petIndex == -1 || petIndex + 1 >= names.length) return checker.unregister();
-
         const match = names[petIndex + 1].match(tabpet)
         if (!match) return checker.unregister();
 

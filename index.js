@@ -77,7 +77,6 @@ Client.scheduleTask(0, () => {
 
     ChatLib.chat(`${Prefix}&aModule Loaded! (&f${loadedCount}&a features)`);
     if (ClassifiedASF) ClassifiedASF()
-    if (World.isLoaded()) ensureConnected()
 });
 
 
@@ -115,31 +114,20 @@ register("command", (soundName, volume, pitch) => {
 
 
 
-// register("packetSent", (packet) => {
-//     // Check if the packet is a PlayerInteractBlockC2SPacket
-//     // You can inspect the packet here
-//     let blockPos = packet.entityId // Get the block position
-//     ChatLib.chat(`Player interacted with entityId ${blockPos}`);
-// }).setFilteredClass(net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket)
+//packet checker
+// register("packetReceived", (packet, event) => {
 
-// register("packetSent", (packet) => {
-//     // Check if the packet is a PlayerInteractBlockC2SPacket
-//     // You can inspect the packet here
-//     let blockPos = packet.getAction() // Get the block position
-//     ChatLib.chat(`Player interacted ${blockPos}`);
-// }).setFilteredClass(net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket)
+//         ChatLib.chat(`§b--- Inspecting SignEditorOpenS2CPacket ---`);
 
-// register("packetSent", (packet) => {
-//     // Check if the packet is a PlayerInteractBlockC2SPacket
-//     // You can inspect the packet here
-//     let blockPos = packet.hand // Get the block position
-//     ChatLib.chat(`Player interacted with ${blockPos}`);
-// }).setFilteredClass(net.minecraft.network.packet.c2s.play.HandSwingC2SPacket)
-
-// register("packetSent", (packet) => {
-//     // Check if the packet is a PlayerInteractBlockC2SPacket
-//     // You can inspect the packet here
-//     let blockPos = packet.getHand() // Get the block position
-//     ChatLib.chat(`Player interacted with ${blockPos} 11 1`);
-// }).setFilteredClass(net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket)
-
+//         const fields = packet.class.getDeclaredFields();
+//         fields.forEach(field => {
+//             try {
+//                 field.setAccessible(true);
+//                 const name = field.getName();
+//                 const value = field.get(packet);
+//                 ChatLib.chat(`§e${name}: §f${value}`);
+//             } catch (e) {
+//                 ChatLib.chat(`§cError reading ${field.getName()}`);
+//             }
+//         });
+// }).setFilteredClass(net.minecraft.network.packet.s2c.play.SignEditorOpenS2CPacket);

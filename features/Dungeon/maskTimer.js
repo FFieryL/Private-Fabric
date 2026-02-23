@@ -1,6 +1,6 @@
 import c from "../../config"
 import { data, drawText, registerOverlay } from "../../managers/guimanager"
-import { chat, CommonPingS2CPacket} from "../../util/utils";
+import { chat, CommonPingS2CPacket, playSound} from "../../util/utils";
 import dungeonUtils from "../../util/dungeonUtils";
 import { registerPacketChat } from "../../util/Events";
 let inPre4 = false;
@@ -30,17 +30,20 @@ registerPacketChat((message) => {
     if (!c.invincibilityDisplay) return;
     
     if (/^Your (?:\S+ )?Bonzo's Mask saved your life!$/.test(message)) {
+        //playSound("entity.zombie_villager.cure", 1, 2)
         bonzopop = bonzocd;
         getBonzoCd();
         handlePop(c.maskText)
     }
 
     else if (message === "Your Phoenix Pet saved you from certain death!") {
+        //playSound("entity.zombie_villager.cure", 1, 2)
         phoenixpop = 60;
         handlePop(c.phoenixText)
     }
 
     else if (message === "Second Wind Activated! Your Spirit Mask saved your life!") {
+        //playSound("entity.zombie_villager.cure", 1, 2)
         spiritpop = 30;
         handlePop(c.spiritText)
     }

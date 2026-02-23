@@ -177,7 +177,7 @@ const blockedPhrases = [
     "activated a lever!",
     "gate has been destroyed!",
     "gate will open in 5 seconds!",
-    "core entrance is opening!"
+    "entrance is opening"
 ];
 
 // function getTextFromPacket(packet) {
@@ -188,8 +188,10 @@ const blockedPhrases = [
 
 //const subtitleRegex = /^(\w+) (activated|completed) a (terminal|device|lever)! \((\d+)\/(\d+)\)$/
 const cancelTitlesTrig = register("packetReceived", (packet, event) => {
+    if (!(packet instanceof SubtitleS2CPacket)) return;
     if(!InP3 || !c.TermNoti) return;
     if (blockedPhrases.some(phrase => packet.text().getString().removeFormatting().includes(phrase))) cancel(event)
+    else console.log(("\n" + packet.text().getString().removeFormatting() + "\n"))
 }).setFilteredClass(SubtitleS2CPacket).unregister()
 
 if (c.CancelTitles && c.TermNoti) {

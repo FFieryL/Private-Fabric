@@ -275,3 +275,5 @@ register("serverConnect", () => {
 register("serverDisconnect", () => {
     disconnect()
 });
+
+if (World.isLoaded() && !manuallyDisabled) ensureConnected()

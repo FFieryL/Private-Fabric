@@ -96,6 +96,7 @@ export function triggerPacketChat(message) {
 }
 
 register("packetReceived", (packet, event) => {
+    if (!(packet instanceof GameMessageS2CPacket)) return;
     if (packet.overlay()) return;
 
     const formatted = packet.content().getString();

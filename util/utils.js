@@ -21,6 +21,8 @@ export const ArmorStand = Java.type("net.minecraft.entity.decoration.ArmorStandE
 export const EntityBat = Java.type("net.minecraft.entity.passive.BatEntity")
 export const EntityPlayer = Java.type("net.minecraft.entity.player.PlayerEntity")
 export const ClientPlayer = Java.type("net.minecraft.client.network.ClientPlayerEntity")
+export const ClickSlotC2SPacket = Java.type('net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket')
+export const CloseHandledScreenC2SPacket = Java.type('net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket')
 //export const Prefix = "&l&0PrivateASF&7 >>"
 //prefixOptions[c.customPrefix]
 const prefixOptions = ["PrivateASF", "Private", "PA", "PASF"];

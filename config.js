@@ -918,6 +918,22 @@ class config {
     })
     lowestBinTT = false
 
+    @CheckboxProperty({
+        name: "Custom AH Price GUI",
+        description: "idk &cWIP",
+        category: "Random",
+        subcategory: "AH"
+    })
+    customAHGui = false
+
+    @SwitchProperty({
+        name: "Auto List",
+        description: "Auto list after you press done or -1 LBin. Pressing Enter or Esc will let you list it yourself",
+        category: "Random",
+        subcategory: "AH"
+    })
+    autoList = false
+
     @SwitchProperty({
         name: "Open Gui Editor",
         description: "§aLMB §7= Select | §aDrag §7= Move | §cRMB §7= Center | §bScroll §7= Scale | §eMiddle Click §7= Reset | §dR §7= Change color",

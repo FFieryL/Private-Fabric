@@ -1,5 +1,4 @@
 import PogObject from "../../../PogData"
-import { registerPacketChat } from "../../util/Events"
 import { chat } from "../../util/utils"
 
 export const data = new PogObject(
@@ -13,34 +12,38 @@ export const data = new PogObject(
 let lastListMessages = []
 let hiddenRegexes = []
 const defaultPatterns = [
-    "Your Implosion hit (.+) for (.+) damage.",
-    "Your Kill Combo has expired! You reached a (.+) Kill Combo!",
-    "There are blocks in the way!",
-    "\\+(.+) Kill Combo(.+)",
-    /^(?:\[(.+)\]*)?.+ has obtained (?:a\s)?(.+)!$/,
-    "Your Guided Sheep hit \* for \* damage.",
-    "A Crypt Wither Skull exploded, hitting you for \* damage.",
-    /\[NPC\] Mort: (.+)./,
-    "(.+) has obtained Blessing of (.+)!",
-    "Your radio is weak. Find another enjoyer to boost it."
-
+    { pattern: "Your Implosion hit .+ for .+ damage.", description: "Hide Implosion Message" },
+    { pattern: "Your Kill Combo has expired! You reached a .+ Kill Combo!", description: "Hide Expired Kill Combo Message" },
+    { pattern: "There are blocks in the way!", description: "Hide Blocks in your way" },
+    { pattern: "\\+.+ Kill Combo.+", description: "Hide Kill Combo" },
+    { pattern: "Your Guided Sheep hit .+ for .+ damage.", description: "Hide Guided Sheep Message" },
+    { pattern: "A Crypt Wither Skull exploded, hitting you for .+ damage.", description: "Hide Crypt Skull Message" },
+    { pattern: "\\[NPC\\] Mort: .+", description: "Hide Mort Messages" },
+    { pattern: "Your radio is weak. Find another enjoyer to boost it.", description: "Hide Weak Radio" },
+    { pattern: "Your radio lost signal. There's too many enjoyers on this channel.", description: "Hide Lost Signal Radio" },
+    { pattern: "(?:\\[.+\\])?.+ has obtained .+!", description: "Hide Obtained Messages in Dungeons" },
+    { pattern: "This ability is on cooldown for .+s.", description: "Hide Ability CD" },
+    { pattern: "(?:DUNGEON BUFF! You found a .+! \\(.+\\))|(?:\\s*(?:Also )?[Gg]ranted you .+)", description: "Hide Dungeon Buffs" },
+    { pattern: ".+ is now available!", description: "Hide Ability Ready Messages"},
+    { pattern: ".+ is ready to use! Press DROP to activate it!", description: "Hide Ult Messages"},
+    //{ pattern: "", description: ""},
 ]
 
 function loadRegexes() {
     hiddenRegexes = []
-
-    data.chatHiderPatterns.forEach(pattern => {
+    data.chatHiderPatterns.forEach(item => {
         try {
+            // Support both old string format and new object format
+            const pattern = typeof item === 'string' ? item : item.pattern;
+
             if (pattern instanceof RegExp) {
-                // Already a regex, use as-is
                 hiddenRegexes.push(pattern)
             } else {
-                // Convert string pattern to regex
-                const regexPattern = "^" + pattern.replace(/\*/g, "(.+)") + "$"
+                const regexPattern = "^" + pattern.replace(/\*/g, ".+") + "$"
                 hiddenRegexes.push(new RegExp(regexPattern, "i"))
             }
         } catch (e) {
-            chat(`&cInvalid saved regex removed: &e${pattern}`)
+            chat(`&cInvalid saved regex removed: &e${item}`)
         }
     })
 }
@@ -50,26 +53,26 @@ loadRegexes()
 register("chat", (message, event) => {
     if (!hiddenRegexes.length) return
 
+    const clean = message.removeFormatting()
+
+    // Don't hide your own module messages
+    if (clean.startsWith("Added hide pattern:")
+        || clean.startsWith("Removed pattern:")
+        || clean.startsWith("Cleared all hidden chat patterns.")
+        || clean.startsWith("Hidden Chat Patterns")
+        || clean.startsWith("Default Chat Patterns")
+        || /^\d+\.\s/.test(clean)) {
+        return
+    }
+
     for (let regex of hiddenRegexes) {
-        if (regex.test(message.removeFormatting())) {
+        if (regex.test(clean)) {
             cancel(event)
             return
         }
     }
 }).setCriteria("${message}")
 
-// registerPacketChat((message, formatted, event) => {
-
-//     if (!hiddenRegexes.length) return
-
-//     for (let regex of hiddenRegexes) {
-//         if (regex.test(message)) {
-//             cancel(event)
-//             return
-//         }
-//     }
-
-// })
 
 register("command", (action, ...args) => {
 
@@ -79,7 +82,7 @@ register("command", (action, ...args) => {
         chat("&e/pahc list")
         chat("&e/pahc remove <index>")
         chat("&e/pahc clear")
-        chat("* or (.+) for stuff that changes")
+        chat("* or .+ for stuff that changes")
         chat("add a \\ if you are adding special characters")
         return
     }
@@ -105,7 +108,7 @@ register("command", (action, ...args) => {
         const removed = data.chatHiderPatterns.splice(index - 1, 1)
         loadRegexes()
         data.save()
-
+        chat(`&aRemoved pattern: &e${removed[0].description}`)
         if (args.includes("deleteAndRefresh")) {
             if (lastListMessages.length) {
                 lastListMessages.forEach(msgObj => {
@@ -118,7 +121,6 @@ register("command", (action, ...args) => {
         }
 
 
-        chat(`&aRemoved pattern: &e${removed[0]}`)
     }
 
     else if (action === "clear") {
@@ -128,11 +130,20 @@ register("command", (action, ...args) => {
         chat("&aCleared all hidden chat patterns.")
         return
     }
+    else if (action === "default") {
+        let page = 1;
+        if (args) {
+            const parsed = parseInt(args[0]);
+            if (!isNaN(parsed) && parsed > 0) page = parsed;
+        }
+        showDefaultPatterns(page);
+        return;
+    }
     else if (action === "add") {
-        const patternString = [...args].join(" ")
+        if (!args.length) return
+        const patternString = args.join(" ")
 
-
-        if (data.chatHiderPatterns.includes(patternString)) {
+        if (data.chatHiderPatterns.some(p => (typeof p === 'string' ? p : p.pattern) === patternString)) {
             chat(`&cThis pattern is already hidden: &e${patternString}`)
             return
         }
@@ -144,29 +155,41 @@ register("command", (action, ...args) => {
             return
         }
 
-        data.chatHiderPatterns.push(patternString)
+        data.chatHiderPatterns.push({ pattern: patternString, description: "User Added" })
         loadRegexes()
         data.save()
-
         chat(`&aAdded hide pattern: &e${patternString}`)
     }
-    else if (action === "default") {
-        let page = 1;
-        if (args) {
-            const parsed = parseInt(args[0]);
-            if (!isNaN(parsed) && parsed > 0) page = parsed;
-        }
-        showDefaultPatterns(page);
-        return;
-    }
+    else if (action === "addDefault") {
+        if (!args.length) return;
+        const patternStr = args.join(" ");
 
+        const defaultObj = defaultPatterns.find(p => p.pattern === patternStr);
+
+        if (data.chatHiderPatterns.some(p => (typeof p === 'string' ? p : p.pattern) === patternStr)) {
+            chat(`&cThis pattern is already hidden: &e${patternStr}`);
+            return;
+        }
+
+        data.chatHiderPatterns.push(defaultObj || { pattern: patternStr, description: "Default" });
+        loadRegexes();
+        data.save();
+
+        chat(`&aAdded hide pattern: &e${patternStr}`);
+
+        if (lastListMessages.length) {
+            lastListMessages.forEach(msg => ChatLib.deleteChat(msg));
+            lastListMessages = [];
+        }
+        showDefaultPatterns();
+    }
     else {
         chat("&cUsage:")
         chat("&e/pahc add <regex>")
         chat("&e/pahc list")
         chat("&e/pahc remove <index>")
         chat("&e/pahc clear")
-        chat("* or (.+) for stuff that changes")
+        chat("* or .+ for stuff that changes")
         chat("add a \\ if you are adding special characters")
         return
     }
@@ -180,8 +203,11 @@ function showDefaultPatterns(page = 1) {
         lastListMessages = [];
     }
 
-    // Filter out patterns that the user already saved
-    const remainingPatterns = defaultPatterns.filter(p => !data.chatHiderPatterns.includes(p));
+    const remainingPatterns = defaultPatterns.filter(def => 
+        !data.chatHiderPatterns.some(saved => 
+            (typeof saved === 'string' ? saved : saved.pattern) === def.pattern
+        )
+    );
     const totalPatterns = remainingPatterns.length;
 
     if (totalPatterns === 0) {
@@ -210,27 +236,30 @@ function showDefaultPatterns(page = 1) {
     lastListMessages.push(header);
 
     for (let i = start; i < end; i++) {
-        const pattern = remainingPatterns[i];
-        if (!pattern) continue;
+        const item = remainingPatterns[i]
+        if (!item) continue;
+
+        const pattern = item.pattern
+        const desc = item.description ? `${item.description}` : ""
 
         const text = new TextComponent(
             "",
             {
-                text: `&e${i + 1}. &f${pattern}`,
+                text: `&e${i + 1}.&7 ${desc}`,
                 clickEvent: {
                     action: "run_command",
-                    value: `/pahc add ${pattern}`
+                    value: `/pahc addDefault ${pattern}`
                 },
                 hoverEvent: {
                     action: "show_text",
-                    value: "&eClick to add this default pattern"
+                    value: `&eClick to add this default pattern (${pattern})`
                 }
             },
             ""
         );
 
-        ChatLib.chat(text);
-        lastListMessages.push(text);
+        ChatLib.chat(text)
+        lastListMessages.push(text)
     }
 
     // Pagination buttons
@@ -284,8 +313,6 @@ function showDefaultPatterns(page = 1) {
     }
 }
 
-
-
 const PAGE_SIZE = 5;
 
 function showHiddenChatList(page = 1) {
@@ -304,7 +331,7 @@ function showHiddenChatList(page = 1) {
 
     const totalPages = Math.ceil(totalPatterns / PAGE_SIZE);
 
-    // Ensure page is a valid number
+
     page = parseInt(page);
     if (isNaN(page) || page < 1) page = 1;
     if (page > totalPages) page = totalPages;
@@ -321,20 +348,26 @@ function showHiddenChatList(page = 1) {
     lastListMessages.push(header);
 
     for (let i = start; i < end; i++) {
-        const pattern = data.chatHiderPatterns[i];
-        if (!pattern) continue; // Safety check
+        const item = data.chatHiderPatterns[i];
+        if (!item) continue;
+
+        const pattern = typeof item === 'string' ? item : item.pattern;
+
+        const displayText = (typeof item === 'object' && item.description)
+            ? `&7${item.description}`
+            : `&f${pattern}`;
 
         const text = new TextComponent(
             "",
             {
-                text: `&e${i + 1}. &f${pattern}`,
+                text: `&e${i + 1}. ${displayText}`,
                 clickEvent: {
                     action: "run_command",
                     value: `/pahc remove ${i + 1} deleteAndRefresh`
                 },
                 hoverEvent: {
                     action: "show_text",
-                    value: "&eClick to remove this hidden chat pattern"
+                    value: `&eClick to remove:\n&f${pattern}`
                 }
             },
             ""
@@ -344,7 +377,6 @@ function showHiddenChatList(page = 1) {
         lastListMessages.push(text);
     }
 
-    // Pagination buttons
     if (totalPages > 1) {
         if (page > 1 && page < totalPages) {
             const both = new TextComponent(
