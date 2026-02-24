@@ -15,7 +15,7 @@ import {
 
 @Vigilant("PrivateASF-Fabric/data", "§5PrivateASF-Fabric", {
     getCategoryComparator: () => (a, b) => {
-        const categories = ['Highlight', "Party", 'Pets', 'Dungeon', 'Boss', "Random", 'GUI', "Settings"];
+        const categories = ['Highlight', "Party", 'Pets', 'Dungeon', 'Boss', "Random", "Solvers", 'GUI', "Settings"];
         return categories.indexOf(a.name) - categories.indexOf(b.name);
     }
 })
@@ -524,8 +524,13 @@ class config {
     })
     partyJoinSoundPitch = 1;
 
-
-
+    @SwitchProperty({
+        name: "TTT Solver",
+        description: "Tic Tac Toe solver for all your needs ig",
+        category: "Solvers",
+        subcategory: "TTT"
+    })
+    TTTSolver = false
 
     // --- PETS ---
     @SwitchProperty({

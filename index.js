@@ -18,7 +18,8 @@ const FEATURE_FOLDERS = [
     "Highlight",
     "Pets",
     "Random",
-    "Party"
+    "Party",
+    "Solvers"
 ];
 
 

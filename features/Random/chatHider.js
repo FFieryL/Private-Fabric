@@ -1,5 +1,5 @@
 import PogObject from "../../../PogData"
-import { chat } from "../../util/utils"
+import { chat, playSound } from "../../util/utils"
 
 export const data = new PogObject(
     "PrivateASF-Fabric",
@@ -23,7 +23,7 @@ const defaultPatterns = [
     { pattern: "Your radio lost signal. There's too many enjoyers on this channel.", description: "Hide Lost Signal Radio" },
     { pattern: "(?:\\[.+\\])?.+ has obtained .+!", description: "Hide Obtained Messages in Dungeons" },
     { pattern: "This ability is on cooldown for .+s.", description: "Hide Ability CD" },
-    { pattern: "(?:DUNGEON BUFF! You found a .+! \\(.+\\))|(?:\\s*(?:Also )?[Gg]ranted you .+)", description: "Hide Dungeon Buffs" },
+    { pattern: "(?:DUNGEON BUFF! You found a .+!(?: \\(.+\\))?)|(?:\\s*(?:Also )?[Gg]ranted you .+)", description: "Hide Dungeon Buffs"},
     { pattern: ".+ is now available!", description: "Hide Ability Ready Messages"},
     { pattern: ".+ is ready to use! Press DROP to activate it!", description: "Hide Ult Messages"},
     //{ pattern: "", description: ""},
@@ -89,17 +89,19 @@ register("command", (action, ...args) => {
 
     else if (action === "list") {
         let page = 1;
+        
         if (args) {
             const parsed = parseInt(args[0]);
             if (!isNaN(parsed) && parsed > 0) page = parsed;
         }
+        playSound("random.click", 0.4, 2)
         showHiddenChatList(page);
         return;
     }
 
     else if (action === "remove") {
         const index = parseInt(args[0])
-
+        playSound("random.click", 0.4, 2)
         if (isNaN(index) || index < 1 || index > data.chatHiderPatterns.length) {
             chat("&cInvalid index.")
             return
@@ -136,13 +138,14 @@ register("command", (action, ...args) => {
             const parsed = parseInt(args[0]);
             if (!isNaN(parsed) && parsed > 0) page = parsed;
         }
+        playSound("random.click", 0.4, 2)
         showDefaultPatterns(page);
         return;
     }
     else if (action === "add") {
         if (!args.length) return
         const patternString = args.join(" ")
-
+        playSound("random.click", 0.4, 2)
         if (data.chatHiderPatterns.some(p => (typeof p === 'string' ? p : p.pattern) === patternString)) {
             chat(`&cThis pattern is already hidden: &e${patternString}`)
             return
@@ -163,7 +166,7 @@ register("command", (action, ...args) => {
     else if (action === "addDefault") {
         if (!args.length) return;
         const patternStr = args.join(" ");
-
+        playSound("random.click", 0.4, 2)
         const defaultObj = defaultPatterns.find(p => p.pattern === patternStr);
 
         if (data.chatHiderPatterns.some(p => (typeof p === 'string' ? p : p.pattern) === patternStr)) {
@@ -174,7 +177,7 @@ register("command", (action, ...args) => {
         data.chatHiderPatterns.push(defaultObj || { pattern: patternStr, description: "Default" });
         loadRegexes();
         data.save();
-
+        
         chat(`&aAdded hide pattern: &e${patternStr}`);
 
         if (lastListMessages.length) {

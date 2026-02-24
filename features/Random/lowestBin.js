@@ -10,13 +10,14 @@ export const binData = new PogObject(
     },
     "data/lowestBin.json"
 );
+
 // Ty skytils api <3
 const LOWEST_BIN_URL = `https://api.skytils.gg/api/auctions/lowestbins`
 
 function fetchLowestBins() {
     const now = Date.now();
 
-    if (now - binData.lastUpdated < 60000 && Object.keys(binData.prices).length > 0) {
+    if (now - binData.lastUpdated < 60000) {
         return;
     }
 
@@ -92,7 +93,7 @@ export function getAuctionIdentifier(item) {
 
 
     } catch (e) {
-        chat("&c[ASF Error] String parse failed. Check /ct console.");
+        chat("&cString parse failed. Check /ct console.");
         console.error(e);
         return null;
     }
