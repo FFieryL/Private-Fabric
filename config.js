@@ -15,7 +15,7 @@ import {
 
 @Vigilant("PrivateASF-Fabric/data", "§5PrivateASF-Fabric", {
     getCategoryComparator: () => (a, b) => {
-        const categories = ['Highlight', "Party", 'Pets', 'Dungeon', 'Boss', "Random", "Solvers", 'GUI', "Settings"];
+        const categories = ['Highlight', "Party", 'Pets', 'Dungeon', 'Boss', "Random", "Puzzles", "Settings"];
         return categories.indexOf(a.name) - categories.indexOf(b.name);
     }
 })
@@ -23,7 +23,7 @@ import {
 class config {
     constructor() {
         this.initialize(this)
-        // --- Dependencies ---
+        // Boss & Mob Highlights
         this.addDependency("Wither Highlight Type", "Wither Highlight");
         this.addDependency("ESP mode", "Wither Highlight");
         this.addDependency("Wither Box Color", "Wither Highlight");
@@ -46,7 +46,7 @@ class config {
         this.addDependency("Bats Color", "Bat Highlight");
         this.addDependency("Bats ESP mode", "Bat Highlight");
         this.addDependency("Bat Render Mode", "Bat Highlight");
-
+        // Secret Stuff
         this.addDependency("Secret Volume", "Secret Chime")
         this.addDependency("Secret Pitch", "Secret Chime")
         this.addDependency("Secret Sound Type", "Secret Chime")
@@ -55,18 +55,18 @@ class config {
         this.addDependency("Secret Locked Fill Color", "Secret Highlight");
         this.addDependency("Secret Opened Box Color", "Secret Highlight");
         this.addDependency("Secret Opened Fill Color", "Secret Highlight");
-
+        // Pets
         this.addDependency("Shorten Pet Rule Noti", "Pet Rule Notifier");
         this.addDependency("Pet Rule Notifier Sound", "Pet Rule Notifier");
         this.addDependency("Use custom color instead of rarity", "Pet Rule Notifier");
-
+        // Mask Timer
         this.addDependency("Bonzo Mask Text", "Bonzo, Phoenix, and Spirit Messages")
         this.addDependency("Phoenix Text", "Bonzo, Phoenix, and Spirit Messages")
         this.addDependency("Spirit Mask Text", "Bonzo, Phoenix, and Spirit Messages")
 
         this.addDependency("Invincibility Display Mode", "Invincibility Display")
         this.addDependency("Always show", "Invincibility Display")
-
+        // Party Noti
         this.addDependency("Only when leader", "Party Full Alarm")
         this.addDependency("Party Full Alarm Volume", "Party Full Alarm" || "Party Dequeued Alarm")
         this.addDependency("Party Full Alarm Time", "Party Full Alarm")
@@ -77,7 +77,7 @@ class config {
         this.addDependency("Party Join Sound Type", "Party Join Sound")
         this.addDependency("Party Join Sound Volume", "Party Join Sound")
         this.addDependency("Party Join Sound Pitch", "Party Join Sound")
-
+        // Dupe Class
         this.addDependency("Ignore dupe mage", "Dupe Class Notifier");
 
 
@@ -87,6 +87,8 @@ class config {
         this.addDependency("Blood Countdown", "Blood Timer")
         this.addDependency("Only Mage", "Blood Timer")
         this.addDependency("Send to Party", "Blood Timer")
+
+        this.addDependency("Diamante Mage Only", "Diamante Notifier")
 
         this.addDependency("Archer LB Swapper at Pillars", "Archer Death Bow Swapper")
         this.addDependency("Death Bow Swap Item", "Archer Death Bow Swapper")
@@ -104,12 +106,12 @@ class config {
         this.addDependency("Show names", "Terminal Notifier");
 
         this.addDependency("Enable Lever Trigger Bot for Device", "Lever Trigger Bot");
-        this.addDependency("Enable Before P3", "Lever Trigger Bot")
+        this.addDependency("Enable Before P3 For Device", "Lever Trigger Bot" && "Enable Lever Trigger Bot for Device")
 
-        this.addDependency("Item Border Color", "Armor and EQ gui")
-        this.addDependency("GUI Background Color", "Armor and EQ gui")
+        // this.addDependency("Item Border Color", "Armor and EQ gui")
+        // this.addDependency("GUI Background Color", "Armor and EQ gui")
 
-        this.addDependency("GUI Border Color", "Armor and EQ gui")
+        // this.addDependency("GUI Border Color", "Armor and EQ gui")
 
         this.addDependency("IRC Sound Type", "IRC toggle sound")
         this.addDependency("IRC Sound Volume", "IRC toggle sound")
@@ -128,6 +130,13 @@ class config {
         })
     }
 
+    // =========================================================================
+    //                            HIGHLIGHTS
+    // =========================================================================
+
+    /**
+     * @section Boss Highlights
+     */
     @SwitchProperty({
         name: "Wither Highlight",
         description: "Highlight for Withers in F7 § M7",
@@ -185,7 +194,9 @@ class config {
     })
     witherTracer = false;
 
-
+    /**
+     * @section Star Mobs
+     */
     @SwitchProperty({
         name: "Star mob Highlight",
         description: "idk its self explanatory...",
@@ -243,7 +254,7 @@ class config {
     })
     starMobESPColorFel = new Color(1, 1, 1, 1);
 
-    // ===== GARDEN =====
+    // ===== Pests =====
 
     @SwitchProperty({
         name: "Pest Highlight",
@@ -323,6 +334,8 @@ class config {
     })
     batHighlightType = 0;
 
+    // ===== Secrets =====
+
     @SwitchProperty({
         name: "Secret Chime",
         description: "IM TOO LAZY TO MOVE IT SHUSH",
@@ -400,8 +413,10 @@ class config {
     secretOpenedColorFill = new Color(1, 1, 1, 1);
 
 
+    // =========================================================================
+    //                                 Party
+    // =========================================================================
 
-    // --- Party ---
     @SwitchProperty({
         name: "Party Full Alarm",
         description: "plays a loud sound if party is full ",
@@ -524,15 +539,29 @@ class config {
     })
     partyJoinSoundPitch = 1;
 
+    // =========================================================================
+    //                               Puzzles
+    // =========================================================================
+    @SwitchProperty({
+        name: "Quiz Timer",
+        description: "Displays a timer for when quiz is ready",
+        category: "Puzzles",
+        subcategory: "§0Quiz"
+    })
+    QuizTimer = false;
+
     @SwitchProperty({
         name: "TTT Solver",
         description: "Tic Tac Toe solver for all your needs ig",
-        category: "Solvers",
-        subcategory: "TTT"
+        category: "Puzzles",
+        subcategory: "§1TTT"
     })
     TTTSolver = false
 
-    // --- PETS ---
+    // =========================================================================
+    //                                 Pets
+    // =========================================================================
+
     @SwitchProperty({
         name: "Current pet display",
         description: "displays your current pet",
@@ -581,7 +610,13 @@ class config {
     })
     customPetRuleColor = false;
 
-    // --- DUNGEON SECTION (Sorted: Masks -> Party -> Death Tick -> Dupe Class -> Secrets -> Quiz) ---
+    // =========================================================================
+    //                                Dungeons
+    // =========================================================================
+
+
+    // ===== Mask Timers =====
+
     @SwitchProperty({
         name: "Bonzo, Phoenix, and Spirit Messages",
         description: "Announces when one of the above proc",
@@ -639,7 +674,8 @@ class config {
     })
     invincibilityDisplayAlways = false;
 
-    // 2. Death Tick (§b)
+    // ===== Death Tick =====
+
     @SwitchProperty({
         name: "Death Tick Timer",
         description: "",
@@ -664,7 +700,8 @@ class config {
     })
     deathTickTimerBloodOpen = false;
 
-    // 3. Dupe Class (§c)
+    // ===== Dupe Class =====
+
     @SwitchProperty({
         name: "Dupe Class Notifier",
         description: "Notifys if theres a dupe class",
@@ -681,7 +718,8 @@ class config {
     })
     ignoreDoubleMage = false;
 
-    // 4. Secrets (§d)
+    // ===== Secret Tracker =====
+
     @SwitchProperty({
         name: "Secret Tracker",
         description: "Tracks secrets done by party",
@@ -690,14 +728,7 @@ class config {
     })
     SecretTracker = false;
 
-    // 5. Quiz (§e)
-    @SwitchProperty({
-        name: "Quiz Timer",
-        description: "Displays a timer for when quiz is ready",
-        category: "Dungeon",
-        subcategory: "§bQuiz"
-    })
-    QuizTimer = false;
+    // ===== Blood Timer =====
 
     @SwitchProperty({
         name: "Blood Timer",
@@ -731,7 +762,30 @@ class config {
     })
     btSendParty = false
 
-    // --- BOSS ---
+    // ===== Diamante Notifier =====
+
+    @SwitchProperty({
+        name: "Diamante Notifier",
+        description: "Notis you if it finds a diamante",
+        category: "Dungeon",
+        subcategory: "§cBlood"
+    })
+    diamanteNoti = false
+
+    @SwitchProperty({
+        name: "Diamante Mage Only",
+        description: "",
+        category: "Dungeon",
+        subcategory: "§cBlood"
+    })
+    DNMageOnly = false
+
+    // =========================================================================
+    //                                Boss
+    // =========================================================================
+
+
+    // ===== Storm =====
     @SwitchProperty({
         name: "Storm Timer",
         description: "",
@@ -747,6 +801,8 @@ class config {
         subcategory: "§aStorm"
     })
     sendStormTime = false;
+
+    // ===== Archer Swapper =====
 
     @SwitchProperty({
         name: "Archer Death Bow Swapper",
@@ -790,7 +846,8 @@ class config {
     })
     pyLBTimerSeconds = "34.6";
 
-    // 2. GOLDOR (§b)
+    // ===== Goldor =====
+
     @SwitchProperty({
         name: "Goldor Start Timer",
         description: "",
@@ -824,7 +881,8 @@ class config {
     })
     goldorTimerTicks = false;
 
-    // 3. P3 (§c)
+    // ===== Leap Noti =====
+
     @SwitchProperty({
         name: "Leap Notifier",
         description: "Gui for how many people leapt",
@@ -833,6 +891,8 @@ class config {
     })
     leapNoti = false;
 
+    // ===== Melody =====
+
     @SwitchProperty({
         name: "Melody Title",
         description: "",
@@ -840,6 +900,8 @@ class config {
         subcategory: "§cP3"
     })
     MelodyTitle = false;
+
+    // ===== P3 Levers =====
 
     @SwitchProperty({
         name: "Lever Trigger Bot",
@@ -858,14 +920,57 @@ class config {
     enableForDevice = false;
 
     @SwitchProperty({
-        name: "Enable Before P3",
-        description: "This will allow lever trigger bot to work between p1-p3",
+        name: "Enable Before P3 For Device",
+        description: "This will allow lever trigger bot to work for device between p1-p3",
         category: "Boss",
         subcategory: "§cP3"
     })
     enableBeforeP3 = false
 
-    // 4. TERMINALS (§d)
+    // ===== SS Alert =====
+
+    @SwitchProperty({
+        name: "SS Failed Alert",
+        description: "",
+        category: "Boss",
+        subcategory: "§dSS"
+    })
+    SSAlert = false
+
+    @SwitchProperty({
+        name: "SS Restart Alert",
+        description: "",
+        category: "Boss",
+        subcategory: "§dSS"
+    })
+    SSAlertRestart = false
+
+    @SwitchProperty({
+        name: "SS Failed Sound",
+        description: "",
+        category: "Boss",
+        subcategory: "§dSS"
+    })
+    SSAlertSound = false
+
+    @SwitchProperty({
+        name: "Send Party Chat On SS Fail",
+        description: "will send \"ssr SS Broke! SS Broke! SS Broke! ssr\"",
+        category: "Boss",
+        subcategory: "§dSS"
+    })
+    SSAlertSendChat = false
+
+    @SwitchProperty({
+        name: "Send Party Chat On SS Restart",
+        description: "will send \"SS Started Again!\"",
+        category: "Boss",
+        subcategory: "§dSS"
+    })
+    SSAlertRestartChat = false
+
+    // ===== Terminals =====
+
     @SwitchProperty({
         name: "Terminal Notifier",
         category: "Boss",
@@ -915,6 +1020,10 @@ class config {
     })
     detailedMode = false;
 
+    // =========================================================================
+    //                                 Random
+    // =========================================================================
+
     @CheckboxProperty({
         name: "Show Lowestbin ToolTips",
         description: "idk &cWIP",
@@ -939,59 +1048,44 @@ class config {
     })
     autoList = false
 
-    @SwitchProperty({
-        name: "Open Gui Editor",
-        description: "§aLMB §7= Select | §aDrag §7= Move | §cRMB §7= Center | §bScroll §7= Scale | §eMiddle Click §7= Reset | §dR §7= Change color",
-        category: "GUI",
-        subcategory: "Editor"
-    })
-    guiEditor = false
+    // @SwitchProperty({
+    //     name: "Armor and EQ gui",
+    //     description: "Toggle the Armor and Equipment HUD display. (§c not fully working atm §r)",
+    //     category: "GUI",
+    //     subcategory: "invGUI"
+    // })
+    // invGUI = false;
 
-    @SwitchProperty({
-        name: "Disable Text Shadow",
-        description: "Disable the text shadows for PrivateASF GUIS ONLY",
-        category: "GUI",
-        subcategory: "Editor"
-    })
-    disableTextShadow = false
+    // @ColorProperty({
+    //     name: "Item Border Color",
+    //     description: "Color for the individual item boxes.",
+    //     category: "GUI",
+    //     subcategory: "invGUI"
+    // })
+    // // Legacy: [80, 40, 100, 150]
+    // itemBorder = new Color(80 / 255, 40 / 255, 100 / 255, 150 / 255);
 
-    @SwitchProperty({
-        name: "Armor and EQ gui",
-        description: "Toggle the Armor and Equipment HUD display. (§c not fully working atm §r)",
-        category: "GUI",
-        subcategory: "invGUI"
-    })
-    invGUI = false;
+    // @ColorProperty({
+    //     name: "GUI Background Color",
+    //     description: "Background color for the inventory overlay.",
+    //     category: "GUI",
+    //     subcategory: "invGUI"
+    // })
+    // // Legacy: [25, 10, 40, 130]
+    // invBgColor = new Color(25 / 255, 10 / 255, 40 / 255, 130 / 255);
 
-    @ColorProperty({
-        name: "Item Border Color",
-        description: "Color for the individual item boxes.",
-        category: "GUI",
-        subcategory: "invGUI"
-    })
-    // Legacy: [80, 40, 100, 150]
-    itemBorder = new Color(80 / 255, 40 / 255, 100 / 255, 150 / 255);
+    // @ColorProperty({
+    //     name: "GUI Border Color",
+    //     description: "Outer border color for the inventory overlay.",
+    //     category: "GUI",
+    //     subcategory: "invGUI"
+    // })
+    // // Legacy: [120, 40, 180, 200]
+    // invBorderColor = new Color(120 / 255, 40 / 255, 180 / 255, 200 / 255);
 
-    @ColorProperty({
-        name: "GUI Background Color",
-        description: "Background color for the inventory overlay.",
-        category: "GUI",
-        subcategory: "invGUI"
-    })
-    // Legacy: [25, 10, 40, 130]
-    invBgColor = new Color(25 / 255, 10 / 255, 40 / 255, 130 / 255);
-
-    @ColorProperty({
-        name: "GUI Border Color",
-        description: "Outer border color for the inventory overlay.",
-        category: "GUI",
-        subcategory: "invGUI"
-    })
-    // Legacy: [120, 40, 180, 200]
-    invBorderColor = new Color(120 / 255, 40 / 255, 180 / 255, 200 / 255);
-
-
-
+    // =========================================================================
+    //                              Settings
+    // =========================================================================
 
     @SelectorProperty({
         name: "Prefix for mod chats",
@@ -1001,6 +1095,22 @@ class config {
         options: ["PrivateASF", "Private", "PA", "PASF"]
     })
     customPrefix = 0;
+
+    @SwitchProperty({
+        name: "Open Gui Editor",
+        description: "§aLMB §7= Select | §aDrag §7= Move | §cRMB §7= Center | §bScroll §7= Scale | §eMiddle Click §7= Reset | §dR §7= Change color",
+        category: "Settings",
+        subcategory: "§1Editor"
+    })
+    guiEditor = false
+
+    @SwitchProperty({
+        name: "Disable Text Shadow",
+        description: "Disable the text shadows for PrivateASF GUIS ONLY",
+        category: "Settings",
+        subcategory: "§1Editor"
+    })
+    disableTextShadow = false
 
     @SwitchProperty({
         name: "IRC toggle sound",

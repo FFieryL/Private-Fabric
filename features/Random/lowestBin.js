@@ -133,39 +133,40 @@ const lowestBinRegister = register("itemTooltip", (lore, item) => {
     if (!identifier) return;
 
     const rawPrice = binData.prices[identifier];
-    const price = Number(rawPrice);
-    if (isNaN(price)) return;
+    const valuePer = Number(rawPrice);
+    if (isNaN(valuePer)) return;
 
-    let oldPrice = null;
+    const stackSize = item.getStackSize();
+    const totalPrice = valuePer * stackSize;
 
-
+    let alreadyCorrect = false;
     for (let line of lore) {
         const text = ChatLib.removeFormatting(line.toString());
-        const match = text.match(/^Lowest BIN:\s*([\d,]+)/);
-        if (match) {
-            oldPrice = Number(match[1].replace(/,/g, ""));
+        if (text.startsWith("Lowest BIN:")) {
+            const existing = Number(text.replace(/[^0-9]/g, ""));
+            if (existing === totalPrice) {
+                alreadyCorrect = true;
+            }
             break;
         }
     }
 
+    if (alreadyCorrect) return;
 
-    if (oldPrice === price) return;
+    let newLore = lore.filter(line => {
+        const text = ChatLib.removeFormatting(line.toString());
+        return !text.startsWith("Lowest BIN:");
+    });
 
+    const format = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "§d,§5");
 
-    let newLore = [];
+    let priceLine = `§6§lLowest BIN: §r§5${format(totalPrice)}`;
 
-    for (let line of lore) {
-        const text = ChatLib.removeFormatting(line.toString()).trim();
-
-        if (text.includes("Lowest BIN:")) continue;
-        if (text.includes("minecraft:")) continue;
-        if (/^\d+ component(\(s\))?$/i.test(text)) continue;
-
-        newLore.push(line);
+    if (stackSize > 1) {
+        priceLine += ` §7(${valuePer.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} each)`;
     }
 
-
-    newLore.push(new TextComponent(`§6§lLowest BIN: §r§5${price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "§d,§5")}`));
+    newLore.push(new TextComponent(priceLine));
 
     item.setLore(newLore);
 }).unregister()

@@ -10,7 +10,7 @@ const modulesDir = new File("./config/ChatTriggers/modules")
 const Prefix = "&l&0PrivateASF&7 >> "
 const MODULE_NAME = "PrivateASF-Fabric"
 
-const IGNORED_FEATURES = ["bonzoDP"];
+const IGNORED_FEATURES = ["bonzoDP", "armorEQGUI"];
 
 const FEATURE_FOLDERS = [
     "Boss",

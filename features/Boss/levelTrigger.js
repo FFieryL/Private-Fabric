@@ -3,7 +3,7 @@ import dungeonUtils from "../../util/dungeonUtils";
 import { registerPacketChat } from "../../util/Events";
 import { rightClick } from "../../util/utils";
 
-let p3Levers = [
+const p3Levers = [
     [106, 124, 113, 5.7], [94, 124, 113, 5.7], [23, 132, 138, 5.7], 
     [27, 124, 127, 5.7], [2, 122, 55, 5.7], [14, 122, 55, 5.7], 
     [84, 121, 34, 5.7], [86, 128, 46, 5.7]
@@ -34,8 +34,18 @@ const leverTrigger = register("step", () => {
     const y = lookingAt.getY();
     const z = lookingAt.getZ();
 
+    const isDeviceLever = deviceLevers.some(([lx, ly, lz]) => x === lx && y === ly && z === lz);
     const isP3Lever = p3Levers.some(([lx, ly, lz]) => x === lx && y === ly && z === lz);
-    if (!isP3Lever) return;
+
+    if (isDeviceLever) {
+        if (!c.enableForDevice) return;
+    }
+
+    else if (isP3Lever) {
+        if (dungeonUtils.currentPhase != 3) return;
+    }
+
+    else return;
 
     const key = `${x}, ${y}, ${z}`;
     const lastClick = leverCooldowns.get(key) || 0;
@@ -43,10 +53,10 @@ const leverTrigger = register("step", () => {
     if (Date.now() - lastClick < CLICK_DELAY) return;
     rightClick(true, true);
     leverCooldowns.set(key, Date.now());
-}).setFps(40).unregister()
+}).setFps(50).unregister()
 
 const chatTrig = dungeonUtils.onBossMessage((name) => {
-    const enableBeforeP3 = (c.enableBeforeP3 && (dungeonUtils.currentPhase == 2 || dungeonUtils.currentPhase == 1))
+    const enableBeforeP3 = (c.enableBeforeP3 && (dungeonUtils.getPhase() == 2 || dungeonUtils.getPhase() == 1))
     if (name === "Goldor" || enableBeforeP3) {
         leverTrigger.register()
         chatTrig.unregister()
@@ -71,34 +81,6 @@ if (c.leverTriggerBot) {
     chatTrig.register() 
     chatTrig2.register()
 }
-
-if (c.enableForDevice) {
-    addDeviceLevers()
-}
-else {
-    removeDeviceLevers()
-}
-
-function addDeviceLevers() {
-    deviceLevers.forEach(lever => {
-        if (!p3Levers.some(l => l[0] === lever[0] && l[1] === lever[1] && l[2] === lever[2])) {
-            p3Levers.push(lever);
-        }
-    });
-}
-
-function removeDeviceLevers() {
-    p3Levers = p3Levers.filter(
-        lever => !deviceLevers.some(
-            d => d[0] === lever[0] && d[1] === lever[1] && d[2] === lever[2]
-        )
-    );
-}
-
-c.registerListener("Enable Lever Trigger Bot for Device", (curr) => {
-    if (curr) addDeviceLevers()
-    else removeDeviceLevers()
-})
 
 c.registerListener("Lever Trigger Bot", (curr) => {
     if (curr) {
