@@ -39,6 +39,7 @@ function fetchLowestBins() {
 
 export function getAuctionIdentifier(item) {
     if (!item) return null;
+
     try {
         const nbtString = item.getNBT().toString();
 
@@ -49,8 +50,16 @@ export function getAuctionIdentifier(item) {
         if (!idMatch) return null;
 
         const id = idMatch[1];
-        
-        if (id === "UNIQUE_RUNE" || id === "RUNE") {
+
+        if (id == "ATTRIBUTE_SHARD") {
+            const cleanName = item.getName().removeFormatting();
+            let baseName = cleanName.replace(/ Shard$/i, "")
+
+            baseName = baseName.toUpperCase().replace(/\s+/g, "_");
+            return `SHARD_${baseName}`;
+        }
+
+        else if (id === "UNIQUE_RUNE" || id === "RUNE") {
             const runeMatch = customData.match(/runes:\{([A-Z_]+):(\d+)\}/);
 
             if (runeMatch) {
@@ -59,6 +68,7 @@ export function getAuctionIdentifier(item) {
                 return `RUNE-${runeName}-${runeLevel}`;
             }
         }
+
         else if (id === "ENCHANTED_BOOK") {
             const enchantMatch = customData.match(/enchantments:\{([^}]+)\}/);
             if (enchantMatch) {
@@ -87,7 +97,28 @@ export function getAuctionIdentifier(item) {
                 }
             }
         }
-        
+        else if (id === "POTION") {
+
+            const potionMatch = customData.match(/potion:"([^"]+)"/);
+            const levelMatch = customData.match(/potion_level:(\d+)/);
+
+            if (!potionMatch || !levelMatch) return id;
+
+            const potionType = potionMatch[1].toUpperCase();
+            const potionLevel = levelMatch[1];
+
+            const isEnhanced = /enhanced:1b/.test(customData);
+            const isExtended = /extended:1b/.test(customData);
+            const isSplash = /splash:1b/.test(customData);
+
+            let identifier = `POTION-${potionType}-${potionLevel}`;
+
+            if (isEnhanced) identifier += "-ENHANCED";
+            if (isExtended) identifier += "-EXTENDED";
+            if (isSplash) identifier += "-SPLASH";
+
+            return identifier;
+        }
 
         return id;
 

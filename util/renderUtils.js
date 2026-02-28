@@ -167,6 +167,17 @@ class OdinRenderer {
         return new Box(x - w / 2, y, z - w / 2, x + w / 2, y + h, z + w / 2)
     }
 
+    getRectBox(x, y, z, widthX, widthZ, height) {
+        return new Box(
+            x - widthX / 2,
+            y,
+            z - widthZ / 2,
+            x + widthX / 2,
+            y + height,
+            z + widthZ / 2
+        )
+    }
+
     calculateCameraPos() {
         const yaw = Player.getYaw() * Math.PI / 180
         const pitch = Player.getPitch() * Math.PI / 180

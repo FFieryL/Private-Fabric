@@ -3,7 +3,7 @@ import c from "../../config"
 import StarMob from "../../util/starMobUtils";
 import { ArmorStand, EntityBat, EntityPlayer, EntityWither, ClientPlayer, getTablist, chat } from "../../util/utils";
 import RenderUtils from "../../util/renderUtils"
-import { onScoreboardLine } from "../../util/Events";
+import { onScoreboardLine, onTabLineUpdated, registerPacketChat } from "../../util/Events";
 
 const starMobRegex = /✯ (.+).+❤$|^(Shadow Assassin)$/
 let starMobs = new Set()
@@ -11,6 +11,7 @@ let trackedStands = new Set()
 let shadowAssassins = []
 let secretBats = []
 let pests = []
+let claimed = []
 
 let validStarMobs = false
 let validBats = false
@@ -200,6 +201,66 @@ const gardenTickChecker = register("tick", () => {
 
 }).unregister();
 
+const inMineshaft = onTabLineUpdated((text) => {
+    if (text == ("Area: Mineshaft")) {
+        corpseESP.register()
+        inMineshaft.unregister()
+    }
+    else if (text.includes("Dungeon:") || text.includes("Area:")) inMineshaft.unregister()
+})
+
+
+const corpseESP = register("renderWorld", () => {
+    const entities = World.getAllEntitiesOfType(ArmorStand).filter(entity => entity?.getName() == "Armor Stand" && !entity.isInvisible())
+    for (let i = 0; i < entities.length; i++) {
+        let helmetName = entities[i].getStackInSlot(5)?.getName()?.removeFormatting()
+        if (claimed.some(e => entities[i].distanceTo(e) < 7) || !helmetName)
+            continue;
+        let text, rgb
+        switch (helmetName) {
+            case "Lapis Armor Helmet":
+                text = "Lapis"
+                rgb = [0, 0, 1, 0.6]
+                break
+            case "Mineral Helmet":
+                text = "Tungsten"
+                rgb = [1, 1, 1, 0.6]
+                break
+            case "Yog Helmet":
+                text = "Umber"
+                rgb = [181 / 255, 98 / 255, 34 / 255, 0.6]
+                break
+            case "Vanguard Helmet":
+                text = "Vanguard"
+                rgb = [242 / 255, 36 / 255, 184 / 255, 0.6]
+                break
+            default:
+                continue
+        }
+
+        drawCoolWaypoint(Math.floor(entities[i].getRenderX()), Math.floor(entities[i].getRenderY()), Math.floor(entities[i].getRenderZ()), rgb, {name: text, showDist: true})
+    }
+}).unregister()
+
+
+registerPacketChat((message) => {
+    if ((/\s(.+) CORPSE LOOT!\s/).test(message)) claimed.push(Player.asPlayerMP().getPos())
+})
+function drawCoolWaypoint(x, y, z, color, {name = "", showDist = true, phase = true}) {
+    const box = RenderUtils.getBox(x + 0.5, y, z + 0.5, 1, 1)
+    RenderUtils.drawOutline(box, color, phase, 2)
+    RenderUtils.drawFilled(box, RenderUtils.reduceAlpha(color, 0.38), phase)
+
+    if (name || showDist) {
+        const [px, py, pz] = [Player.getRenderX(), Player.getRenderY(), Player.getRenderZ()]
+        const dist = Math.sqrt((x - px) ** 2 + (y - py) ** 2 + (z - pz) ** 2 )
+
+        const label = name ? `§a${name} §b(${Math.round(dist)}m)` : `§b(${Math.round(dist)}m)`
+
+        RenderUtils.drawText(label, x + 0.5, y + 1.5, z + 0.5, Math.max(1.0, dist * 0.05), false)
+    }
+}
+
 
 const mobRenderer = register("renderWorld", () => {
     const phase = c.starMobESPThruBlocks
@@ -292,6 +353,9 @@ register("worldUnload", () => {
     gardenTickChecker.unregister()
     gardenRegistered = false
     smoothers.clear();
+    corpseESP.unregister()
+    claimed.length = 0
+    if (c.corpseEsp) inMineshaft.register()
 })
 
 if (c.starMobESP) tickScanner.register()

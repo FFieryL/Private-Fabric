@@ -65,7 +65,40 @@ export const onTabLineAdded = (func) => tablistAddFuncs.push(func)
  */
 
 
-export const onTabLineUpdated = (func) => tablistUpdateFuncs.push(func)
+export const onTabLineUpdated = (func) => {
+    const trigger = {
+        register: () => {
+            tablistUpdateFuncs.push(func)
+            return trigger
+        },
+        unregister: () => {
+            const index = tablistUpdateFuncs.indexOf(func)
+            if (index !== -1) tablistUpdateFuncs.splice(index, 1)
+            return trigger
+        }
+    }
+
+    return trigger.register()
+}
+
+register("packetReceived", (packet) => {
+    if (!(packet instanceof PlayerListS2CPacket)) return;
+    const entries = packet.getEntries() // .getPlayers()
+    const actions = packet.getActions() // .getAction()
+
+    const isUpdate = actions.toString() == "[UPDATE_DISPLAY_NAME]"
+    const isAdd = actions.toString() == "[ADD_PLAYER]"
+    if (!isUpdate && !isAdd) return 
+    entries.forEach(entry => {
+        const name = entry.displayName()
+        if (!name) return
+
+        const text = name.getString()
+
+        if (isUpdate) triggerEvent(tablistUpdateFuncs, text)
+        if (isAdd) triggerEvent(tablistAddFuncs, text)
+    })
+}).setFilteredClass(PlayerListS2CPacket)
 
 
 

@@ -412,6 +412,16 @@ class config {
     })
     secretOpenedColorFill = new Color(1, 1, 1, 1);
 
+    // ===== Corpse =====
+    
+    @SwitchProperty({
+        name: "Corpse ESP",
+        description: "",
+        category: "Highlight",
+        subcategory: "§dCorpse"
+    })
+    corpseEsp = false
+
 
     // =========================================================================
     //                                 Party

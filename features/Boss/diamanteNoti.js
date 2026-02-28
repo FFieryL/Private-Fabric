@@ -34,7 +34,7 @@ const diamanteChecker = register("tick", () => {
     if (c.DNMageOnly && dungeonUtils.getPlayerClass(Player.getName()) != "Mage") return diamanteChecker.unregister();
     const giant = World.getAllEntitiesOfType(EntityGiantZombie).find(e => {
 
-        for (let slot = 1; slot <= 4; slot++) {
+        for (let slot = 2; slot <= 5; slot++) {
             const item = e.getStackInSlot(slot)
             if (!item) continue
             const itemName = item.getName()?.toString()
