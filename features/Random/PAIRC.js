@@ -230,7 +230,6 @@ const ifInIRC = register("packetSent", (packet, event) => {
 
     const message = packet.chatMessage();
     if (!message) return;
-    ChatLib.chat(message)
     if (!message.startsWith("!")) {
         cancel(event)
         noSoundNext = true
