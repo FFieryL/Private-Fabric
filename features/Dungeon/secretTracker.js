@@ -46,7 +46,7 @@ function getPlayerSecrets(uuid, cacheMs, callback) {
         return;
     }
     request({
-        url: `https://api.tenios.dev/secrets/${uuid}`,
+        url: `https://subat0mic.click/secrets/${uuid}`,
         method: "GET",
         headers: {
             "User-Agent": "Mozilla/5.0"
@@ -174,7 +174,7 @@ const chatTrig = registerPacketChat((message) => {
                     }
                 })
             })
-        }, 1300)
+        }, 1600)
     }
 
 

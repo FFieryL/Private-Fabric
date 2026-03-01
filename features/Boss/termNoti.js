@@ -187,6 +187,7 @@ const blockedPhrases = [
 // }
 
 //const subtitleRegex = /^(\w+) (activated|completed) a (terminal|device|lever)! \((\d+)\/(\d+)\)$/
+
 const cancelTitlesTrig = register("packetReceived", (packet, event) => {
     if (!(packet instanceof SubtitleS2CPacket)) return;
     if(!InP3 || !c.TermNoti) return;

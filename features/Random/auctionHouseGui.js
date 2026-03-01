@@ -91,7 +91,7 @@ const AHgui5 = register("guiClosed", (gui) => {
 }).unregister()
 
 const AHgui6 = registerPacketChat((message) => {
-    if (message == "Couldn't read this number!") resetVal()
+    if (message == "Couldn't read this number!" || "This menu has been throttled! Please slow down...") resetVal()
     else if (message == "Your starting bid must be at least 10 coins!" || message == "Your starting bid cannot be higher than 50,000,000,000!") {
         autoPostState = 0
         autoList.unregister()
