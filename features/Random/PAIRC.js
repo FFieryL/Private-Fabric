@@ -2,6 +2,8 @@ import PogObject from "../../../PogData";
 import { chat, ChatMessageC2SPacket, getColorCodes, playSound } from "../../util/utils";
 import WebSocketPASF from "../../util/websocket";
 import c from "../../config"
+const CommandExecutionC2SPacket = Java.type("net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket")
+
 const WS_URL = "wss://private-irc.onrender.com/?user=" + encodeURIComponent(Player.getName());
 
 const ircData = new PogObject("PrivateASF-Fabric",{color: "&5", fulldisable: false}, "data/irc_data.json");
@@ -228,7 +230,8 @@ const ifInIRC = register("packetSent", (packet, event) => {
 
     const message = packet.chatMessage();
     if (!message) return;
-    if (!message.startsWith("/") && !message.startsWith("!")) {
+    ChatLib.chat(message)
+    if (!message.startsWith("!")) {
         cancel(event)
         noSoundNext = true
         if (myWS && myWS.isOpen()) {
@@ -238,12 +241,18 @@ const ifInIRC = register("packetSent", (packet, event) => {
             }));
         }
     }
-    else if (message.startsWith("/chat ") || /^\/r\s*$/.test(message)) {
+}).setFilteredClass(ChatMessageC2SPacket)
+
+register("packetSent", (packet, event) => {
+    if (!inIRC) return;
+    const command = packet.command(); 
+    if (!command) return;
+    if (command.startsWith("chat ") || (/^r(?:\s.*)?$/).test(command)) {
         inIRC = false
         chat("&cExited IRC chat mode.")
         ifInIRC.unregister()
     }
-}).setFilteredClass(ChatMessageC2SPacket)
+}).setFilteredClass(CommandExecutionC2SPacket);
 
 /* WebSocket Registers */
 register("gameUnload", () => {

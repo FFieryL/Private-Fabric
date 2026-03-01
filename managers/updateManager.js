@@ -10,6 +10,7 @@ const CACHE_BUST = `&t=${Date.now()}`;
 const API_URL = `https://api.github.com/repos/FFieryL/Private-Fabric/git/trees/main?recursive=1${CACHE_BUST}`;
 const RAW_BASE = `https://raw.githubusercontent.com/FFieryL/Private-Fabric/main/`;
 
+
 const File = Java.type("java.io.File");
 
 register("command", () => {
@@ -147,3 +148,84 @@ register("command", () => {
         }
     }).start();
 }).setName("updateprivate");
+
+function checkForUpdates() {
+    new Thread(() => {
+        try {
+            const connection = new java.net.URL(RAW_BASE + "metadata.json" + `?t=${Date.now()}`).openConnection();
+            connection.setRequestProperty("User-Agent", "ChatTriggers-VersionCheck");
+
+            const reader = new java.io.BufferedReader(
+                new java.io.InputStreamReader(connection.getInputStream())
+            );
+
+            let response = "";
+            let line;
+            while ((line = reader.readLine()) !== null) response += line;
+            reader.close();
+
+            const remoteJson = JSON.parse(response);
+            const remoteVersion = remoteJson.version || "Unknown";
+
+            const localMeta = FileLib.read(MODULE_NAME, "metadata.json");
+            let localVersion = "Unknown";
+
+            if (localMeta) {
+                try {
+                    localVersion = JSON.parse(localMeta).version || "Unknown";
+                } catch (e) {}
+            }
+
+            Client.scheduleTask(20, () => {
+                if (isOutdated(localVersion, remoteVersion)) {
+                    const msg = new TextComponent(
+                        "",
+                        {
+                            text: `&c&lPRIVATE UPDATE AVAILABLE! &7(${localVersion} ➜ ${remoteVersion}) &b&l[CLICK TO UPDATE]`,
+                            clickEvent: {
+                                action: "run_command",
+                                value: "/updateprivate"
+                            },
+                            hoverEvent: {
+                                action: "show_text",
+                                value: `&7Your version: &e${localVersion}\n&7Latest version: &e${remoteVersion}\n\n&eClick to update!`
+                            }
+                        }
+                    );
+                    msg.chat();
+                    Client.showTitle("&aPrivate Update", "", 0, 20, 0) 
+                }
+                else {
+                    chat("&aOn Latest Version")
+                }
+            });
+
+        } catch (e) {
+            console.error("Version check failed:", e);
+        }
+    }).start();
+}
+
+let firstConnect = true
+if (World.isLoaded) firstConnect = false
+register("serverConnect", () => {
+    if (firstConnect) checkForUpdates();
+    firstConnect = false
+});
+
+function isOutdated(local, remote) {
+    const l = local.split(".").map(Number);
+    const r = remote.split(".").map(Number);
+
+    const maxLength = Math.max(l.length, r.length);
+
+    for (let i = 0; i < maxLength; i++) {
+        const lv = l[i] || 0;
+        const rv = r[i] || 0;
+
+        if (lv < rv) return true;   // local is older
+        if (lv > rv) return false;  // local is newer
+    }
+
+    return false; // versions are equal
+}
