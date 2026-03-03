@@ -230,7 +230,7 @@ const ifInIRC = register("packetSent", (packet, event) => {
 
     const message = packet.chatMessage();
     if (!message) return;
-    if (!message.startsWith("!")) {
+    if (!message.startsWith("!") && !message.startsWith("/")) {
         cancel(event)
         noSoundNext = true
         if (myWS && myWS.isOpen()) {

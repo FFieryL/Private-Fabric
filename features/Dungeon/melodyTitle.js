@@ -41,7 +41,7 @@ const chatTrig = registerPacketChat((message) => {
             playerName = player;
             bestProgress = progress;
             currentProgress = progress;
-            playSound("random.orb", 0.7, 1);
+            if (!c.disableMelodyTitleSound) playSound("random.orb", 0.7, 1);
             
         }
         return;
@@ -56,7 +56,7 @@ const chatTrig = registerPacketChat((message) => {
         currentProgress = "0/4";
         bestProgress = 0;
         if (!playersInMelody.includes(player)) playersInMelody.push(player);
-        playSound("random.orb", 1, 0.8);
+        if (!c.disableMelodyTitleSound) playSound("random.orb", 1, 0.8);
         return;
     }
 

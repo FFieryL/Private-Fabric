@@ -14,6 +14,11 @@ const buttons = [[110,123,92],[110,123,93],[110,123,94],[110,123,95],[110,122,92
 let title = `&l&nSS BROKE!`
 let stuffdone = 0
 
+register("worldLoad", () => {
+    SSAlert.unregister()
+    tickIncrementNew.unregister()
+})
+
 registerPacketChat((message) => {
     if (message == "[BOSS] Goldor: Who dares trespass into my domain?") {
         if (!c.SSAlert && !c.SSAlertSendChat && !c.SSAlertRestartChat && !c.SSAlertRestart) return
@@ -24,7 +29,6 @@ registerPacketChat((message) => {
         tickIncrementNew.register()
         return;
     }
-
 })
 
 const deviceDone = registerPacketChat((message) => {
@@ -79,9 +83,9 @@ const tickIncrementNew = register("packetReceived", (packet, event) => {
     if (ticks > 0 || !allowBreak) return
     for (let i = 0; i < buttons.length; i++) {
         let [x, y, z] = buttons[i];
-        let blockID = World.getBlockAt(x, y, z).type.getID();
+        let blockName = World.getBlockAt(x, y, z).type.getName().removeFormatting();
         
-        if (blockID !== 0) {
+        if (blockName !== "Air") {
             return
         }
     }
@@ -99,3 +103,4 @@ const tickIncrementNew = register("packetReceived", (packet, event) => {
 const SSAlert = register("renderOverlay", (ctx) => { 
     drawText(ctx, title, data.SSAlert, true, "SSAlert")
 }).unregister()
+

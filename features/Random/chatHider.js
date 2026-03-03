@@ -23,7 +23,7 @@ const defaultPatterns = [
     { pattern: "Your radio lost signal. There's too many enjoyers on this channel.", description: "Hide Lost Signal Radio" },
     { pattern: "(?:\\[.+\\])?.+ has obtained .+!", description: "Hide Obtained Messages in Dungeons" },
     { pattern: "This ability is on cooldown for .+s.", description: "Hide Ability CD" },
-    { pattern: "(?:DUNGEON BUFF! You found a .+!(?: \\(.+\\))?)|(?:\\s*(?:Also )?[Gg]ranted you .+)", description: "Hide Dungeon Buffs"},
+    { pattern: "(?:DUNGEON BUFF! .+ found a .+!(?: \\(.+\\))?)|(?:\\s*(?:Also )?[Gg]ranted you .+)", description: "Hide Dungeon Buffs"},
     { pattern: ".+ is now available!", description: "Hide Ability Ready Messages"},
     { pattern: ".+ is ready to use! Press DROP to activate it!", description: "Hide Ult Messages"},
     //{ pattern: "", description: ""},

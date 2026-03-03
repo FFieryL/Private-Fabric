@@ -3,14 +3,14 @@ import { activategui } from "./managers/guimanager";
 import "./managers/updateManager"
 import { triggerPacketChat } from "./util/Events";
 import { ensureConnected } from "./features/Random/PAIRC";
-import { playSound } from "./util/utils";
+import { EntityPlayer, playSound } from "./util/utils";
 
 const File = Java.type("java.io.File")
 const modulesDir = new File("./config/ChatTriggers/modules")
 const Prefix = "&l&0PrivateASF&7 >> "
 const MODULE_NAME = "PrivateASF-Fabric"
 
-const IGNORED_FEATURES = ["bonzoDP", "armorEQGUI"];
+const IGNORED_FEATURES = ["bonzoDP", "armorEQGUI", "test"];
 
 const FEATURE_FOLDERS = [
     "Boss",
@@ -79,7 +79,6 @@ Client.scheduleTask(0, () => {
     ChatLib.chat(`${Prefix}&aModule Loaded! (&f${loadedCount}&a features)`);
     if (ClassifiedASF) ClassifiedASF()
 });
-
 
 register("command", () => {
     c.guiEditor = false

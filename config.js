@@ -98,6 +98,8 @@ class config {
         this.addDependency("Goldor Timer Version", "Goldor Timer")
         this.addDependency("Show Goldor timer in ticks", "Goldor Timer")
 
+        this.addDependency("Disable Melody Title Sound", "Melody Title")
+
         this.addDependency("Gate Blown Notifier", "Terminal Notifier");
         this.addDependency("Disable standard term titles", "Terminal Notifier");
         this.addDependency("Keep Custom Term Titles on screen", "Terminal Notifier");
@@ -910,6 +912,14 @@ class config {
         subcategory: "§cP3"
     })
     MelodyTitle = false;
+
+    @SwitchProperty({
+        name: "Disable Melody Title Sound",
+        description: "",
+        category: "Boss",
+        subcategory: "§cP3"
+    })
+    disableMelodyTitleSound = false;
 
     // ===== P3 Levers =====
 
