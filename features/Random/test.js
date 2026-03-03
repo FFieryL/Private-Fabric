@@ -165,11 +165,16 @@ register("tick", () => {
     const currentTarget = Target.shift()
     if (!currentTarget) return;
     let [yaw, pitch] = calcYawPitch(currentTarget)
-
-    rotateSmoothly(yaw, pitch, rotateDelay, () => {
-        rightClick(false, false)
-        lastClick = Date.now()
-    })
+    if (rotateDelay == 0) {
+        rotate(yaw, pitch)
+        Client.scheduleTask(0, () => rightClick(false, false))
+    }
+    else {
+        rotateSmoothly(yaw, pitch, rotateDelay, () => {
+            rightClick(false, false)
+            lastClick = Date.now()
+        })
+    }
 
 })
 

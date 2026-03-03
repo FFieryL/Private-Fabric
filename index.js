@@ -2,8 +2,7 @@ import c from "./config"
 import { activategui } from "./managers/guimanager";
 import "./managers/updateManager"
 import { triggerPacketChat } from "./util/Events";
-import { ensureConnected } from "./features/Random/PAIRC";
-import { EntityPlayer, playSound } from "./util/utils";
+import { playSound } from "./util/utils";
 
 const File = Java.type("java.io.File")
 const modulesDir = new File("./config/ChatTriggers/modules")
