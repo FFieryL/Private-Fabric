@@ -23,9 +23,9 @@ const defaultPatterns = [
     { pattern: "Your radio lost signal. There's too many enjoyers on this channel.", description: "Hide Lost Signal Radio" },
     { pattern: "(?:\\[.+\\])?.+ has obtained .+!", description: "Hide Obtained Messages in Dungeons" },
     { pattern: "This ability is on cooldown for .+s.", description: "Hide Ability CD" },
-    { pattern: "(?:DUNGEON BUFF! .+ found a .+!(?: \\(.+\\))?)|(?:\\s*(?:Also )?[Gg]ranted you .+)", description: "Hide Dungeon Buffs"},
-    { pattern: ".+ is now available!", description: "Hide Ability Ready Messages"},
-    { pattern: ".+ is ready to use! Press DROP to activate it!", description: "Hide Ult Messages"},
+    { pattern: "(?:DUNGEON BUFF! .+ found a .+!(?: \\(.+\\))?)|(?:\\s*(?:Also )?[Gg]ranted you .+)", description: "Hide Dungeon Buffs" },
+    { pattern: ".+ is now available!", description: "Hide Ability Ready Messages" },
+    { pattern: ".+ is ready to use! Press DROP to activate it!", description: "Hide Ult Messages" },
     //{ pattern: "", description: ""},
 ]
 
@@ -89,7 +89,7 @@ register("command", (action, ...args) => {
 
     else if (action === "list") {
         let page = 1;
-        
+
         if (args) {
             const parsed = parseInt(args[0]);
             if (!isNaN(parsed) && parsed > 0) page = parsed;
@@ -177,7 +177,7 @@ register("command", (action, ...args) => {
         data.chatHiderPatterns.push(defaultObj || { pattern: patternStr, description: "Default" });
         loadRegexes();
         data.save();
-        
+
         chat(`&aAdded hide pattern: &e${patternStr}`);
 
         if (lastListMessages.length) {
@@ -185,6 +185,43 @@ register("command", (action, ...args) => {
             lastListMessages = [];
         }
         showDefaultPatterns();
+    }
+    else if (action === "import") {
+        let clipboard = Java.type("java.awt.Toolkit").getDefaultToolkit().getSystemClipboard();
+        let contents = clipboard.getData(Java.type("java.awt.datatransfer.DataFlavor").stringFlavor);
+
+        if (!contents) {
+            chat("&cClipboard is empty!");
+            return;
+        }
+
+        let json;
+        try {
+            json = JSON.parse(contents);
+        } catch (e) {
+            chat("&cClipboard does not contain valid JSON!");
+            return;
+        }
+
+        // Ensure it has the filters array
+        if (!json.filters || !Array.isArray(json.filters)) {
+            chat("&cJSON does not contain a filters array!");
+            return;
+        }
+
+        let addedCount = 0;
+        json.filters.forEach(pattern => {
+            if (!pattern) return;
+            pattern = pattern.replace(/^\^/, "").replace(/\$$/, "");
+
+            if (data.chatHiderPatterns.some(p => (typeof p === "string" ? p : p.pattern) === pattern)) return;
+            data.chatHiderPatterns.push({ pattern: pattern, description: "Imported" });
+            addedCount++;
+        });
+
+        loadRegexes();
+        data.save();
+        chat(`&aImported ${addedCount} chat hide patterns from clipboard!`);
     }
     else {
         chat("&cUsage:")
@@ -206,8 +243,8 @@ function showDefaultPatterns(page = 1) {
         lastListMessages = [];
     }
 
-    const remainingPatterns = defaultPatterns.filter(def => 
-        !data.chatHiderPatterns.some(saved => 
+    const remainingPatterns = defaultPatterns.filter(def =>
+        !data.chatHiderPatterns.some(saved =>
             (typeof saved === 'string' ? saved : saved.pattern) === def.pattern
         )
     );

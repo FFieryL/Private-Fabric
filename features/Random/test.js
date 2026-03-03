@@ -180,9 +180,11 @@ register("tick", () => {
 
 
 register("command", (arg) => {
-    startcarn = !startcarn
-    chat("Auto Carnival: " + startcarn)
-    if (!arg) return;
+    if (!arg) {
+        startcarn = !startcarn
+        chat("Auto Carnival: " + startcarn)
+        return;
+    };
     let num = parseInt(arg)
     if (isNaN(num)) {
         ChatLib.chat("&cPlease enter a valid number between 0 - 200!")
