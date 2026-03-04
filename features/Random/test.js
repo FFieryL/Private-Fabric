@@ -181,7 +181,7 @@ register("tick", () => {
 
 
 register("command", (...args) => {
-    if (args.length === 0) {
+    if (!args[0]) {
         startcarn = !startcarn
         chat("Auto Carnival: " + startcarn)
         return
@@ -194,9 +194,11 @@ register("command", (...args) => {
 
     // Clamp between 0 and 200
     if (num < 0 || num > 200) {
-        ChatLib.chat("&cNumber must be between 0 and 200!")
+        ChatLib.chat("&Rotate Delay must be between 0 and 200!")
         return
     }
+
+    rotateDelay = num
 
     if (args.length >= 2) {
         let offsetNum = parseInt(args[1])
@@ -206,7 +208,7 @@ register("command", (...args) => {
             return
         }
         if (offsetNum < 0 || offsetNum > 7) {
-            ChatLib.chat("&cNumber must be between 0 and 7!")
+            ChatLib.chat("&cOffset must be between 0 and 7!")
             return
         }
         offset = offsetNum
