@@ -214,4 +214,4 @@ register("command", (...args) => {
     } else {
         ChatLib.chat(`&aSet rotate to ${num}ms`)
     }
-}).setName("startautocarnival ")
+}).setName("startautocarnival")
