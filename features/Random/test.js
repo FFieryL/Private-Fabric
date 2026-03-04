@@ -122,7 +122,7 @@ function getTarget() {
         let chestplate = currentZombie.getStackInSlot(4)
         if (!chestplate) return;
         let chestplatename = chestplate.getName().removeFormatting();
-        let targetcoord = { x: Zombie.getX() + Zombie.getMotionX() * 8, y: Zombie.getY() + Zombie.getEyeHeight() + 0.55, z: Zombie.getZ() + Zombie.getMotionZ() * 8 };
+        let targetcoord = { x: Zombie.getX() + Zombie.getMotionX() * (8 + offsetNum), y: Zombie.getY() + Zombie.getEyeHeight() + 0.55, z: Zombie.getZ() + Zombie.getMotionZ() * (8 + offsetNum) };
         if (Player.asPlayerMP().distanceTo(Zombie.getX(), Zombie.getY(), Zombie.getZ()) > 40) return;
         for (let key in itemLists) {
             if (chestplatename.includes(key)) {
@@ -154,6 +154,7 @@ function getTarget() {
 let startcarn = false
 let lastClick = 0
 let rotateDelay = 0
+let offsetNum = 0
 
 register("tick", () => {
     if (!startcarn) return;
@@ -179,13 +180,13 @@ register("tick", () => {
 })
 
 
-register("command", (arg) => {
-    if (!arg) {
+register("command", (...args) => {
+    if (args.length === 0) {
         startcarn = !startcarn
         chat("Auto Carnival: " + startcarn)
-        return;
-    };
-    let num = parseInt(arg)
+        return
+    }
+    let num = parseInt(args[0])
     if (isNaN(num)) {
         ChatLib.chat("&cPlease enter a valid number between 0 - 200!")
         return
@@ -197,7 +198,20 @@ register("command", (arg) => {
         return
     }
 
-    // If valid
-    ChatLib.chat(`&aSet rotate to ${num}ms`)
-    rotateDelay = num
-}).setName("startautocarnival")
+    if (args.length >= 2) {
+        let offsetNum = parseInt(args[1])
+
+        if (isNaN(offsetNum)) {
+            ChatLib.chat("&cOffset must be a valid number!")
+            return
+        }
+        if (offsetNum < 0 || offsetNum > 7) {
+            ChatLib.chat("&cNumber must be between 0 and 7!")
+            return
+        }
+        offset = offsetNum
+        ChatLib.chat(`&aSet rotate to ${num}ms with offset ${offsetNum}`)
+    } else {
+        ChatLib.chat(`&aSet rotate to ${num}ms`)
+    }
+}).setName("startautocarnival ")
