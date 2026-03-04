@@ -122,7 +122,7 @@ function getTarget() {
         let chestplate = currentZombie.getStackInSlot(4)
         if (!chestplate) return;
         let chestplatename = chestplate.getName().removeFormatting();
-        let targetcoord = { x: Zombie.getX() + Zombie.getMotionX() * (8 + offsetNum), y: Zombie.getY() + Zombie.getEyeHeight() + 0.55, z: Zombie.getZ() + Zombie.getMotionZ() * (8 + offsetNum) };
+        let targetcoord = { x: Zombie.getX() + Zombie.getMotionX() * (8 + offsetNum), y: Zombie.getY() + Zombie.getEyeHeight() + 0.52, z: Zombie.getZ() + Zombie.getMotionZ() * (8 + offsetNum) };
         if (Player.asPlayerMP().distanceTo(Zombie.getX(), Zombie.getY(), Zombie.getZ()) > 40) return;
         for (let key in itemLists) {
             if (chestplatename.includes(key)) {
