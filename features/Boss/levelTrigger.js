@@ -42,7 +42,7 @@ const leverTrigger = register("step", () => {
     }
 
     else if (isP3Lever) {
-        if (dungeonUtils.currentPhase != 3) return;
+        if (dungeonUtils.currentPhase != 3);
     }
 
     else return;
@@ -51,9 +51,9 @@ const leverTrigger = register("step", () => {
     const lastClick = leverCooldowns.get(key) || 0;
 
     if (Date.now() - lastClick < CLICK_DELAY) return;
-    rightClick(true, true);
+    rightClick(true, false);
     leverCooldowns.set(key, Date.now());
-}).setFps(50).unregister()
+}).setFps(60).unregister()
 
 const chatTrig = dungeonUtils.onBossMessage((name) => {
     const enableBeforeP3 = (c.enableBeforeP3 && (dungeonUtils.getPhase() == 2 || dungeonUtils.getPhase() == 1))

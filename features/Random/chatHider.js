@@ -1,6 +1,6 @@
 import PogObject from "../../../PogData"
 import { chat, playSound } from "../../util/utils"
-
+import c from "../../config"
 export const data = new PogObject(
     "PrivateASF-Fabric",
     {
@@ -50,7 +50,7 @@ function loadRegexes() {
 
 loadRegexes()
 
-register("chat", (message, event) => {
+const chatListener = register("chat", (message, event) => {
     if (!hiddenRegexes.length) return
 
     const clean = message.removeFormatting()
@@ -73,15 +73,22 @@ register("chat", (message, event) => {
     }
 }).setCriteria("${message}")
 
+if (c.disablePAHC) chatListener.unregister()
+
+c.registerListener("Disable Private Chat Hider", (curr) => {
+    if (curr) chatListener.unregister()
+    else chatListener.register()
+})
+
 
 register("command", (action, ...args) => {
 
     if (!action) {
         chat("&cUsage:")
-        chat("&e/pahc add <regex>")
-        chat("&e/pahc list")
-        chat("&e/pahc remove <index>")
-        chat("&e/pahc clear")
+        chat("&e/pach add <regex>")
+        chat("&e/pach list")
+        chat("&e/pach remove <index>")
+        chat("&e/pach clear")
         chat("* or .+ for stuff that changes")
         chat("add a \\ if you are adding special characters")
         return
@@ -112,6 +119,9 @@ register("command", (action, ...args) => {
         data.save()
         chat(`&aRemoved pattern: &e${removed[0].description}`)
         if (args.includes("deleteAndRefresh")) {
+            const pageArg = args.find(a => !isNaN(parseInt(a)));
+            const page = pageArg ? parseInt(pageArg) : 1;
+
             if (lastListMessages.length) {
                 lastListMessages.forEach(msgObj => {
                     ChatLib.deleteChat(msgObj)
@@ -119,7 +129,7 @@ register("command", (action, ...args) => {
                 lastListMessages = []
             }
 
-            showHiddenChatList()
+            showHiddenChatList(page)
         }
 
 
@@ -225,16 +235,16 @@ register("command", (action, ...args) => {
     }
     else {
         chat("&cUsage:")
-        chat("&e/pahc add <regex>")
-        chat("&e/pahc list")
-        chat("&e/pahc remove <index>")
-        chat("&e/pahc clear")
+        chat("&e/pach add <regex>")
+        chat("&e/pach list")
+        chat("&e/pach remove <index>")
+        chat("&e/pach clear")
         chat("* or .+ for stuff that changes")
         chat("add a \\ if you are adding special characters")
         return
     }
 
-}).setName("pahc")
+}).setName("pach")
 
 
 function showDefaultPatterns(page = 1) {
@@ -288,7 +298,7 @@ function showDefaultPatterns(page = 1) {
                 text: `&e${i + 1}.&7 ${desc}`,
                 clickEvent: {
                     action: "run_command",
-                    value: `/pahc addDefault ${pattern}`
+                    value: `/pach addDefault ${pattern}`
                 },
                 hoverEvent: {
                     action: "show_text",
@@ -309,12 +319,12 @@ function showDefaultPatterns(page = 1) {
                 "",
                 {
                     text: "&a[Prev Page] ",
-                    clickEvent: { action: "run_command", value: `/pahc default ${page - 1}` },
+                    clickEvent: { action: "run_command", value: `/pach default ${page - 1}` },
                     hoverEvent: { action: "show_text", value: "&eClick to go to previous page" }
                 },
                 {
                     text: "&a[Next Page] ",
-                    clickEvent: { action: "run_command", value: `/pahc default ${page + 1}` },
+                    clickEvent: { action: "run_command", value: `/pach default ${page + 1}` },
                     hoverEvent: { action: "show_text", value: "&eClick to go to next page" }
                 },
                 ""
@@ -327,7 +337,7 @@ function showDefaultPatterns(page = 1) {
                 "",
                 {
                     text: "&a[Prev Page] ",
-                    clickEvent: { action: "run_command", value: `/pahc default ${page - 1}` },
+                    clickEvent: { action: "run_command", value: `/pach default ${page - 1}` },
                     hoverEvent: { action: "show_text", value: "&eClick to go to previous page" }
                 },
                 ""
@@ -341,7 +351,7 @@ function showDefaultPatterns(page = 1) {
                 "",
                 {
                     text: "&a[Next Page]",
-                    clickEvent: { action: "run_command", value: `/pahc default ${page + 1}` },
+                    clickEvent: { action: "run_command", value: `/pach default ${page + 1}` },
                     hoverEvent: { action: "show_text", value: "&eClick to go to next page" }
                 },
                 ""
@@ -403,7 +413,7 @@ function showHiddenChatList(page = 1) {
                 text: `&e${i + 1}. ${displayText}`,
                 clickEvent: {
                     action: "run_command",
-                    value: `/pahc remove ${i + 1} deleteAndRefresh`
+                    value: `/pach remove ${i + 1} deleteAndRefresh ${page}`
                 },
                 hoverEvent: {
                     action: "show_text",
@@ -423,12 +433,12 @@ function showHiddenChatList(page = 1) {
                 "",
                 {
                     text: "&a[Prev Page] ",
-                    clickEvent: { action: "run_command", value: `/pahc list ${page - 1}` },
+                    clickEvent: { action: "run_command", value: `/pach list ${page - 1}` },
                     hoverEvent: { action: "show_text", value: "&eClick to go to previous page" }
                 },
                 {
                     text: "&a[Next Page] ",
-                    clickEvent: { action: "run_command", value: `/pahc list ${page + 1}` },
+                    clickEvent: { action: "run_command", value: `/pach list ${page + 1}` },
                     hoverEvent: { action: "show_text", value: "&eClick to go to next page" }
                 },
                 ""
@@ -441,7 +451,7 @@ function showHiddenChatList(page = 1) {
                 "",
                 {
                     text: "&a[Prev Page] ",
-                    clickEvent: { action: "run_command", value: `/pahc list ${page - 1}` },
+                    clickEvent: { action: "run_command", value: `/pach list ${page - 1}` },
                     hoverEvent: { action: "show_text", value: "&eClick to go to previous page" }
                 },
                 ""
@@ -455,7 +465,7 @@ function showHiddenChatList(page = 1) {
                 "",
                 {
                     text: "&a[Next Page]",
-                    clickEvent: { action: "run_command", value: `/pahc list ${page + 1}` },
+                    clickEvent: { action: "run_command", value: `/pach list ${page + 1}` },
                     hoverEvent: { action: "show_text", value: "&eClick to go to next page" }
                 },
                 ""

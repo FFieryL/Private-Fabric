@@ -108,7 +108,7 @@ class config {
         this.addDependency("Show names", "Terminal Notifier");
 
         this.addDependency("Enable Lever Trigger Bot for Device", "Lever Trigger Bot");
-        this.addDependency("Enable Before P3 For Device", "Lever Trigger Bot" && "Enable Lever Trigger Bot for Device")
+        this.addDependency("Enable Before P3 For Device", "Lever Trigger Bot")
 
         // this.addDependency("Item Border Color", "Armor and EQ gui")
         // this.addDependency("GUI Background Color", "Armor and EQ gui")
@@ -686,6 +686,16 @@ class config {
     })
     invincibilityDisplayAlways = false;
 
+    // ===== Shadow Ass Alert =====
+
+    @SwitchProperty({
+        name: "Shadow Assassin Alert",
+        description: "Shows a title when a shadow assassin is about to leap",
+        category: "Dungeon",
+        subcategory: "§1SA"
+    })
+    shadowAlert = false
+
     // ===== Death Tick =====
 
     @SwitchProperty({
@@ -1167,6 +1177,14 @@ class config {
         max: 200
     })
     ircChatSoundPitch = 1;
+
+    @SwitchProperty({
+        name: "Disable Private Chat Hider",
+        description: "",
+        category: "Settings",
+        subcategory: "§2PACH",
+    })
+    disablePAHC = false;
 
 
 

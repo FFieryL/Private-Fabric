@@ -122,7 +122,29 @@ function getTarget() {
         let chestplate = currentZombie.getStackInSlot(4)
         if (!chestplate) return;
         let chestplatename = chestplate.getName().removeFormatting();
-        let targetcoord = { x: Zombie.getX() + Zombie.getMotionX() * (8 + offsetNum), y: Zombie.getY() + Zombie.getEyeHeight() + 0.52, z: Zombie.getZ() + Zombie.getMotionZ() * (8 + offsetNum) };
+        let forcedY = Zombie.getY() >= 72 ? 72 : 71;
+        let motionX = Zombie.getMotionX()
+        let motionZ = Zombie.getMotionZ()
+
+        let speed = Math.sqrt(motionX * motionX + motionZ * motionZ)
+
+        let targetcoord
+
+        if (speed < 0.03) {
+            // zombie is juking / standing still
+            targetcoord = {
+                x: Zombie.getX(),
+                y: forcedY + Zombie.getEyeHeight() + 0.52,
+                z: Zombie.getZ()
+            }
+        } else {
+            // normal prediction
+            targetcoord = {
+                x: Zombie.getX() + motionX * (8 + offsetNum),
+                y: forcedY + Zombie.getEyeHeight() + 0.52,
+                z: Zombie.getZ() + motionZ * (8 + offsetNum)
+            }
+        }
         if (Player.asPlayerMP().distanceTo(Zombie.getX(), Zombie.getY(), Zombie.getZ()) > 40) return;
         for (let key in itemLists) {
             if (chestplatename.includes(key)) {

@@ -172,7 +172,7 @@ export function playSound(soundName, volume = 0.7, pitch = 1) {
 
     } catch (e) {
 
-        chat(`[PrivateASF] Failed to play sound "${soundName}": ${e}`);
+        chat(`Failed to play sound "${soundName}": ${e}`);
     }
 }
 
@@ -206,7 +206,7 @@ export const getScoreboard = (formatted = false) => {
     return sb.map(a => ChatLib.removeFormatting(a))
 }
 
-export function rightClick(shouldSwing = false, legitClick = true) {
+export function rightClick(shouldSwing = false, legitClick = false, trigEntity = true) {
     if (legitClick) {
         Client.getMinecraft().options["useKey"].setPressed(true)
         Client.scheduleTask(1, () => Client.getMinecraft().options["useKey"].setPressed(false))
@@ -214,13 +214,15 @@ export function rightClick(shouldSwing = false, legitClick = true) {
     else {
         const mc = Client.getMinecraft()
         const hit = mc.crosshairTarget
-
-        if (hit && hit.getType().toString() === "BLOCK") mc.interactionManager.interactBlock(mc.player, Hand.field_5808, hit)
+        if (!hit) return;
+        if (hit.getType().toString() === "BLOCK") mc.interactionManager.interactBlock(mc.player, Hand.field_5808, hit)
+        else if (hit.getType().toString() === "ENTITY" && trigEntity) mc.interactionManager.interactEntity(mc.player, hit.getEntity(), Hand.field_5808)
         else mc.interactionManager.interactItem(mc.player, Hand.field_5808)
 
         if (shouldSwing) mc.player.swingHand(Hand.field_5808)
     }
 }
+
 
 export function leftClick() {
 

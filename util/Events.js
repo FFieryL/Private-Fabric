@@ -88,7 +88,7 @@ register("packetReceived", (packet) => {
 
     const isUpdate = actions.toString() == "[UPDATE_DISPLAY_NAME]"
     const isAdd = actions.toString() == "[ADD_PLAYER]"
-    if (!isUpdate && !isAdd) return 
+    if (!isUpdate && !isAdd) return
     entries.forEach(entry => {
         const name = entry.displayName()
         if (!name) return
@@ -139,4 +139,5 @@ register("packetReceived", (packet, event) => {
     packetChatTriggers.forEach(cb => cb(message, formatted, event));
 
 }).setFilteredClass(GameMessageS2CPacket);
+
 

@@ -28,8 +28,10 @@ export default new class dungeonUtils {
         })
 
         register("command", () => {
-            if (this.debug) debug.unregister()
-            else debug.register()
+            this.debug = !this.debug
+            ChatLib.chat("Debug mode: " + this.debug)
+            if (this.debug) debug.register()
+            else debug.unregister()
         }).setName("debugdungeons")
 
         const debug = register("step", () => {
@@ -53,7 +55,7 @@ export default new class dungeonUtils {
         })
 
         registerPacketChat((message) => {
-            if (message === "[BOSS] Storm: I should have known that I stood no chance.") this.currentStage = 1
+            if ((message === "[BOSS] Storm: I should have known that I stood no chance." || message === "[BOSS] Goldor: Who dares trespass into my domain?")) this.currentStage = 1
             if ((message.includes("(7/7)") || message.includes("(8/8)")) && !message.includes(":") && this.currentPhase === 3) this.currentStage += 1
 
             const match = message.match(/\[BOSS\] (.+): (.+)/)

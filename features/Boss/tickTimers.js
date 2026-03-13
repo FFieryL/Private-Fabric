@@ -197,6 +197,9 @@ const stormDeathTime = register("renderOverlay", (cfx) => {
 
 
 // Death Tick Timer
+export function getTicks() {
+    return deathTicks
+}
 let deathTicks = -1;
 let spawnPos = null
 
