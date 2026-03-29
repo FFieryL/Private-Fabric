@@ -89,7 +89,7 @@ const bloodOverlay = register("renderOverlay", (ctx) => {
         if (starttime == undefined) starttime = timeLeft
         if (timeLeft <= 0) {
             displayText = "Kill Now"
-            playSound("random.orb", 0.7, 0)
+            playSound("random.orb", 0.4, 0)
             if (!scheduled) {
                 scheduled = true
                 Client.scheduleTask(30, () => {

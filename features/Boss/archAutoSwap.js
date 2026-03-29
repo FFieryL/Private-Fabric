@@ -1,16 +1,17 @@
 import { chat, isPlayerInBox, playSound } from "../../util/utils";
 import c from "../../config"
-
+import dungeonUtils from "../../util/dungeonUtils";
+import { registerPacketChat } from "../../util/Events";
 
 let swapping = false;
 
 const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
-    if (button != 1 || isButtonDown) return;
+    if (button != 1 || isButtonDown || !dungeonUtils.inBoss) return;
 
     const heldItemName = Player?.getHeldItem()?.getName()?.toLowerCase();
     if (!heldItemName) return;
 
-    if (heldItemName.toLowerCase().includes("death")) {
+    if (heldItemName.toLowerCase().includes("death bow")) {
         Client.scheduleTask(1, () => Swapper(c.autoSwapItem))
     }
     else if (heldItemName.toLowerCase().includes("breath") && c.lastBreathSwap && (isPlayerInBox(33, 60, 165, 195, 31, 76) || isPlayerInBox(87, 114, 163, 172, 31, 76))) {
@@ -45,9 +46,6 @@ c.registerListener("Archer Death Bow Swapper", (curr) => {
 
 
 //Will move later idk
-
-import dungeonUtils from "../../util/dungeonUtils";
-import { registerPacketChat } from "../../util/Events";
 
 registerPacketChat((message) => {
     if (!dungeonUtils.inBoss) return;

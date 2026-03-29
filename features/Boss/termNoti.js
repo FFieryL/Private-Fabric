@@ -177,9 +177,8 @@ const blockedPhrases = [
     "activated a lever!",
     "gate has been destroyed!",
     "gate will open in 5 seconds!",
-    "entrance is opening"
+    "entrance is opening!"
 ];
-
 // function getTextFromPacket(packet) {
 //     const packetString = packet.toString();
 //     const match = packetString.match(/text='([^']+)'/) || packetString.match(/literal\{([^}]+)\}/);
