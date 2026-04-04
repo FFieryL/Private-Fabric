@@ -117,8 +117,6 @@ export function registerPacketChat(callback) {
         }
     };
 
-    // By default, we usually want it registered immediately 
-    // but you can call .unregister() at the end of the declaration.
     return trigger.register();
 }
 

@@ -22,7 +22,7 @@ const stepTrig = register("step", () => {
 const chatTrig = registerPacketChat((message) => {
     if (!dungeonUtils.inStage([1, 2, 3, 4])) return;
 
-    const melodyMatch = message.match(/^Party >[\s\[\w+\]]* (\w+): .*(\d\/\d|\d\d%)$/);
+    const melodyMatch = message.match(/^Party >[\s\[\w+\]]* (\w+): .*(\d\/\d|\d\d%)[.?!]?$/);
 
     if (melodyMatch) {
         const player = melodyMatch[1];
