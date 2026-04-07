@@ -3,7 +3,7 @@ import { registerPacketChat } from "../../util/Events";
 import { chat, ClickSlotC2SPacket, CloseHandledScreenC2SPacket, CloseScreenS2CPacket, OpenScreenS2CPacket, playSound, ScreenHandlerSlotUpdateS2CPacket } from "../../util/utils";
 import { getAuctionIdentifier, binData } from "./lowestBin";
 const SignEditorOpenS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.SignEditorOpenS2CPacket")
-const signGui = new Gui()
+export const signGui = new Gui()
 const UpdateSignC2SPacket = Java.type("net.minecraft.network.packet.c2s.play.UpdateSignC2SPacket")
 const GLFW = Java.type("org.lwjgl.glfw.GLFW");
 
@@ -41,6 +41,7 @@ const registerAHGui = (bool) => {
         AHgui2.register()
         AHgui3.register()
         AHgui4.register()
+        AHgui5.register()
         AHgui6.register()
     }
     else {
@@ -48,6 +49,7 @@ const registerAHGui = (bool) => {
         AHgui2.unregister()
         AHgui3.unregister()
         AHgui4.unregister()
+        AHgui5.unregister()
         AHgui6.unregister()
     }
 }
@@ -66,45 +68,30 @@ const AHgui1 = register("packetReceived", (packet, event) => {
         enterKey.register()
         return;
     }
-    else if (name == "Confirm BIN Auction") {
+    if (name == "Confirm BIN Auction") {
         enterKey.register()
         return;
     }
-    else resetVal()
+    resetVal()
 }).setFilteredClass(OpenScreenS2CPacket).unregister()
 
 const AHgui2 = register("packetSent", resetVal).setFilteredClass(CloseHandledScreenC2SPacket).unregister();
 const AHgui3 = register("packetReceived", resetVal).setFilteredClass(CloseScreenS2CPacket).unregister();
 const AHgui4 = register("worldUnload", resetVal).unregister();
 
-// const AHgui5 = register("guiClosed", (gui) => {
-//     if (gui.getTitle().getString() == "§r") {
-//         signListener.unregister()
-//         renderButtons.unregister()
-//         signMouseHandler.unregister()
-//         currentSignPos = null;
-//         currentSignFront = true
-//         inSign = false
-//     }
-// }).unregister()
-
-signGui.registerClosed((gui) => {
-    signListener.unregister()
-    renderButtons.unregister()
-    signMouseHandler.unregister()
-    signKeyHandler.unregister()
-    currentSignPos = null;
-    currentSignFront = true
-    inSign = false
-})
-signGui.registerOpened((gui) => {
-    signKeyHandler.register()
-    signMouseHandler.register()
-    renderButtons.register()
-})
+const AHgui5 = register("guiClosed", (gui) => {
+    if (gui.getTitle().getString() == "§r") {
+        signListener.unregister()
+        renderButtons.unregister()
+        signMouseHandler.unregister()
+        currentSignPos = null;
+        currentSignFront = true
+        inSign = false
+    }
+}).unregister()
 
 const AHgui6 = registerPacketChat((message) => {
-    if (message == "Couldn't read this number!" || "This menu has been throttled! Please slow down...") resetVal()
+    if (message == "Couldn't read this number!" || message == "This menu has been throttled! Please slow down...") resetVal()
     else if (message == "Your starting bid must be at least 10 coins!" || message == "Your starting bid cannot be higher than 50,000,000,000!") {
         autoPostState = 0
         autoList.unregister()
@@ -142,6 +129,10 @@ const signListener = register("packetReceived", (packet, event) => {
 
     cancel(event) // cancel once we get our guis setup
     signGui.open()
+
+    signKeyHandler.register()
+    signMouseHandler.register()
+    renderButtons.register()
 }).setFilteredClass(SignEditorOpenS2CPacket).unregister()
 
 
@@ -220,16 +211,11 @@ function drawContextButton(ctx, x, y, w, h, text, mx, my) {
 
 const enterKey = register("guiKey", (char, keyCode, gui, event) => {
     if (keyCode !== KEY_ENTER_MAIN && keyCode !== KEY_ENTER_NUMPAD) return;
+    cancel(event)
     const title = gui.getTitle()?.getString()
     if (!title || !Player.getContainer()) return;
-    if (title == "Create BIN Auction") {
-        Player.getContainer().click(29, false, "MIDDLE")
-        cancel(event)
-    }
-    else if (title == "Confirm BIN Auction") {
-        Player.getContainer().click(11, false, "MIDDLE")
-        cancel(event)
-    }
+    if (title == "Create BIN Auction") Player.getContainer().click(29, false, "MIDDLE")
+    else if (title == "Confirm BIN Auction") Player.getContainer().click(11, false, "MIDDLE")
 }).unregister()
 
 const signKeyHandler = register("guiKey", (char, keyCode, gui, event) => {
@@ -239,6 +225,7 @@ const signKeyHandler = register("guiKey", (char, keyCode, gui, event) => {
         currentPriceInput = currentPriceInput.slice(0, -1);
         cancel(event);
     } else if (keyCode === KEY_ENTER_NUMPAD || keyCode === KEY_ENTER_MAIN || keyCode === KEY_ESCAPE) { // Enter or escape key
+        signGui.close();
         sendSignPacket();
     } else if (char && currentPriceInput.length < 11) {
         const c = char.toLowerCase();
@@ -248,14 +235,6 @@ const signKeyHandler = register("guiKey", (char, keyCode, gui, event) => {
         cancel(event);
     }
 }).unregister()
-
-// register("guiKey", (char, keyCode, gui, event) => {
-//     if (gui.getTitle().getString() == "Edit Sign Message") {
-//         if (keyCode === KEY_ENTER_NUMPAD || keyCode === KEY_ENTER_MAIN || keyCode === KEY_ESCAPE) {
-//             Client.currentGui.close()
-//         }
-//     }
-// })
 
 const signMouseHandler = register("guiMouseClick", (x, y, btn, isDown, gui, event) => {
     if (!signGui.isOpen()) return;
@@ -279,6 +258,7 @@ const signMouseHandler = register("guiMouseClick", (x, y, btn, isDown, gui, even
         if (!currentItemPrice) return chat("No item in AH");
         isUndercutMode = true;
         currentPriceInput = "1";
+        signGui.close();
         sendSignPacket();
         if (!c.autoList) return;
         autoPostState = 1
@@ -287,43 +267,44 @@ const signMouseHandler = register("guiMouseClick", (x, y, btn, isDown, gui, even
 
     else if (x >= centerX - BUTTON_W / 2 && x <= centerX + BUTTON_W / 2 && y >= buttonY + BUTTON_H + GAP && y <= buttonY + BUTTON_H * 2 + GAP) {
         playSound("random.click", 0.4, 1);
+        signGui.close();
         sendSignPacket();
     }
 }).unregister()
 
 let autoPostState = 0
-const autoList = register("packetReceived", (packet, event) => {
-    if (!(packet instanceof OpenScreenS2CPacket)) return;
-    const name = packet.getName().getString();
+let lastclick = Date.now()
+const autoList = register("tick", (packet) => {
+    if (Date.now() - lastclick < 175) return;
+    const container = Player.getContainer();
+    if (!container) return;
+    const name = Player.getContainer().getName().toString().removeFormatting();
 
     if (name == "Create BIN Auction") {
         if (autoPostState === 1) {
-            Client.scheduleTask(3, () => {
-                if (!Player.getContainer() || autoPostState == 0 || Player.getContainer()?.getStackInSlot(29)?.getType()?.getRegistryName() != "minecraft:green_terracotta") return autoList.unregister();
-                autoPostState = 2;
-                Player.getContainer()?.click(29, false, "MIDDLE");
-            });
+            if (Player.getContainer()?.getStackInSlot(29)?.getType()?.getRegistryName() != "minecraft:green_terracotta") return;
+            autoPostState = 2;
+            Player.getContainer()?.click(29, false, "MIDDLE");
+            lastclick = Date.now()
         }
         return;
     }
 
-    if (name == "Confirm BIN Auction") {
+    else if (name == "Confirm BIN Auction") {
         if (autoPostState === 2) {
-            Client.scheduleTask(3, () => {
-                if (!Player.getContainer() || autoPostState == 0 || Player.getContainer()?.getStackInSlot(11)?.getType()?.getRegistryName() != "minecraft:green_terracotta") return autoList.unregister();
-                autoPostState = 0;
-                Player.getContainer()?.click(11, false, "MIDDLE");
-                autoList.unregister()
-                resetVal()
-            });
+            if (Player.getContainer()?.getStackInSlot(11)?.getType()?.getRegistryName() != "minecraft:green_terracotta") return;
+            autoPostState = 0;
+            Player.getContainer()?.click(11, false, "MIDDLE");
+            autoList.unregister()
+            resetVal()
         }
         return;
     }
-    
-    
-    autoPostState = 0;
-    resetVal();
-}).setFilteredClass(OpenScreenS2CPacket).unregister()
+    else {
+        autoPostState = 0;
+        resetVal();
+    }
+}).unregister()
 
 function getCalculatedPrice() {
     if (!currentPriceInput) return null;
@@ -351,7 +332,6 @@ const sendSignPacket = () => {
     const packet = new UpdateSignC2SPacket(currentSignPos, currentSignFront, price.toString(), "^^^^^^^^^^^^^^^", "Your auction", "starting bid")
     Client.scheduleTask(0, () => {
         Client.sendPacket(packet)
-        signGui.close();
         currentSignPos = null;
         currentSignFront = true
         inSign = false
