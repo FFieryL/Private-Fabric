@@ -108,7 +108,7 @@ const renderRuns = register("renderOverlay", (ctx) => {
         return
     }
 
-    const displayText = `&6M7: &a${runs.length}`
+    const displayText = `M7: &a${runs.length}`
 
     drawText(ctx, displayText, data.RunDisplay, true, "RunDisplay")
 }).unregister()
