@@ -91,7 +91,8 @@ class config {
         this.addDependency("Diamante Mage Only", "Diamante Notifier")
 
         this.addDependency("Run Display", "Save Run Data")
-
+        this.addDependency("Always Display Runs", "Save Run Data")
+        
         this.addDependency("Archer LB Swapper at Pillars", "Archer Death Bow Swapper")
         this.addDependency("Death Bow Swap Item", "Archer Death Bow Swapper")
 
@@ -819,6 +820,14 @@ class config {
         subcategory: "§dRuns"
     })
     runDisplay = false
+
+    @SwitchProperty({
+        name: "Always Display Runs",
+        description: "",
+        category: "Dungeon",
+        subcategory: "§dRuns"
+    })
+    alwaysShowRuns = false
 
     // =========================================================================
     //                                Boss

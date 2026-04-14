@@ -91,7 +91,7 @@ registerPacketChat((message) => {
     if (!m7End) return;
 
     if (!runEnded) return;
-    renderRuns.register()
+    if (!c.alwaysShowRuns) renderRuns.register()
     const minutes = parseInt(m7End[1])
     const seconds = parseInt(m7End[2])
     const totalSeconds = minutes * 60 + seconds
@@ -115,7 +115,7 @@ const renderRuns = register("renderOverlay", (ctx) => {
 
 register("worldUnload", () => {
     runEnded = false;
-    renderRuns.unregister()
+    if (!c.alwaysShowRuns) renderRuns.unregister()
 })
 
 register("command", (input) => {
@@ -250,7 +250,6 @@ const renderStuff = register("renderOverlay", (ctx) => {
     const width = Renderer.screen.getWidth()
     const height = Renderer.screen.getHeight()
 
-    // background
     ctx.fill(0, 0, width, height, 0xAA000000 | 0)
 
     const today = getToday()
@@ -278,7 +277,6 @@ const renderStuff = register("renderOverlay", (ctx) => {
         const time = runs[i]
         const score = scores[i]
 
-        // Only draw if it's within the top half of the screen
         if (y > 10 && y < centerY - 10) {
             let text = `&8#${i + 1} &f→ &a${formatTime(time)}`
             if (score !== undefined && score !== null) {
@@ -293,4 +291,11 @@ const renderStuff = register("renderOverlay", (ctx) => {
         }
         y += lineHeight
     }
+})
+
+if (c.saveRunData && c.alwaysShowRuns) renderRuns.register()
+
+c.registerListener("Always Display Runs", (curr) => {
+    if (curr && c.saveRunData) renderRuns.register()
+    else renderRuns.unregister()
 })
