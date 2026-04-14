@@ -14,7 +14,7 @@ export const binData = new PogObject(
 // Ty skytils api <3
 const LOWEST_BIN_URL = `https://api.skytils.gg/api/auctions/lowestbins`
 
-function fetchLowestBins() {
+export function fetchLowestBins() {
     const now = Date.now();
 
     if (now - binData.lastUpdated < 60000) {
@@ -154,7 +154,7 @@ function extractCustomData(nbtString) {
 
 const priceFetcher = register("step", () => {
     fetchLowestBins();
-}).setDelay(60).unregister()
+}).setDelay(61).unregister()
 
 
 const lowestBinRegister = register("itemTooltip", (lore, item) => {
@@ -164,7 +164,7 @@ const lowestBinRegister = register("itemTooltip", (lore, item) => {
     if (!identifier) return;
 
     const rawPrice = binData.prices[identifier];
-    const valuePer = Number(rawPrice);
+    const valuePer = Number(rawPrice).toFixed(1);
     if (isNaN(valuePer)) return;
 
     const stackSize = item.getStackSize();

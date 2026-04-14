@@ -268,7 +268,8 @@ register("serverConnect", () => {
         clearTimeout(reconnectTimer);
         reconnectTimer = null;
     }
-    setTimeout(() => {
+    Client.scheduleTask(20, () => {
+        if (!Player) return
         if (manuallyDisabled) {
             chat("IRC is currently disabled");
             return;
@@ -277,7 +278,7 @@ register("serverConnect", () => {
             disconnect();
         }
         ensureConnected()
-    }, 1000);
+    })
 });
 
 register("serverDisconnect", () => {
