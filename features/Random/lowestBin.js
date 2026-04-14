@@ -164,11 +164,11 @@ const lowestBinRegister = register("itemTooltip", (lore, item) => {
     if (!identifier) return;
 
     const rawPrice = binData.prices[identifier];
-    const valuePer = Number(rawPrice).toFixed(1);
+    const valuePer = Number(rawPrice);
     if (isNaN(valuePer)) return;
 
     const stackSize = item.getStackSize();
-    const totalPrice = valuePer * stackSize;
+    const totalPrice = (valuePer * stackSize).toFixed(0);
 
     let alreadyCorrect = false;
     for (let line of lore) {
