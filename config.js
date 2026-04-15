@@ -1206,6 +1206,14 @@ class config {
     ircChatSoundPitch = 1;
 
     @SwitchProperty({
+        name: "IRC Discord Message Sound",
+        description: "Enable sounds for discord IRC chats",
+        category: "Settings",
+        subcategory: "§1IRC",
+    })
+    discordSound = false;
+
+    @SwitchProperty({
         name: "Disable Private Chat Hider",
         description: "",
         category: "Settings",

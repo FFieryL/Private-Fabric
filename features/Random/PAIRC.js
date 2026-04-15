@@ -187,7 +187,11 @@ function connect() {
                     });
                 }
 
-                else if(data.user) ircChat(`${data.user}&r: ${data.text}`);
+                else if(data.user) {
+                    const isDiscord = data.user.includes("[Discord]")
+                    if (!c.discordSound && isDiscord) noSoundNext = true;
+                    ircChat(`${data.user}&r: ${data.text}`);
+                }
                 else ChatLib.chat(`&l&0PA IRC&7 >> ${data.text}`)
             } catch (e) {
                 console.log("IRC Parse Error: " + e);
