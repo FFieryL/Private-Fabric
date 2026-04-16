@@ -45,12 +45,12 @@ export function getAuctionIdentifier(item) {
 
         const customData = extractCustomData(nbtString);
         if (!customData) return null;
-
+        
         const idMatch = customData.match(/\bid:"([^"]+)"/);
         if (!idMatch) return null;
 
         const id = idMatch[1];
-
+        
         if (id == "ATTRIBUTE_SHARD") {
             const cleanName = item.getName().removeFormatting();
             let baseName = cleanName.replace(/ Shard$/i, "")

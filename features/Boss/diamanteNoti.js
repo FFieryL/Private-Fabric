@@ -12,7 +12,7 @@ const messageTrig = registerPacketChat((message) => {
 
     else if (message == "[BOSS] Necron: All this, for nothing...") reloadState()
     
-    else if (bloodStartMessages.includes(message)) {
+    else if (bloodStartMessages.includes(message) && dungeonUtils.floorNumber == 7) {
         alerted = false
         scheduled = false
         diamanteChecker.register()

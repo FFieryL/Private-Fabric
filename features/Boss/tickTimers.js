@@ -50,7 +50,7 @@ const worldLoad = register("worldUnload", () => {
 
 
 registerPacketChat((message) => {
-    
+
     if (message == "[BOSS] Storm: Pathetic Maxor, just like expected.") {
         global.stormTicks = 0
         if (c.pyLBTimer || c.stormTimer) {
@@ -202,7 +202,7 @@ export function getTicks() {
 }
 let deathTicks = -1;
 let spawnPos = null
-
+let spawntries = 0
 const serverTick = register("packetReceived", (packet) => {
     if (!(packet instanceof CommonPingS2CPacket)) return;
     if (packet.getParameter() == 0) return;
@@ -247,7 +247,11 @@ const spawnPosition = register('packetReceived', (packet) => {
         const px = xField.getDouble(changeObject);
         const py = yField.getDouble(changeObject);
         const pz = zField.getDouble(changeObject);
-        if (py !== 75.5 && py !== 76.5) return;
+        if (py !== 75.5 && py !== 76.5) {
+            spawntries++
+            if (spawntries > 5) spawnPosition.unregister()
+            return
+        };
 
         spawnPos = [px, py, pz];
 
@@ -257,10 +261,13 @@ const spawnPosition = register('packetReceived', (packet) => {
         const match = packet.toString().match(/position=\(([-\d.]+),\s*([-\d.]+),\s*([-\d.]+)\)/);
         if (match) {
             const py = parseFloat(match[2]);
-            if (py === 75.5 || py === 76.5) {
-                spawnPos = [parseFloat(match[1]), py, parseFloat(match[3])];
-                spawnPosition.unregister();
-            }
+            if (py !== 75.5 && py !== 76.5) {
+                spawntries++
+                if (spawntries > 5) spawnPosition.unregister()
+                return
+            };
+            spawnPos = [parseFloat(match[1]), py, parseFloat(match[3])];
+            spawnPosition.unregister();
         }
     }
 }).setFilteredClass(PlayerPositionLookS2CPacket);
@@ -277,6 +284,7 @@ registerPacketChat((message) => {
     if (!message.includes("Sending to server")) return;
     deathTicks = -1;
     spawnPos = null;
+    spawntries = 0
     spawnPosition.register()
 })
 
