@@ -1,7 +1,7 @@
 import c from "../../config"
 import { registerPacketChat } from "../../util/Events";
 import { chat, ClickSlotC2SPacket, CloseHandledScreenC2SPacket, CloseScreenS2CPacket, OpenScreenS2CPacket, playSound, ScreenHandlerSlotUpdateS2CPacket } from "../../util/utils";
-import { getAuctionIdentifier, binData } from "./lowestBin";
+import { getAuctionIdentifier, binData, fetchLowestBins } from "./lowestBin";
 const SignEditorOpenS2CPacket = Java.type("net.minecraft.network.packet.s2c.play.SignEditorOpenS2CPacket")
 export const signGui = new Gui()
 const UpdateSignC2SPacket = Java.type("net.minecraft.network.packet.c2s.play.UpdateSignC2SPacket")
@@ -104,6 +104,7 @@ const slotHandler = register("packetReceived", (packet, event) => {
     const itemStack = packet.getStack()
     if (!itemStack) return;
     if (itemStack.toString().includes("minecraft:stone_button")) return currentItemPrice = null;
+    if (Date.now() - binData.lastUpdated > 60000) fetchLowestBins();
     const price = binData.prices[getAuctionIdentifier(new Item(itemStack))];
     currentItemPrice = isNaN(Number(price)) ? null : Number(price);
 }).setFilteredClass(ScreenHandlerSlotUpdateS2CPacket).unregister()
