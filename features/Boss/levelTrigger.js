@@ -42,7 +42,7 @@ const leverTrigger = register("step", () => {
     }
 
     else if (isP3Lever) {
-        if (dungeonUtils.currentPhase != 3);
+        if (dungeonUtils.currentPhase != 3) return;
     }
 
     else return;

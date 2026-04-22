@@ -1,9 +1,8 @@
-import { chat, isPlayerInBox, playSound } from "../../util/utils";
+import { chat, isPlayerInBox, playSound, pressMovementKey, swapToItem } from "../../util/utils";
 import c from "../../config"
 import dungeonUtils from "../../util/dungeonUtils";
 import { registerPacketChat } from "../../util/Events";
 
-let swapping = false;
 
 const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
     if (button != 1 || isButtonDown || !dungeonUtils.inBoss) return;
@@ -12,27 +11,12 @@ const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
     if (!heldItemName) return;
 
     if (heldItemName.toLowerCase().includes("death bow")) {
-        Client.scheduleTask(1, () => Swapper(c.autoSwapItem))
+        Client.scheduleTask(1, () => swapToItem(c.autoSwapItem))
     }
     else if (heldItemName.toLowerCase().includes("breath") && c.lastBreathSwap && (isPlayerInBox(33, 60, 165, 195, 31, 76) || isPlayerInBox(87, 114, 163, 172, 31, 76))) {
-        Client.scheduleTask(1, () => Swapper("terminator"))
+        Client.scheduleTask(1, () => swapToItem("terminator"))
     }
 }).unregister()
-
-function Swapper(item) {
-    if (!item) return chat("no item set")
-    let idx = Player?.getInventory()?.getItems()?.slice(0, 9).findIndex(i => i?.getName()?.toLowerCase()?.includes(item.toLowerCase()))
-
-    if (swapping) return;
-    
-    if (idx < 0) return;
-    if (idx > -1 && idx < 8) {
-        swapping = true;
-        Player.setHeldItemIndex(idx);
-        swapping = false;
-    }
-
-}
 
 if (c.autoSwap) {
     autoSwap.register()

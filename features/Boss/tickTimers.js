@@ -2,7 +2,7 @@ import c from "../../config"
 import { data, drawText, registerOverlay } from "../../managers/guimanager"
 import dungeonUtils from "../../util/dungeonUtils"
 import { registerPacketChat } from "../../util/Events"
-import { chat, WorldTimeUpdateS2CPacket, PlayerPositionLookS2CPacket, CommonPingS2CPacket, bloodStartMessages } from "../../util/utils"
+import { chat, WorldTimeUpdateS2CPacket, PlayerPositionLookS2CPacket, CommonPingS2CPacket, bloodStartMessages, pressMovementKey, swapToItem } from "../../util/utils"
 registerOverlay("StormTimer", { text: () => "0.00", align: "center", colors: true, setting: () => c.stormTimer })
 registerOverlay("P3Timer", { text: () => "0.00", align: "center", colors: false, setting: () => c.goldorTimer })
 registerOverlay("pyLBTimer", { text: () => "10.00", align: "center", colors: true, setting: () => c.pyLBTimer })
@@ -160,6 +160,11 @@ const LBTimer = register("renderOverlay", (cfx) => {
             const heldItemName = Player?.getHeldItem()?.getName()?.toLowerCase();
             if (!heldItemName) return;
             if (!heldItemName.toLowerCase().includes("last breath")) {
+                LBTimer.unregister()
+            }
+            else if (c.pyLBAuto) {
+                pressMovementKey("useKey", false)
+                Client.scheduleTask(1, () => swapToItem("terminator"))
                 LBTimer.unregister()
             }
         }

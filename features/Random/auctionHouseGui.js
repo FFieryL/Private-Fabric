@@ -68,11 +68,9 @@ const AHgui1 = register("packetReceived", (packet, event) => {
         enterKey.register()
         return;
     }
-    if (name == "Confirm BIN Auction") {
-        enterKey.register()
-        return;
-    }
-    resetVal()
+    else if (name == "Confirm BIN Auction") enterKey.register()
+    else if (name == "Co-op Auction House") fetchLowestBins()
+    else resetVal()
 }).setFilteredClass(OpenScreenS2CPacket).unregister()
 
 const AHgui2 = register("packetSent", resetVal).setFilteredClass(CloseHandledScreenC2SPacket).unregister();
@@ -104,7 +102,7 @@ const slotHandler = register("packetReceived", (packet, event) => {
     const itemStack = packet.getStack()
     if (!itemStack) return;
     if (itemStack.toString().includes("minecraft:stone_button")) return currentItemPrice = null;
-    if (Date.now() - binData.lastUpdated > 60000) fetchLowestBins();
+    fetchLowestBins();
     const price = binData.prices[getAuctionIdentifier(new Item(itemStack))];
     currentItemPrice = isNaN(Number(price)) ? null : Number(price);
 }).setFilteredClass(ScreenHandlerSlotUpdateS2CPacket).unregister()

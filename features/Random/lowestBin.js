@@ -205,15 +205,18 @@ const lowestBinRegister = register("itemTooltip", (lore, item) => {
 if (c.lowestBinTT) {
     priceFetcher.register()
     lowestBinRegister.register()
+    fetchLowestBins()
 }
 if (c.customAHGui) {
     priceFetcher.register()
+    fetchLowestBins()
 }
 
 c.registerListener("Show Lowestbin ToolTips", (curr) => {
     if (curr) {
         priceFetcher.register()
         lowestBinRegister.register()
+        fetchLowestBins()
     }
     else {
         if (!c.customAHGui) priceFetcher.unregister()

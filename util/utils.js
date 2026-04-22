@@ -90,6 +90,24 @@ export function getColorCodes(colorName) {
     return colorMap[key] || null;
 }
 
+let swapping = false
+
+export function swapToItem(item) {
+    if (!item) return chat("no item set")
+    let idx = Player?.getInventory()?.getItems()?.slice(0, 9).findIndex(i => i?.getName()?.toLowerCase()?.includes(item.toLowerCase()))
+
+    if (swapping) return;
+    
+    if (idx < 0) return;
+    if (idx > -1 && idx < 8) {
+        if (Player.getHeldItemIndex() == idx) return;
+        swapping = true;
+        Player.setHeldItemIndex(idx);
+        swapping = false;
+    }
+
+}
+
 const soundMap = {
   // Player & Entity
   "game.player.hurt":                "entity.player.hurt",

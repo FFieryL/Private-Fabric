@@ -97,6 +97,7 @@ class config {
         this.addDependency("Death Bow Swap Item", "Archer Death Bow Swapper")
 
         this.addDependency("py LB seconds", "py Last Breath Timer")
+        this.addDependency("py Auto Release LB", "py Last Breath Timer")
 
         this.addDependency("Goldor Timer Version", "Goldor Timer")
         this.addDependency("Show Goldor timer in ticks", "Goldor Timer")
@@ -894,6 +895,14 @@ class config {
         placeholder: "34.6"
     })
     pyLBTimerSeconds = "34.6";
+
+    @SwitchProperty({
+        name: "py Auto Release LB",
+        description: "",
+        category: "Boss",
+        subcategory: "§aStorm"
+    })
+    pyLBAuto = false;
 
     // ===== Goldor =====
 
