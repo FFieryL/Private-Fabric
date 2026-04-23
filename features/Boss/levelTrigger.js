@@ -39,6 +39,7 @@ const leverTrigger = register("step", () => {
 
     if (isDeviceLever) {
         if (!c.enableForDevice) return;
+        if (dungeonUtils.currentPhase != 3 && World.getBlockAt(x,y,z).getState().toString().includes("powered=true")) return;
     }
 
     else if (isP3Lever) {
