@@ -47,7 +47,7 @@ const renderTrig = register("renderWorld", () => {
 
     RenderUtils.drawOutline(witherBox, c.witherESPColorBox, phase, 2)
 
-    if (c.witherTracer && dungeonUtils.currentPhase == 3 && dungeonUtils.currentStage == 5) {
+    if (c.witherTracer && dungeonUtils.currentPhase == 3 && dungeonUtils.currentStage == 5 && Player.getY() > 105) {
         const entityPos = [pos.x, pos.y + cachedWither.getHeight() / 2, pos.z]
         RenderUtils.drawTracer(
             RenderUtils.calculateCameraPos(),
