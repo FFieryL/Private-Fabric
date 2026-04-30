@@ -74,8 +74,12 @@ const chatTrig = registerPacketChat((message) => {
 const overlayTrig = register("renderOverlay", (cfx) => {
     if (OverlayEditor.isOpen()) return;
     if (!currentProgress || !dungeonUtils.inStage([1, 2, 3, 4])) return;
-    const playerClass = dungeonUtils.getPlayerClass(playerName)
-    const displayText = dungeonUtils.getClassColor(playerClass) + `${playerName} (${playerClass[0]}) &dhas Melody! ${currentProgress}`;
+
+    const playerClass = dungeonUtils.getPlayerClass(playerName) || "?"
+
+    const displayText = dungeonUtils.getClassColor(playerClass) +
+        `${playerName} (${playerClass[0]}) &dhas Melody! ${currentProgress}`;
+
     drawText(cfx, displayText, data.MelodyTitle, true, "MelodyTitle")
 }).unregister()
 
