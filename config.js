@@ -93,7 +93,6 @@ class config {
         this.addDependency("Run Display", "Save Run Data")
         this.addDependency("Always Display Runs", "Save Run Data")
         
-        this.addDependency("Archer LB Swapper at Pillars")
         this.addDependency("Death Bow Swap Item", "Archer Death Bow Swapper")
 
         this.addDependency("py LB seconds", "py Last Breath Timer")

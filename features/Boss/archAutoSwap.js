@@ -10,10 +10,10 @@ const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
     const heldItemName = Player?.getHeldItem()?.getName()?.toLowerCase();
     if (!heldItemName) return;
 
-    if (heldItemName.toLowerCase().includes("death bow")) {
+    if (c.deathBowSwap && heldItemName.toLowerCase().includes("death bow")) {
         Client.scheduleTask(1, () => swapToItem(c.deathBowItem))
     }
-    else if (heldItemName.toLowerCase().includes("breath") && c.lastBreathSwap && (isPlayerInBox(33, 60, 165, 195, 31, 76) || isPlayerInBox(87, 114, 163, 172, 31, 76))) {
+    else if (c.lastBreathSwap && heldItemName.toLowerCase().includes("breath") && (isPlayerInBox(33, 60, 165, 195, 31, 76) || isPlayerInBox(87, 114, 163, 172, 31, 76))) {
         Client.scheduleTask(1, () => swapToItem("terminator"))
     }
 }).unregister()
