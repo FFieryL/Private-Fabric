@@ -24,7 +24,7 @@ if (c.deathBowSwap || c.lastBreathSwap) {
 
 c.registerListener("Archer Death Bow Swapper", (curr) => {
     if (curr) autoSwap.register()
-    else if (c.lastBreathSwap) autoSwap.unregister()
+    else if (!c.lastBreathSwap) autoSwap.unregister()
 })
 
 c.registerListener("Archer LB Swapper at Pillars", (curr) => {
