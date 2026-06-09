@@ -38,21 +38,6 @@ function formatTime(seconds) {
     return `${m}m ${s}s`
 }
 
-function cleanupOldDays() {
-    const dates = Object.keys(runData.daily).sort().reverse()
-    const keep = dates.slice(0, 7)
-
-    const newDaily = {}
-    const newScore = {}
-    keep.forEach(d => {
-        newDaily[d] = runData.daily[d]
-        newScore[d] = runData.scores[d]
-    })
-
-    runData.daily = newDaily
-    runData.scores = newScore
-}
-
 function addRun(seconds) {
     const today = getToday()
 
@@ -66,7 +51,6 @@ function addRun(seconds) {
 
     if (!runData.scores[today]) runData.scores[today] = []
     runData.scores[today].push(pendingTeamScore)
-    cleanupOldDays()
     runData.save()
     pendingTeamScore = null
     runEnded = false

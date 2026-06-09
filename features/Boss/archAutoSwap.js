@@ -11,20 +11,25 @@ const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
     if (!heldItemName) return;
 
     if (heldItemName.toLowerCase().includes("death bow")) {
-        Client.scheduleTask(1, () => swapToItem(c.autoSwapItem))
+        Client.scheduleTask(1, () => swapToItem(c.deathBowItem))
     }
     else if (heldItemName.toLowerCase().includes("breath") && c.lastBreathSwap && (isPlayerInBox(33, 60, 165, 195, 31, 76) || isPlayerInBox(87, 114, 163, 172, 31, 76))) {
         Client.scheduleTask(1, () => swapToItem("terminator"))
     }
 }).unregister()
 
-if (c.autoSwap) {
+if (c.deathBowSwap || c.lastBreathSwap) {
     autoSwap.register()
 }
 
 c.registerListener("Archer Death Bow Swapper", (curr) => {
     if (curr) autoSwap.register()
-    else autoSwap.unregister()
+    else if (c.lastBreathSwap) autoSwap.unregister()
+})
+
+c.registerListener("Archer LB Swapper at Pillars", (curr) => {
+    if (curr) autoSwap.register()
+    else if (!c.deathBowSwap) autoSwap.unregister()
 })
 
 

@@ -93,7 +93,7 @@ class config {
         this.addDependency("Run Display", "Save Run Data")
         this.addDependency("Always Display Runs", "Save Run Data")
         
-        this.addDependency("Archer LB Swapper at Pillars", "Archer Death Bow Swapper")
+        this.addDependency("Archer LB Swapper at Pillars")
         this.addDependency("Death Bow Swap Item", "Archer Death Bow Swapper")
 
         this.addDependency("py LB seconds", "py Last Breath Timer")
@@ -860,7 +860,7 @@ class config {
         category: "Boss",
         subcategory: "§aStorm"
     })
-    autoSwap = false;
+    deathBowSwap = false;
 
     @SwitchProperty({
         name: "Archer LB Swapper at Pillars",
@@ -877,7 +877,7 @@ class config {
         subcategory: "§aStorm",
         placeholder: "ex. fabled hyperion"
     })
-    autoSwapItem = "";
+    deathBowItem = "";
 
     @SwitchProperty({
         name: "py Last Breath Timer",
