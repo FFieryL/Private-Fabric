@@ -16,15 +16,15 @@ const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
     else if (c.lastBreathSwap && heldItemName.includes("breath") && (isPlayerInBox(33, 60, 165, 195, 31, 76) || isPlayerInBox(87, 114, 163, 172, 31, 76))) {
         Client.scheduleTask(1, () => swapToItem("terminator"))
     }
-    else if (c.sulphurBowSwap &&heldItemName.includes("sulphur bow")) {
+    else if (c.sulphurBowSwap && heldItemName.includes("sulphur bow")) {
         Client.scheduleTask(1, () => {
             swapToItem("death bow")
-            Client.scheduleTask(1, () => swapToItem(c.deathBowItem))
         })
+        Client.scheduleTask(2, () => swapToItem(c.deathBowItem))
     }
 }).unregister()
 
-if (c.deathBowSwap || c.lastBreathSwap) {
+if (c.deathBowSwap || c.lastBreathSwap || c.sulphurBowSwap) {
     autoSwap.register()
 }
 

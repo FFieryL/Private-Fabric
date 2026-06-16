@@ -862,6 +862,14 @@ class config {
     deathBowSwap = false;
 
     @SwitchProperty({
+        name: "Archer Sulphur Bow Swapper???",
+        description: "Sulphur -> death bow -> death bow swap item",
+        category: "Boss",
+        subcategory: "§aStorm"
+    })
+    sulphurBowSwap = false;
+
+    @SwitchProperty({
         name: "Archer LB Swapper at Pillars",
         description: "",
         category: "Boss",
