@@ -10,11 +10,17 @@ const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
     const heldItemName = Player?.getHeldItem()?.getName()?.toLowerCase();
     if (!heldItemName) return;
 
-    if (c.deathBowSwap && heldItemName.toLowerCase().includes("death bow")) {
+    if (c.deathBowSwap && heldItemName.includes("death bow")) {
         Client.scheduleTask(1, () => swapToItem(c.deathBowItem))
     }
-    else if (c.lastBreathSwap && heldItemName.toLowerCase().includes("breath") && (isPlayerInBox(33, 60, 165, 195, 31, 76) || isPlayerInBox(87, 114, 163, 172, 31, 76))) {
+    else if (c.lastBreathSwap && heldItemName.includes("breath") && (isPlayerInBox(33, 60, 165, 195, 31, 76) || isPlayerInBox(87, 114, 163, 172, 31, 76))) {
         Client.scheduleTask(1, () => swapToItem("terminator"))
+    }
+    else if (c.sulphurBowSwap &&heldItemName.includes("sulphur bow")) {
+        Client.scheduleTask(1, () => {
+            swapToItem("death bow")
+            Client.scheduleTask(1, () => swapToItem(c.deathBowItem))
+        })
     }
 }).unregister()
 
@@ -24,12 +30,17 @@ if (c.deathBowSwap || c.lastBreathSwap) {
 
 c.registerListener("Archer Death Bow Swapper", (curr) => {
     if (curr) autoSwap.register()
-    else if (!c.lastBreathSwap) autoSwap.unregister()
+    else if (!c.lastBreathSwap && !c.sulphurBowSwap) autoSwap.unregister()
+})
+
+c.registerListener("Archer Sulphur Bow Swapper???", (curr) => {
+    if (curr) autoSwap.register()
+    else if (!c.deathBowSwap && !c.lastBreathSwap) autoSwap.unregister()
 })
 
 c.registerListener("Archer LB Swapper at Pillars", (curr) => {
     if (curr) autoSwap.register()
-    else if (!c.deathBowSwap) autoSwap.unregister()
+    else if (!c.deathBowSwap && !c.sulphurBowSwap) autoSwap.unregister()
 })
 
 
