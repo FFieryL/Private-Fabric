@@ -6,7 +6,7 @@ import { registerPacketChat } from "../../util/Events";
 let timeToSwap = 2;
 
 const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
-    if (button != 1 || isButtonDown || !dungeonUtils.inBoss) return;
+    if (button != 1 || isButtonDown) return;
 
     const heldItemName = Player?.getHeldItem()?.getName()?.toLowerCase();
     if (!heldItemName) return;
@@ -30,8 +30,8 @@ register("command", (num) => {
     }
 
     num = parseInt(num);
-    if (num < 2 || num > 10) {
-        chat("&cPlease enter a number between 2 and 10.");
+    if (num < 2 || num > 20) {
+        chat("&cPlease enter a number between 2 and 20.");
         return;
     }
     timeToSwap = num;
