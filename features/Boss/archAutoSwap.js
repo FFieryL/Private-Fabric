@@ -3,6 +3,7 @@ import c from "../../config"
 import dungeonUtils from "../../util/dungeonUtils";
 import { registerPacketChat } from "../../util/Events";
 
+let timeToSwap = 2;
 
 const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
     if (button != 1 || isButtonDown || !dungeonUtils.inBoss) return;
@@ -17,12 +18,25 @@ const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
         Client.scheduleTask(1, () => swapToItem("terminator"))
     }
     else if (c.sulphurBowSwap && heldItemName.includes("sulphur bow")) {
-        Client.scheduleTask(1, () => {
-            swapToItem("death bow")
-        })
-        Client.scheduleTask(2, () => swapToItem(c.deathBowItem))
+        Client.scheduleTask(1, () => swapToItem("death bow"))
+        Client.scheduleTask(timeToSwap, () => swapToItem(c.deathBowItem))
     }
 }).unregister()
+
+register("command", (num) => {
+    if (!num) {
+        chat("&cUsage: /archswap <number>");
+        return;
+    }
+
+    num = parseInt(num);
+    if (num < 2 || num > 10) {
+        chat("&cPlease enter a number between 2 and 10.");
+        return;
+    }
+    timeToSwap = num;
+    chat(`Time to swap set to: ${num}`);
+}).setName("archswap");
 
 if (c.deathBowSwap || c.lastBreathSwap || c.sulphurBowSwap) {
     autoSwap.register()
