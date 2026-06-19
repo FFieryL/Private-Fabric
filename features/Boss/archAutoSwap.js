@@ -6,7 +6,7 @@ import { registerPacketChat } from "../../util/Events";
 let timeToSwap = 2;
 
 const autoSwap = register("clicked", (mouseX, mouseY, button, isButtonDown) => {
-    if (button != 1 || isButtonDown) return;
+    if (button != 1 || isButtonDown || !dungeonUtils.inBoss) return;
 
     const heldItemName = Player?.getHeldItem()?.getName()?.toLowerCase();
     if (!heldItemName) return;
