@@ -3,6 +3,6 @@
     "creator": "Fiery",
     "description": "idk",
     "entry": "index.js",
-    "version": "5.5.4",
+    "version": "5.5.5",
     "requires": ["Vigilance", "PogData", "requestV2", "WebSocket"]
 }

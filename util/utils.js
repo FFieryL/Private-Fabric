@@ -108,6 +108,19 @@ export function swapToItem(item) {
 
 }
 
+export function swapToIndex(index) {
+    if (swapping) return;
+    
+    if (idx < 0) return;
+    if (idx > -1 && idx < 8) {
+        if (Player.getHeldItemIndex() == idx) return;
+        swapping = true;
+        Player.setHeldItemIndex(idx);
+        swapping = false;
+    }
+
+}
+
 const soundMap = {
   // Player & Entity
   "game.player.hurt":                "entity.player.hurt",

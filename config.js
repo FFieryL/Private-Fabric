@@ -80,6 +80,8 @@ class config {
         // Dupe Class
         this.addDependency("Ignore dupe mage", "Dupe Class Notifier");
 
+        this.addDependency("Show Quiz Timer Question", "Quiz Timer")
+
 
         this.addDependency("Use seconds instead of ticks", "Death Tick Timer")
         this.addDependency("Disable after blood open", "Death Tick Timer")
@@ -94,6 +96,9 @@ class config {
         this.addDependency("Always Display Runs", "Save Run Data")
         
         this.addDependency("Death Bow Swap Item", "Archer Death Bow Swapper")
+
+        this.addDependency("Auto Wardrobe Slot", "Auto Wardrobe Swap")
+        
 
         this.addDependency("py LB seconds", "py Last Breath Timer")
         this.addDependency("py Auto Release LB", "py Last Breath Timer")
@@ -566,6 +571,14 @@ class config {
     QuizTimer = false;
 
     @SwitchProperty({
+        name: "Show Quiz Timer Question",
+        description: "",
+        category: "Puzzles",
+        subcategory: "§0Quiz"
+    })
+    QuizTimerProgress = false;
+
+    @SwitchProperty({
         name: "TTT Solver",
         description: "Tic Tac Toe solver for all your needs ig",
         category: "Puzzles",
@@ -854,6 +867,14 @@ class config {
     // ===== Archer Swapper =====
 
     @SwitchProperty({
+        name: "Check Full Bow",
+        description: "Will make sure you have a full bow charge before letting you swap",
+        category: "Boss",
+        subcategory: "§aStorm"
+    })
+    fullBowCharge = false;
+
+    @SwitchProperty({
         name: "Archer Death Bow Swapper",
         description: "",
         category: "Boss",
@@ -868,6 +889,22 @@ class config {
         subcategory: "§aStorm"
     })
     sulphurBowSwap = false;
+
+    @SwitchProperty({
+        name: "Auto Wardrobe Swap",
+        description: "this deadass might ban idk glhf",
+        category: "Boss",
+        subcategory: "§aStorm"
+    })
+    autoWDSwap = false;
+
+    @TextProperty({
+        name: "Auto Wardrobe Slot",
+        description: "Hover over the wardrobe slot and copy that number.",
+        category: "Boss",
+        subcategory: "§aStorm",
+    })
+    autoWDSlot = "";
 
     @SwitchProperty({
         name: "Archer LB Swapper at Pillars",

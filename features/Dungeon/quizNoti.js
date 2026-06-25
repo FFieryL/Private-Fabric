@@ -4,6 +4,7 @@ import { registerPacketChat } from "../../util/Events"
 import { CommonPingS2CPacket } from "../../util/utils"
 let timeElapsed = 0
 let timerDuration = 0
+let quizProgress = 0
 registerOverlay("QuizTimer", { text: () => "Quiz: &c11.00", align: "center", colors: true, setting: () => c.QuizTimer })
 
 const tickListener = register('packetReceived', (packet, event) => {
@@ -22,7 +23,7 @@ const quizTimer = register("renderOverlay", (cfx) => {
     if (fraction <= 0.5 && fraction >= 0.25) color = `&e`;
     else if (fraction <= 0.25) color = `&c`;
     else color = `&a`;
-    const displaytext = "Quiz: " + color + remaining.toFixed(2);
+    const displaytext = c.QuizTimerProgress ? `Quiz (${quizProgress}): ` + color + remaining.toFixed(2) : "Quiz: " + color + remaining.toFixed(2);
     drawText(cfx, displaytext, data.QuizTimer, true, "QuizTimer")
 }).unregister()
 
@@ -34,10 +35,27 @@ const QuizTimerStart = (duration) => {
 
 register("worldLoad", () => quizTimer.unregister())
 
+const reset = () => {
+    timeElapsed = 0;
+    timerDuration = 0;
+    quizProgress = 0;
+    tickListener.unregister();
+    quizTimer.unregister();
+}
+
 
 const chatTrig = registerPacketChat((message) => {
-    if (message == "[STATUE] Oruo the Omniscient: I am Oruo the Omniscient. I have lived many lives. I have learned all there is to know.") QuizTimerStart(220);
-    else if (message.match(/\[STATUE\] Oruo the Omniscient: .+ answered Question #\d correctly!/)) QuizTimerStart(140);
+    if (message == "[STATUE] Oruo the Omniscient: I am Oruo the Omniscient. I have lived many lives. I have learned all there is to know.") {
+        QuizTimerStart(220);
+        quizProgress = 1;
+    }
+    else {
+        const match = message.match(/\[STATUE\] Oruo the Omniscient: .+ answered Question #(\d+) correctly!/)
+        if (!match) return;
+        const questionNum = parseInt(match[1]) || quizProgress;
+        quizProgress = questionNum + 1;
+        QuizTimerStart(140);
+    }
     quizTimer.register()
 }).unregister()
 

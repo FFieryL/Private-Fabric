@@ -139,3 +139,78 @@ registerPacketChat((message) => {
 
     highlightBlock(lookingAt, true);
 })
+
+
+
+// const RaycastContext = Java.type("net.minecraft.world.RaycastContext")
+// const ShapeType = Java.type("net.minecraft.world.RaycastContext$ShapeType")
+// const FluidHandling = Java.type("net.minecraft.world.RaycastContext$FluidHandling")
+
+// // --------------------------------------------------
+// // BLOCK CHECK HELPERS
+// // --------------------------------------------------
+// function isAir(block) {
+//     return !block || block.type?.getName?.().includes("air")
+// }
+
+// // --------------------------------------------------
+// // ODIN-STYLE VALIDATION
+// // --------------------------------------------------
+// function validateEtherwarp(pos) {
+
+//     // target block
+//     const base = new BlockPos(pos.getX(), pos.getY(), pos.getZ())
+
+//     // feet + head space ABOVE target
+//     const feet = new BlockPos(base.getX(), base.getY() + 1, base.getZ())
+//     const head = new BlockPos(base.getX(), base.getY() + 2, base.getZ())
+
+//     const baseBlock = World.getBlockAt(base)
+//     const feetBlock = World.getBlockAt(feet)
+//     const headBlock = World.getBlockAt(head)
+
+//     // must not land inside air-only nonsense
+//     if (isAir(baseBlock)) return null
+
+//     // must have space to stand
+//     if (!isAir(feetBlock)) return null
+//     if (!isAir(headBlock)) return null
+
+//     return {
+//         pos: base,
+//         success: true
+//     }
+// }
+
+// // --------------------------------------------------
+// // YOUR RAY (UNCHANGED)
+// // --------------------------------------------------
+// register("tick", () => {
+//     if (!Player.isSneaking()) return
+
+//     const player = Player.getPlayer()
+
+//     const start = player.getEyePos()
+//     const look = player.getRotationVec(1.0)
+//     const end = start.add(look.multiply(200))
+
+//     const result = World.getWorld().raycast(
+//         new RaycastContext(
+//             start,
+//             end,
+//             ShapeType.OUTLINE,
+//             FluidHandling.NONE,
+//             player
+//         )
+//     )
+
+//     if (!result || result.getType().toString() !== "BLOCK") return
+
+//     const pos = result.getBlockPos()
+
+//     const validated = validateEtherwarp(pos)
+
+//     if (!validated) return
+
+//     ChatLib.chat(`Etherwarp OK: ${pos.getX()} ${pos.getY()} ${pos.getZ()}`)
+// })
